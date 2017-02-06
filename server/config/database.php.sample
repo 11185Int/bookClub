@@ -1,0 +1,10 @@
+<?php
+
+//数据库参数
+$DB_CONFIG = array(
+    'host' => '192.183.3.243',
+    'port' => '3306',
+    'user' => 'bookclub',
+    'pass' => 'bookclub',
+    'dbname' => 'bookclub',
+);
