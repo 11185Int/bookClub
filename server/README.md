@@ -2,7 +2,7 @@
 
 ## quick start
 
-1. cd config
-2. composer install
+1. composer install
+2. cd config
 3. rename database.php.sample as 'database.php'
 
