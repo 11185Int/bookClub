@@ -68,20 +68,27 @@ class AccountSessionKey extends AbstractModel
 
     protected function _getKV($key) {
 
-        if (!$key) {
-            return array();
-        }
-        $where = "`key` = '$key'";
-        $this->db->select($this->getTableName('session'), '*', null, $where);
-        $result = $this->db->getResult();
-        $kv = reset($result);
+        $kv = array();
+        do {
+            if (!$key) {
+                break;
+            }
+            $where = "`key` = '$key'";
+            $this->db->select($this->getTableName('session'), '*', null, $where);
+            $result = $this->db->getResult();
+            $kv = reset($result);
+            if (empty($kv)) {
+                break;
+            }
+            $expired = $kv['expired'];
+            if ($expired < time()) {
+                $this->db->delete($this->getTableName('session'), $where);
+                break;
+            }
+        } while (0);
+
         if (empty($kv)) {
-            return array();
-        }
-        $expired = $kv['expired'];
-        if ($expired < time()) {
-            $this->db->delete($this->getTableName('session'), $where);
-            return array();
+            throw new \Exception('KEY错误或者已过期', 20000);
         }
 
         return $kv;

@@ -16,4 +16,15 @@ return [
             'level' => \Monolog\Logger::DEBUG,
         ],
     ],
+
+    //handle Exception and return json
+    'errorHandler' => function ($c) {
+        return function ($request, $response, $exception) use ($c) {
+            return $c['response']->withStatus(200)
+                ->withJson(array(
+                    'status' => $exception->getCode() ?: 99999,
+                    'message' => $exception->getMessage(),
+                ));
+        };
+    }
 ];
