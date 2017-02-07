@@ -3,3 +3,4 @@
 !/logs/README.md
 
 /config/database.php
+/config/wechat.php

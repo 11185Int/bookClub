@@ -2,6 +2,8 @@
 
 namespace CP\common;
 
+use CP\api\Wechat;
+
 class AccountSessionKey extends AbstractModel
 {
 
@@ -44,8 +46,12 @@ class AccountSessionKey extends AbstractModel
     }
 
     protected function _fetchFromWechat($code) {
-
-        return array('openid'.time(), 'session_key123');
+        $wechat = new Wechat();
+        $session = $wechat->jscode2session($code);
+        if (isset($session['errcode'])) {
+            return false;
+        }
+        return array($session['openid'], $session['session_key']);
     }
 
     protected function _createKey($openid, $session_key) {
