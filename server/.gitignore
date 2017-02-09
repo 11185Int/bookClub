@@ -1,6 +1,6 @@
-/.idea/
 /vendor/
 /logs/*
 !/logs/README.md
 
 /config/database.php
+/config/wechat.php

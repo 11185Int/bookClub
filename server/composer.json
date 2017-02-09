@@ -39,7 +39,8 @@
     "slim/slim": "^3.1",
     "slim/php-view": "^2.0",
     "monolog/monolog": "^1.17",
-    "rorystandley/MySQL-CRUD-PHP-OOP": "1.0.0"
+    "rorystandley/MySQL-CRUD-PHP-OOP": "1.0.0",
+    "overtrue/wechat": "~3.1"
   },
   "autoload": {
     "psr-4": {

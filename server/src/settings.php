@@ -16,4 +16,35 @@ return [
             'level' => \Monolog\Logger::DEBUG,
         ],
     ],
+
+    //handle Exception and return json
+    'errorHandler' => function ($c) {
+        return function ($request, $response, $exception) use ($c) {
+            return $c['response']->withStatus(200)
+                ->withJson(array(
+                    'status' => $exception->getCode() ?: 99999,
+                    'message' => $exception->getMessage(),
+                ));
+        };
+    },
+    //handle page not found
+    'notFoundHandler' => function ($c) {
+        return function ($request, $response) use ($c) {
+            return $c['response']->withStatus(200)
+                ->withJson(array(
+                    'status' => 40400,
+                    'message' => 'Page Not Found.',
+                ));
+        };
+    },
+    //handle method not allowed
+    'notAllowedHandler' => function ($c) {
+        return function ($request, $response, $methods) use ($c) {
+            return $c['response']->withStatus(200)
+                ->withJson(array(
+                    'status' => 40500,
+                    'message' => 'Method not allowed. Must be one of: '. implode(',', $methods),
+                ));
+        };
+    },
 ];

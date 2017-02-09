@@ -1,0 +1,21 @@
+<?php
+
+return [
+    'debug'  => true,
+    'app_id' => 'your-app-id',
+    'secret' => 'you-secret',
+    'token'  => 'easywechat',
+    // 'aes_key' => null, // 可选
+    'log' => [
+        'level' => 'debug',
+        'file'  => 'd:/tmp/easywechat.log', // XXX: 绝对路径！！！！
+    ],
+    // 'cache' => new \Doctrine\Common\Cache\FilesystemCache('d:/tmp'),
+    //...
+    'mini_program' => [
+        'app_id'  => 'your-app-id',
+        'secret'  => 'you-secret',
+        'token'   => 'easywechat',
+        'aes_key' => 'easywechat',
+    ],
+];
