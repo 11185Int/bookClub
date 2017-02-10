@@ -73,7 +73,7 @@ class Book extends AbstractModel
         $kv = [
             'isbn10' => $book['isbn10'],
             'isbn13' => $book['isbn13'],
-            'category_id' => 0,
+            'category_id' => 1,
             'title' => $book['title'],
             'author' => implode(',', $book['author']),
             'rating' => $book['rating']['average'],
