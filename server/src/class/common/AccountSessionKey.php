@@ -77,7 +77,7 @@ class AccountSessionKey extends AbstractModel
         $kv = array();
         do {
             if (!$key) {
-                break;
+                throw new \Exception('缺少KEY参数', 20001);
             }
             $where = "`key` = '$key'";
             $this->db->select($this->getTableName('session'), '*', null, $where);

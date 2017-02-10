@@ -1,7 +1,9 @@
 <?php
 
 use CP\common\Account;
-use CP\book\Book;
+use CP\book\BookShare;
+use CP\book\BookBorrow;
+use CP\common\AccountSessionKey;
 
 $app->get('/home/my/detail', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
@@ -11,11 +13,26 @@ $app->get('/home/my/detail', function (\Slim\Http\Request $request, \Slim\Http\R
     return $response->withJson($res);
 });
 
-// 我的图书 扫码
-$app->get('/home/my/getBook', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+// 我的图书
+$app->post('/home/my/share', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
-    $model = new Book();
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
 
+    $model = new BookShare();
+    $res = $model->getMyBookShare($openid);
 
-    return $response->withJson([]);
+    return $response->withJson($res);
+});
+
+// 我的借阅
+$app->post('/home/my/borrow', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+
+    $model = new BookBorrow();
+    $res = $model->getMyBookBorrow($openid);
+
+    return $response->withJson($res);
 });

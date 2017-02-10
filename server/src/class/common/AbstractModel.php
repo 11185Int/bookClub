@@ -14,6 +14,8 @@ abstract class AbstractModel
         $mysql->connect();
         $this->db = $mysql;
         mysql_query('SET NAMES "utf8"');
+
+
     }
 
     public function __destruct()
