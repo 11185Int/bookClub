@@ -15,3 +15,14 @@ $app->get('/home/book/list', function (\Slim\Http\Request $request, \Slim\Http\R
 
     return $response->withJson($res);
 });
+
+// 扫码 获取图书基本信息
+$app->get('/home/book/isbn', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $isbn = $request->getParam('isbn');
+
+    $model = new Book();
+    $res = $model->getBookByISBN($isbn);
+
+    return $response->withJson($res);
+});

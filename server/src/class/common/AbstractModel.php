@@ -13,6 +13,7 @@ abstract class AbstractModel
         $mysql = new MysqlCrud();
         $mysql->connect();
         $this->db = $mysql;
+        mysql_query('SET NAMES "utf8"');
     }
 
     public function __destruct()
@@ -39,7 +40,15 @@ abstract class AbstractModel
     }
 
     public function fetch($table, $where = array()) {
+        if (!$table) {
+            return false;
+        }
 
+        $this->db->getResult();
+        $this->db->select($this->getTableName($table), '*', null, $where, null, '1');
+        $result = $this->db->getResult();
+
+        return empty($result) ? null : reset($result);
     }
 
     public function fetchAll($table, $where = array()) {

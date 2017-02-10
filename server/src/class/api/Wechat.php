@@ -1,6 +1,7 @@
 <?php
 
 namespace CP\api;
+
 use EasyWeChat\Foundation\Application;
 
 class Wechat
@@ -23,7 +24,7 @@ class Wechat
      */
     public function getUserInfo($openid)
     {
-        $userService = $this->_app->user;
+        $userService = $this->_wechatApp->user;
         $user = $userService->get($openid);
         return $user;
     }
@@ -36,7 +37,7 @@ class Wechat
     public function jscode2session($jscode)
     {
         //mock
-        return array('openid'=>'openid'.rand(10000,99999), 'session_key'=>'session_key'.rand(10000,99999));
+        return array('openid' => 'openid' . rand(10000, 99999), 'session_key' => 'session_key' . rand(10000, 99999));
 
         $mini = $this->_app;
         $session = $mini->user->getSessionKey($jscode);

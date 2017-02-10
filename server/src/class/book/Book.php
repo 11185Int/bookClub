@@ -8,11 +8,14 @@
  */
 namespace CP\book;
 
+use CP\Api\Douban;
 use CP\common\AbstractModel;
 
-class Book extends AbstractModel {
+class Book extends AbstractModel
+{
 
-    public function getList() {
+    public function getList()
+    {
         $res = array(
             'status' => 1,
             'message' => 'success',
@@ -21,6 +24,68 @@ class Book extends AbstractModel {
                         FROM tb_book b LEFT JOIN tb_book_share s ON b.id = s.book_id GROUP BY b.isbn10');
         $res['data ']['list'] = $this->db->getResult();
         return $res;
+    }
+
+    public function getBookByISBN($isbn)
+    {
+        $api = new Douban();
+
+        $book = $this->findBook($isbn);
+        if (empty($book)) {
+            $bookDetail = $api->getBook($isbn);
+            $this->saveBook($bookDetail);
+            $book = $this->findBook($isbn);
+        }
+
+        if (empty($book)) {
+            return [
+                'status' => 6000,
+                'message' => '找不到图书',
+            ];
+        }
+
+        return [
+            'status' => 0,
+            'message' => '成功',
+            'data' => [
+                'book' => $book
+            ]
+        ];
+    }
+
+
+    protected function findBook($isbn)
+    {
+        $where = " isbn10 = '{$isbn}' OR isbn13 = '{$isbn}' ";
+        return $this->fetch('book', $where);
+    }
+
+    protected function saveBook($book)
+    {
+        if (empty($book)) {
+            return false;
+        }
+        $tagArr = [];
+        foreach ($book['tags'] as $tag) {
+            $tagArr[] = $tag['title'];
+        }
+        $tags = implode(',', $tagArr);
+        $kv = [
+            'isbn10' => $book['isbn10'],
+            'isbn13' => $book['isbn13'],
+            'category_id' => 0,
+            'title' => $book['title'],
+            'author' => implode(',', $book['author']),
+            'rating' => $book['rating']['average'],
+            'publisher' => $book['publisher'],
+            'price' => $book['price'],
+            'image' => $book['image'],
+            'tags' => $tags,
+            'pubdate' => $book['pubdate'],
+            'summary' => $book['summary'],
+        ];
+        $this->insert('book', $kv);
+        return true;
     }
 
 }
