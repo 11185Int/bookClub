@@ -53,6 +53,67 @@ class Book extends AbstractModel
         ];
     }
 
+    public function getShareList($isbn)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '',
+        );
+
+        $select = $this->db->sql(
+            "SELECT 
+            `share`.id AS book_share_id, `user`.nickname, `user`.headimgurl,
+            `share`.share_status, `share`.lend_status, `share`.share_time
+            FROM tb_book_share AS `share`
+            INNER JOIN tb_book AS book ON book.id = `share`.book_id
+            INNER JOIN tb_user AS user ON user.openid = `share`.owner_openid
+            WHERE (book.isbn10 = '{$isbn}' OR book.isbn13 = '{$isbn}')
+                AND `share`.share_status = 1 AND `share`.lend_status = 1
+            GROUP BY user.id
+            ORDER BY `share`.share_time DESC"
+        );
+        if ($select) {
+            $res['data']['list'] = $this->db->getResult();
+        } else {
+            $res = array(
+                'status' => 1001,
+                'message' => '获取数据失败',
+            );
+        }
+
+        return $res;
+    }
+
+    public function getReturnList($openid, $isbn)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '',
+        );
+
+        $select = $this->db->sql(
+            "SELECT
+            `share`.id AS book_share_id, `user`.nickname, `user`.headimgurl
+            FROM tb_book_borrow AS borrow
+            INNER JOIN tb_book_share AS `share` ON `share`.id = borrow.book_share_id
+            INNER JOIN tb_book AS book ON book.id = `share`.book_id 
+            INNER JOIN tb_user AS `user` ON `user`.openid = `share`.owner_openid
+            WHERE (book.isbn10 = '{$isbn}' OR book.isbn13 = '{$isbn}')
+                AND borrow.borrower_openid = '{$openid}' AND borrow.return_status = 0
+            GROUP BY `user`.id
+            ORDER BY `share`.share_time DESC"
+        );
+        if ($select) {
+            $res['data']['list'] = $this->db->getResult();
+        } else {
+            $res = array(
+                'status' => 1001,
+                'message' => '获取数据失败',
+            );
+        }
+
+        return $res;
+    }
 
     protected function findBook($isbn)
     {
