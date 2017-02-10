@@ -115,7 +115,7 @@ class Book extends AbstractModel
         return $res;
     }
 
-    protected function findBook($isbn)
+    public function findBook($isbn)
     {
         $where = " isbn10 = '{$isbn}' OR isbn13 = '{$isbn}' ";
         return $this->fetch('book', $where);

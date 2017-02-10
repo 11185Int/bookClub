@@ -7,6 +7,8 @@
  */
 
 use CP\book\Book;
+use CP\book\BookShare;
+use CP\book\BookBorrow;
 use CP\common\AccountSessionKey;
 
 $app->get('/home/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
@@ -48,6 +50,48 @@ $app->get('/home/book/returnList', function (\Slim\Http\Request $request, \Slim\
 
     $model = new Book();
     $res = $model->getReturnList($openid, $isbn);
+
+    return $response->withJson($res);
+});
+
+// 确认共享
+$app->post('/home/book/share', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $isbn = $request->getParam('isbn');
+    $remark = $request->getParam('remark');
+
+    $model = new BookShare();
+    $res = $model->share($openid, $isbn, $remark);
+
+    return $response->withJson($res);
+});
+
+// 确认借阅
+$app->post('/home/book/borrow', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $book_share_id = $request->getParam('book_share_id');
+    $remark = $request->getParam('remark');
+
+    $model = new BookBorrow();
+    $res = $model->borrow($openid, $book_share_id, $remark);
+
+    return $response->withJson($res);
+});
+
+// 确认归还
+$app->post('/home/book/return', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $book_share_id = $request->getParam('book_share_id');
+    $remark = $request->getParam('remark');
+
+    $model = new BookBorrow();
+    $res = $model->returnBook($openid, $book_share_id, $remark);
 
     return $response->withJson($res);
 });

@@ -33,8 +33,12 @@ abstract class AbstractModel
         return $this->db->getLastInsertID();
     }
 
-    public function update($table, $key_values, $where = array()) {
+    public function update($table, $key_values, $where) {
+        if (!$table || empty($key_values)) {
+            return false;
+        }
 
+        return $this->db->update($this->getTableName($table), $key_values, $where);
     }
 
     public function delete($table, $where = array()) {
@@ -59,6 +63,12 @@ abstract class AbstractModel
 
     protected function getTableName($table) {
         return $this->_db_prefix. $table;
+    }
+
+    public function getUserIdByOpenid($openid)
+    {
+        $user = $this->fetch('user', "openid = '{$openid}'");
+        return isset($user['id']) ? $user['id'] : 0;
     }
 
 }

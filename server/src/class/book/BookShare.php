@@ -9,6 +9,7 @@
 namespace CP\book;
 
 use CP\common\AbstractModel;
+use CP\common\AccountSessionKey;
 
 class BookShare extends AbstractModel
 {
@@ -37,6 +38,56 @@ class BookShare extends AbstractModel
                 'message' => '获取数据失败',
             );
         }
+
+        return $res;
+    }
+
+    public function findBookShareById($book_share_id)
+    {
+        $book_share = $this->fetch('book_share', "id = {$book_share_id}");
+        return $book_share;
+    }
+
+    /**
+     * @param $openid
+     * @param $isbn
+     * @param $remark
+     * @return array
+     */
+    public function share($openid, $isbn, $remark)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '',
+        );
+
+        if (!$isbn) {
+            return [
+                'status' => 10000,
+                'message' => '参数不全',
+            ];
+        }
+
+        $bookModel = new Book();
+        $book = $bookModel->findBook($isbn);
+        if (!$book) {
+            return [
+                'status' => 6000,
+                'message' => '找不到图书',
+            ];
+        }
+
+        $kv = array(
+            'book_id' => $book['id'],
+            'owner_id' => $this->getUserIdByOpenid($openid),
+            'owner_openid' => $openid,
+            'share_status' => 1,
+            'lend_status' => 1,
+            'share_time' => time(),
+            'remark' => $remark,
+        );
+
+        $this->insert('book_share', $kv);
 
         return $res;
     }

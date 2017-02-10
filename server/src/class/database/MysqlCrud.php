@@ -261,4 +261,19 @@ class MysqlCrud
         return mysql_real_escape_string($data);
     }
 
+    public function beginTransaction()
+    {
+        @mysql_query("START TRANSACTION");
+    }
+
+    public function commit()
+    {
+        @mysql_query("COMMIT");
+    }
+
+    public function rollback()
+    {
+        @mysql_query("ROLLBACK");
+    }
+
 }
