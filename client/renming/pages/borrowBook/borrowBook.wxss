@@ -1,0 +1,53 @@
+/* pages/borrowBook/borrowBook.wxss */
+
+.borrow-content {
+  padding: 30rpx;
+}
+
+.user-img {
+  width: 63rpx;
+  height: 63rpx;
+  border-radius: 10rpx;
+  flex-shrink: 0;
+  margin: 0 10rpx;
+}
+
+.list-radio {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  font-size: 30rpx;
+}
+
+.share-btn {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 60rpx;
+}
+
+.btn {
+  width: 290rpx;
+  height: 118rpx;
+  box-shadow: 0 0 10rpx #ccc;
+  font-size: 36rpx;
+  text-align: center;
+  line-height: 118rpx;
+}
+
+.btn-sure {
+  color: #fff;
+  background-color: #489efd;
+}
+
+.btn-cancel {
+  color: #888;
+  background-color: #f2f2f2;
+}
+
+.share-tip{
+    display: block;
+    color: #984040;
+    font-size: 26rpx;
+    line-height: 32rpx;
+    margin: 60rpx 20rpx 0;
+}

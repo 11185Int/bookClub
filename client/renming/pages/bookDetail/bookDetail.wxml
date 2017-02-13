@@ -1,0 +1,46 @@
+
+<!--pages/bookDetail/bookDetail.wxml-->
+<view class="book-content">
+  <view class="book-header">
+    <image class="book-img" src="https://img5.doubanio.com/lpic/s29166756.jpg"></image>
+    <view class="book-info">
+      <text class="book-name">摆渡人</text>
+      <text>作者：马桑德拉</text>
+      <text>豆瓣评分：7.0</text>
+      <text>出版年：2015-12-12</text>
+      <text>出版社：工业出版社</text>
+      <text>定价：36.00元</text>
+    </view>
+  </view>
+  <view class="book-mark">
+    <view class="mark-item">科技</view>
+    <view class="mark-item">互联网</view>
+    <view class="mark-item">有趣</view>
+    <view class="mark-item">黑科技</view>
+  </view>
+  <view class="book-summary">
+    <text class="common-title">内容简介···</text>
+    <text class="book-text">    单亲女孩迪伦，15岁的世界一片狼藉：与母亲总是无话可说，在学校里经常受到同学的捉弄，唯一谈得来的好友也因为转学离开了。这一切都让迪伦感到无比痛苦。 
+    她决定去看望久未谋面的父亲，然而，路上 \n单亲女孩迪伦，15岁的世界一片狼藉：与母亲总是无话可说，在学校里经常受到同学的捉弄，唯一谈得来的好友也因为转学离开了。这一切都让迪伦感到无比痛苦。 
+    她决定去看望久未谋面的父亲，然而，路上
+    单亲女孩迪伦，15岁的世界一片狼藉：与母亲总是无话可说，在学校里经常受到同学的捉弄，唯一谈得来的好友也因为转学离开了。这一切都让迪伦感到无比痛苦。 
+    她决定去看望久未谋面的父亲，然而，路上
+    </text>
+  </view>
+  <view class="book-share">
+    <text class="common-title">共享情况···</text>
+    <view class="share-item">
+        <image class="user-img" src="https://ss1.baidu.com/6ONXsjip0QIZ8tyhnq/it/u=3424486807,3445080459&fm=58"></image>
+        <text class="share-addr">湉静将该书共享至办公室502</text>
+        <text class="share-status">借出</text>
+    </view>
+    <view class="share-item">
+        <image class="user-img" src="https://ss1.baidu.com/6ONXsjip0QIZ8tyhnq/it/u=3527457130,1091777827&fm=58"></image>
+        <text class="share-addr">刘达其实是小名将该书共享至中国邮政电子商务中心5楼504</text>
+        <text class="share-status">在架</text>
+    </view>
+  </view>
+</view>
+<view class="menu-btn">  
+  <view catchtap="borrowBookByScaned" class="btn-item">借阅</view>
+</view>

@@ -1,0 +1,68 @@
+/**index.wxss**/
+
+.book-list {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 50rpx 20rpx 126rpx;
+  box-sizing: border-box;
+  
+}
+
+.book-item {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding: 0 10rpx;
+  margin-bottom: 10rpx;
+  overflow: hidden;
+}
+
+.book-img {
+  position: relative;
+  width: 187rpx;
+  height: 267rpx;
+  box-shadow: -1px -1px 10rpx #bbb;
+  margin-top: 4px;
+}
+
+.book-name {
+  font-size: 26rpx;
+  line-height: 46rpx;
+  width: 187rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.book-empty::before {
+  position: absolute;
+  content: "借出";
+  width: 100%;
+  height: 36rpx;
+  color: #fff;
+  font-size: 24rpx;
+  line-height: 36rpx;
+  left: 0;
+  transform: rotate(-45deg) translate3d(-28%, -90%, 0);
+  background-color: #2087fc;
+}
+
+
+.btn-item{
+  display: flex;
+  flex-direction: column;  
+  text-align: center;
+  margin-top: 14rpx;
+}
+
+.btn-img {
+  width: 59rpx;
+  height: 59rpx;  
+}
+
+.btn-text{
+  font-size: 24rpx;
+}

@@ -1,0 +1,42 @@
+<!--pages/returnBook/returnBook.wxml-->
+<view class="return-content">
+  <view class="book-header">
+    <image class="book-img" src="https://img5.doubanio.com/lpic/s29166756.jpg"></image>
+    <view class="book-info">
+      <text class="book-name">摆渡人</text>
+      <text>作者：马桑德拉</text>
+      <text>豆瓣评分：7.0</text>
+      <text>出版年：2015-12-12</text>
+      <text>出版社：工业出版社</text>
+      <text>定价：36.00元</text>
+    </view>
+  </view>
+  <view class="book-mark">
+    <view class="mark-item">科技</view>
+    <view class="mark-item">互联网</view>
+    <view class="mark-item">有趣</view>
+    <view class="mark-item">黑科技</view>
+  </view>
+  <input type="text" class="return-addr" maxlength="18" placeholder="请输入归还地址" value="办公室504"/>
+  <view class="returned-list">
+    <text class="list-title">选择归还者···</text>
+    <view >
+      <radio-group class="list-item" bindchange="radioChange">
+        <label class="list-radio" >
+          <radio value="1"/>
+          <image class="user-img" src="https://ss1.baidu.com/6ONXsjip0QIZ8tyhnq/it/u=3424486807,3445080459&fm=58"></image>
+          <text>湉静</text>
+        </label>
+        <label class="list-radio" >
+          <radio value="2"/>
+          <image class="user-img" src="https://ss1.baidu.com/6ONXsjip0QIZ8tyhnq/it/u=3527457130,1091777827&fm=58"></image>
+          <text>刘达其实是小名</text>
+        </label>
+      </radio-group>
+    </view>
+  </view>
+  <view class="return-btn">
+    <view class="btn btn-sure">确认归还</view>
+    <view class="btn btn-cancel">取消共享</view>
+  </view>
+</view>

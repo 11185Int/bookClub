@@ -1,0 +1,6 @@
+<!--pages/scanResult/scanResult.wxml-->
+<view>
+<image src="{{info.image}}"></image>
+<text>{{info.author[0]}}</text>
+<text>{{info.catalog}}</text>
+</view>

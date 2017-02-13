@@ -1,0 +1,41 @@
+<!--pages/personCenter/personCenter.wxml-->
+
+<view class="center">
+    <view class="center-header">
+        <image class="user-img" src="https://ss1.baidu.com/6ONXsjip0QIZ8tyhnq/it/u=3424486807,3445080459&fm=58"></image>
+        <text class="user-name">刘达其实是小名</text>
+    </view>
+    <view class="center-tab">
+        <view class="tab-item tab-line tab-item-active">共享</view>
+        <view class="tab-item">阅读</view>
+    </view>
+    <view class="center-tab-content">
+        <view class="book-item add-book"></view>
+        <view class="book-item">
+            <image class="book-img" src="https://img5.doubanio.com/lpic/s29166756.jpg"></image>
+        </view>
+         <view class="book-item">
+            <image class="book-img" src="https://img5.doubanio.com/lpic/s29166756.jpg"></image>
+        </view>
+         <view class="book-item">
+            <image class="book-img" src="https://img5.doubanio.com/lpic/s29166756.jpg"></image>
+        </view>
+        
+    </view>
+</view>
+<view class="menu-btn">
+  <view class="btn-item">
+    <image class="btn-img" src="/images/book.png"></image>
+    <view class="btn-text">书架</view>
+  </view>
+  <view class="btn-item">
+    <image class="btn-img" src="/images/scan.png"></image>
+    <view class="btn-text">归还</view>
+  </view>
+  <view class="btn-item">
+    <image class="btn-img" src="/images/me.png"></image>
+    <view class="btn-text">我的</view>
+  </view>
+</view>
+
+

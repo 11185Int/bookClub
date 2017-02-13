@@ -1,0 +1,58 @@
+/* pages/shareBook/shareBook.wxss */
+
+.return-content {
+  padding: 30rpx;
+}
+
+.user-img {
+  width: 63rpx;
+  height: 63rpx;
+  border-radius: 10rpx;
+  flex-shrink: 0;
+  margin: 0 10rpx;
+}
+
+.list-radio {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  font-size: 30rpx;
+}
+
+.return-btn {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 60rpx;
+}
+
+.btn {
+  width: 290rpx;
+  height: 118rpx;
+  box-shadow: 0 0 10rpx #ccc;
+  font-size: 36rpx;
+  text-align: center;
+  line-height: 118rpx;
+}
+
+.btn-sure {
+  color: #fff;
+  background-color: #489efd;
+}
+
+.btn-cancel {
+  color: #888;
+  background-color: #f2f2f2;
+}
+
+.return-addr{
+    display: block;    
+    height: 88rpx;
+    box-sizing: border-box;
+    border: 2rpx solid #ccc;
+    box-shadow: 0 0 2rpx #ccc; 
+    font-size: 32rpx;
+    line-height: 88rpx;
+    padding: 0 10rpx;
+    margin-bottom: 20rpx;
+    background-color: #f2f2f2;
+}

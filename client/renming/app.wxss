@@ -1,0 +1,72 @@
+@import 'style/weui.wxss';
+
+/**app.wxss**/
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 200rpx 0;
+  box-sizing: border-box;
+} 
+
+.menu-btn {
+  position: fixed;
+  width: 100%;
+  height: 118rpx;
+  display: flex;
+  bottom: 0;
+  justify-content: space-around;
+  background-color: #f2f2f2;
+  box-shadow: 0 -1rpx 10rpx #9a9a9a;
+}
+
+.book-header {
+  display: flex;
+  margin-bottom: 36rpx;
+}
+
+.book-img {
+  width: 187rpx;
+  height: 267rpx;
+  box-shadow: 0px 0px 20rpx #bbb;
+  flex-shrink: 0;
+}
+
+.book-info {
+  display: flex;
+  flex-direction: column;
+  font-size: 26rpx;
+  color: #9b9b9b;
+  margin-left: 30rpx;
+}
+
+.book-name {
+  font-size: 36rpx;
+  color: #000;
+  margin-bottom: 10rpx;
+}
+
+.book-mark {
+  display: flex;
+  margin-bottom: 36rpx;
+}
+
+.mark-item {
+  font-size: 28rpx;
+  color: #81bcfe;
+  border: 2rpx solid #81bcfe;
+  height: 36rpx;
+  line-height: 36rpx;
+  padding: 0rpx 6rpx;
+  border-radius: 8rpx;
+  margin-right: 10rpx;
+}
+
+.list-title {
+  display: block;
+  color: #00bf60;
+  font-size: 30rpx;
+  margin-bottom: 16rpx;
+}
