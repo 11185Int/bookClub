@@ -11,6 +11,7 @@ use CP\book\BookShare;
 use CP\book\BookBorrow;
 use CP\common\AccountSessionKey;
 
+// 所有共享图书
 $app->get('/home/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $model = new Book();
