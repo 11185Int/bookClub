@@ -5,3 +5,4 @@
 
 require 'middlewares/parseKey.php';
 
+require 'middlewares/logger.php';
