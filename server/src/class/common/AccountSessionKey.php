@@ -65,7 +65,7 @@ class AccountSessionKey extends AbstractModel
             'key' => $key,
             'openid' => $openid,
             'session_key' => $session_key,
-            'expired' => time() + 3600,
+            'expired' => time() + 7 * 24 * 3600,
         );
 
         $res = $this->insert('session', $kv);

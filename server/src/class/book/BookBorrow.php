@@ -16,7 +16,7 @@ class BookBorrow extends AbstractModel
 
         $select = $this->db->sql(
             "SELECT 
-            `share`.book_id, book.isbn10, book.isbn13, book.title, book.image,
+            `share`.id AS book_share_id, `share`.book_id, book.isbn10, book.isbn13, book.title, book.image,
             `share`.owner_openid, borrow.borrow_time
             FROM tb_book_borrow AS borrow
             INNER JOIN tb_book_share AS `share` ON `share`.id = borrow.book_share_id

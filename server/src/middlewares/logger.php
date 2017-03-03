@@ -15,7 +15,10 @@ $app->add(function (Request $request, Response $response, $next) {
     $client_ip = $logger->getClientIp();
     $uri = $request->getUri();
     $account = new AccountSessionKey();
-    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $openid = '';
+    if ($request->getParam('key')) {
+        $openid = $account->getOpenIdByKey($request->getParam('key'));
+    }
     $body = $response->getBody();
     $logData = [
         'action' => $uri->getPath(),
