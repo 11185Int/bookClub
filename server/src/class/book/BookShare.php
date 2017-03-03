@@ -23,7 +23,7 @@ class BookShare extends AbstractModel
 
         $select = $this->db->sql(
             "SELECT 
-            `share`.book_id, book.isbn10, book.isbn13, book.title, book.image,
+            `share`.id AS book_share_id, `share`.book_id, book.isbn10, book.isbn13, book.title, book.image,
             `share`.share_status, `share`.lend_status, `share`.share_time
             FROM tb_book_share AS `share`
             INNER JOIN tb_book AS book ON book.id = `share`.book_id
@@ -88,6 +88,94 @@ class BookShare extends AbstractModel
         );
 
         $this->insert('book_share', $kv);
+
+        return $res;
+    }
+
+    public function unShare($openid, $book_share_id)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '',
+        );
+
+        if (!$book_share_id) {
+            return [
+                'status' => 10000,
+                'message' => '参数不全',
+            ];
+        }
+
+        $bookShare = $this->findBookShareById($book_share_id);
+        if ($bookShare['owner_openid'] != $openid) {
+            return [
+                'status' => 6000,
+                'message' => '找不到此分享图书',
+            ];
+        }
+        if (empty($bookShare)) {
+            return [
+                'status' => 6000,
+                'message' => '找不到此分享图书',
+            ];
+        }
+        if ($bookShare['lend_status'] == 2) {
+            return [
+                'status' => 6000,
+                'message' => '此图书借出中，无法取消共享',
+            ];
+        }
+
+        $kv = array(
+            'share_status' => 0,
+            'lend_status' => 0,
+        );
+
+        $this->update('book_share', $kv, "id = {$book_share_id}");
+
+        return $res;
+    }
+
+    public function reShare($openid, $book_share_id)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '',
+        );
+
+        if (!$book_share_id) {
+            return [
+                'status' => 10000,
+                'message' => '参数不全',
+            ];
+        }
+
+        $bookShare = $this->findBookShareById($book_share_id);
+        if ($bookShare['owner_openid'] != $openid) {
+            return [
+                'status' => 6000,
+                'message' => '找不到此分享图书',
+            ];
+        }
+        if (empty($bookShare)) {
+            return [
+                'status' => 6000,
+                'message' => '找不到此分享图书',
+            ];
+        }
+        if ($bookShare['share_status'] || $bookShare['lend_status']) {
+            return [
+                'status' => 6000,
+                'message' => '此图书无法恢复共享',
+            ];
+        }
+
+        $kv = array(
+            'share_status' => 1,
+            'lend_status' => 1,
+        );
+
+        $this->update('book_share', $kv, "id = {$book_share_id}");
 
         return $res;
     }

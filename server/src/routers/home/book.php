@@ -69,6 +69,32 @@ $app->post('/home/book/share', function (\Slim\Http\Request $request, \Slim\Http
     return $response->withJson($res);
 });
 
+// 取消共享
+$app->post('/home/book/unshare', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $book_share_id = $request->getParam('book_share_id');
+
+    $model = new BookShare();
+    $res = $model->unShare($openid, $book_share_id);
+
+    return $response->withJson($res);
+});
+
+// 恢复共享
+$app->post('/home/book/reshare', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $book_share_id = $request->getParam('book_share_id');
+
+    $model = new BookShare();
+    $res = $model->reShare($openid, $book_share_id);
+
+    return $response->withJson($res);
+});
+
 // 确认借阅
 $app->post('/home/book/borrow', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
