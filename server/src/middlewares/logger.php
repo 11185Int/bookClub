@@ -12,23 +12,7 @@ $app->add(function (Request $request, Response $response, $next) {
     //AFTER
 
     $logger = new \CP\common\Logger();
-    $client_ip = $logger->getClientIp();
-    $uri = $request->getUri();
-    $account = new AccountSessionKey();
-    $openid = '';
-    if ($request->getParam('key')) {
-        $openid = $account->getOpenIdByKey($request->getParam('key'));
-    }
-    $body = $response->getBody();
-    $logData = [
-        'action' => $uri->getPath(),
-        'data' => $uri->getQuery(),// json_encode($request->getQueryParams()),
-        'posttime' => date('Y-m-d H:i:s', time()),
-        'openid' => $openid ?: '',
-        'returndata' => addslashes((string)$body),
-        'userip' => $client_ip,
-    ];
-    $logger->save($logData);
+    $logger->log($request, $response);
 
     return $response;
 });

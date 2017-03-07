@@ -20,11 +20,14 @@ return [
     //handle Exception and return json
     'errorHandler' => function ($c) {
         return function ($request, $response, $exception) use ($c) {
-            return $c['response']->withStatus(200)
+            $ret = $c['response']->withStatus(200)
                 ->withJson(array(
                     'status' => $exception->getCode() ?: 99999,
                     'message' => $exception->getMessage(),
                 ));
+            $logger = new \CP\common\Logger();
+            $logger->log($request, $ret);
+            return $ret;
         };
     },
     //handle page not found

@@ -55,6 +55,9 @@ class Account extends AbstractModel
         $key = isset($params['key']) ? $params['key'] : '';
         $openid = $this->_accountKey->getOpenIdByKey($key);
 
+        $detail = $this->fetch('user', "openid = '{$openid}'");
+        $res['data'] = $detail ?: [];
+
         return $res;
     }
 }
