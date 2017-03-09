@@ -10,29 +10,33 @@ class Logger extends AbstractModel
 
     public function log(Request $request, Response $response)
     {
-        $client_ip = $this->getClientIp();
-        $uri = $request->getUri();
-        $account = new AccountSessionKey();
-        $openid = '';
-        if ($request->getParam('key')) {
-            $openid = $account->getOpenIdByKey($request->getParam('key'));
+        try {
+            $client_ip = $this->getClientIp();
+            $uri = $request->getUri();
+            $account = new AccountSessionKey();
+            $openid = '';
+            if ($request->getParam('key')) {
+                $openid = $account->getOpenIdByKey($request->getParam('key'));
+            }
+
+            $p1 = $request->getParsedBody() ?: [];
+            $p2 = $request->getQueryParams() ?: [];
+
+            $params = array_merge($p1, $p2);
+
+            $body = $response->getBody();
+            $logData = [
+                'action' => $uri->getPath(),
+                'data' => http_build_query($params),// json_encode($request->getQueryParams()),
+                'posttime' => date('Y-m-d H:i:s', time()),
+                'openid' => $openid ?: '',
+                'returndata' => addslashes((string)$body),
+                'userip' => $client_ip,
+            ];
+            $this->save($logData);
+        } catch (\Exception $e) {
+
         }
-
-        $p1 = $request->getParsedBody() ?: [];
-        $p2 = $request->getQueryParams() ?: [];
-
-        $params = array_merge($p1, $p2);
-
-        $body = $response->getBody();
-        $logData = [
-            'action' => $uri->getPath(),
-            'data' => http_build_query($params),// json_encode($request->getQueryParams()),
-            'posttime' => date('Y-m-d H:i:s', time()),
-            'openid' => $openid ?: '',
-            'returndata' => addslashes((string)$body),
-            'userip' => $client_ip,
-        ];
-        $this->save($logData);
     }
 
     public function save($data)
