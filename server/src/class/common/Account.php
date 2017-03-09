@@ -28,12 +28,23 @@ class Account extends AbstractModel
             return $res;
         }
 
-        $key = $this->_accountKey->generateKey($code);
+        list($key, $openid, $session_key) = $this->_accountKey->generateKey($code);
 
         if (!$key) {
             $res['status'] = 99999;
             $res['message'] = '参数错误';
         }
+
+        $data = [
+            'openid' => $openid,
+            'nickname' => isset($params['nickname']) ? $params['nickname'] : '',
+            'sex' => isset($params['sex']) ? $params['sex'] : '',
+            'city' => isset($params['city']) ? $params['city'] : '',
+            'country' => isset($params['country']) ? $params['country'] : '',
+            'province' => isset($params['province']) ? $params['province'] : '',
+            'headimgurl' => isset($params['headimgurl']) ? $params['headimgurl'] : '',
+        ];
+        $this->_accountKey->updateUserInfo($openid, $data);
 
         $res['data']['key'] = $key;
         return $res;

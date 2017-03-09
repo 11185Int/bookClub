@@ -22,11 +22,10 @@ class AccountSessionKey extends AbstractModel
         }
 
         list($openid, $session_key) = $fetch;
-        $this->updateUserInfo($openid);
 
         $key = $this->_createKey($openid, $session_key);
         $this->_saveKV($key, $openid, $session_key);
-        return $key;
+        return array($key, $openid, $session_key);
     }
 
     public function getUserInfo($openid) {
@@ -34,13 +33,11 @@ class AccountSessionKey extends AbstractModel
         return $user ?: [];
     }
 
-    public function updateUserInfo($openid) {
+    public function updateUserInfo($openid, $data) {
         $userinfo = $this->getUserInfo($openid);
-        $info = $this->_fetchUserInfoFromWechat($openid);
-//        if (empty($userinfo)) {
-//            $info = $this->_fetchUserInfoFromWechat($openid);
-//        }
-        return $userinfo;
+        if (empty($userinfo)) {
+            $this->insert('user', $data);
+        }
     }
 
     /**
@@ -65,8 +62,6 @@ class AccountSessionKey extends AbstractModel
 
         $wechat = new Wechat();
         $userinfo = $wechat->getUserInfo($openid);
-
-
 
         return [
             'openid' => $userinfo['openid'],

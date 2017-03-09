@@ -37,7 +37,7 @@ class Wechat
     public function jscode2session($jscode)
     {
         //mock
-        return array('openid' => 'openid' . rand(10000, 99999), 'session_key' => 'session_key' . rand(10000, 99999));
+        //return array('openid' => 'openid' . rand(10000, 99999), 'session_key' => 'session_key' . rand(10000, 99999));
 
         $mini = $this->_app;
         $session = $mini->user->getSessionKey($jscode);
