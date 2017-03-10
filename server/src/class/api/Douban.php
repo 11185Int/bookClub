@@ -1,6 +1,6 @@
 <?php
 
-namespace CP\Api;
+namespace CP\api;
 
 class Douban
 {

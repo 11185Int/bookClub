@@ -8,7 +8,7 @@
  */
 namespace CP\book;
 
-use CP\Api\Douban;
+use CP\api\Douban;
 use CP\common\AbstractModel;
 
 class Book extends AbstractModel
