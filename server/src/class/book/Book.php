@@ -28,10 +28,10 @@ class Book extends AbstractModel
 
     public function getBookByISBN($isbn)
     {
-        $api = new Douban();
-
         $book = $this->findBook($isbn);
+
         if (empty($book)) {
+            $api = new Douban();
             $bookDetail = $api->getBook($isbn);
             $this->saveBook($bookDetail);
             $book = $this->findBook($isbn);
