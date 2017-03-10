@@ -37,6 +37,8 @@ class AccountSessionKey extends AbstractModel
         $userinfo = $this->getUserInfo($openid);
         if (empty($userinfo)) {
             $this->insert('user', $data);
+        } else {
+            $this->update('user', $data, "openid = '{$openid}'");
         }
     }
 
