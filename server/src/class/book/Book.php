@@ -14,14 +14,20 @@ use CP\common\AbstractModel;
 class Book extends AbstractModel
 {
 
-    public function getList()
+    public function getList($params)
     {
         $res = array(
             'status' => 1,
             'message' => 'success',
         );
-        $this->db->sql('SELECT b.id,b.isbn10,b.isbn13,b.title,b.image,IF(sum(IF(s.share_status = 1,1,0)) > 0,1,0) as share_status,IF(SUM(IF(s.lend_status = 1,1,0)) > 0,1,0) as lend_status
-                        FROM tb_book b LEFT JOIN tb_book_share s ON b.id = s.book_id GROUP BY b.isbn10');
+        $this->db->sql('select 
+            b.id,b.isbn10,b.isbn13,b.title,b.image, s.share_status, s.lend_status,
+            count(s.id) AS book_share_sum
+            from tb_book b
+            left join tb_book_share s on s.book_id = b.id
+            where s.share_status = 1 and s.lend_status = 1
+            group by b.id
+            order by s.id desc');
         $res['data']['list'] = $this->db->getResult();
         return $res;
     }
@@ -131,6 +137,7 @@ class Book extends AbstractModel
             $tagArr[] = $tag['title'];
         }
         $tags = implode(',', $tagArr);
+        $image = empty($book['images']['large']) ? $book['image'] : $book['images']['large'];
         $kv = [
             'isbn10' => $book['isbn10'],
             'isbn13' => $book['isbn13'],
@@ -140,7 +147,7 @@ class Book extends AbstractModel
             'rating' => $book['rating']['average'],
             'publisher' => $book['publisher'],
             'price' => $book['price'],
-            'image' => $book['image'],
+            'image' => $image,
             'tags' => $tags,
             'pubdate' => $book['pubdate'],
             'summary' => $book['summary'],

@@ -13,11 +13,7 @@ class Logger extends AbstractModel
         try {
             $client_ip = $this->getClientIp();
             $uri = $request->getUri();
-            $account = new AccountSessionKey();
             $openid = '';
-            if ($request->getParam('key')) {
-                $openid = $account->getOpenIdByKey($request->getParam('key'));
-            }
 
             $p1 = $request->getParsedBody() ?: [];
             $p2 = $request->getQueryParams() ?: [];

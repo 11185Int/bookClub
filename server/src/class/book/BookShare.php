@@ -27,7 +27,7 @@ class BookShare extends AbstractModel
             `share`.share_status, `share`.lend_status, `share`.share_time
             FROM tb_book_share AS `share`
             INNER JOIN tb_book AS book ON book.id = `share`.book_id
-            WHERE `share`.owner_openid = '{$openid}'
+            WHERE `share`.owner_openid = '{$openid}' and `share`.share_status = 1
             ORDER BY `share`.share_time DESC"
         );
         if ($select) {
