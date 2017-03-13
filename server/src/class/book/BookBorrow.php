@@ -59,6 +59,12 @@ class BookBorrow extends AbstractModel
                 'message' => '图书未分享或已被借出',
             ];
         }
+        if ($bookShare['owner_openid'] == $openid) {
+            return [
+                'status' => 10003,
+                'message' => '无法借阅自己分享的图书',
+            ];
+        }
 
         $kv = array(
             'book_share_id' => $book_share_id,
