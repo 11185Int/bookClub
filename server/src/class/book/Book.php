@@ -103,9 +103,9 @@ class Book extends AbstractModel
             FROM tb_book_borrow AS borrow
             INNER JOIN tb_book_share AS `share` ON `share`.id = borrow.book_share_id
             INNER JOIN tb_book AS book ON book.id = `share`.book_id 
-            INNER JOIN tb_user AS `user` ON `user`.openid = `share`.owner_openid
+            INNER JOIN tb_user AS `user` ON `user`.openid = borrow.borrower_openid
             WHERE (book.isbn10 = '{$isbn}' OR book.isbn13 = '{$isbn}')
-                AND borrow.borrower_openid = '{$openid}' AND borrow.return_status = 0
+                AND `share`.owner_openid = '{$openid}' AND borrow.return_status = 0
             GROUP BY `user`.id
             ORDER BY `share`.share_time DESC"
         );

@@ -119,7 +119,8 @@ class AccountSessionKey extends AbstractModel
             }
             $expired = $kv['expired'];
             if ($expired < time()) {
-                $this->db->delete($this->getTableName('session'), $where);
+                //do not delete session when its expired
+                //$this->db->delete($this->getTableName('session'), $where);
                 break;
             }
         } while (0);

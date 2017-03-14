@@ -45,13 +45,13 @@ abstract class AbstractModel
 
     }
 
-    public function fetch($table, $where = array()) {
+    public function fetch($table, $where = array(), $order = null) {
         if (!$table) {
             return false;
         }
 
         $this->db->getResult();
-        $this->db->select($this->getTableName($table), '*', null, $where, null, '1');
+        $this->db->select($this->getTableName($table), '*', null, $where, $order, '1');
         $result = $this->db->getResult();
 
         return empty($result) ? null : reset($result);

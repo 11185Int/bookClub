@@ -33,6 +33,7 @@ class Account extends AbstractModel
         if (!$key) {
             $res['status'] = 99999;
             $res['message'] = '参数错误';
+            return $res;
         }
 
         $data = [

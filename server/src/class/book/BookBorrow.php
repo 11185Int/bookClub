@@ -106,6 +106,14 @@ class BookBorrow extends AbstractModel
             ];
         }
 
+        $book_borrow = $this->fetch('book_borrow', "book_share_id = {$book_share_id} AND return_status = 0", "id DESC");
+        if (empty($book_borrow['id'])) {
+            return [
+                'status' => 99999,
+                'message' => '找不到该借阅记录',
+            ];
+        }
+
         $kv = array(
             'return_status' => 1,
             'return_time' => time(),
@@ -113,8 +121,8 @@ class BookBorrow extends AbstractModel
         );
         $this->db->beginTransaction();
 
-        $r1 = $this->update('book_borrow', $kv, "book_share_id = {$book_share_id} AND borrower_openid = '{$openid}'");
-        $r2 = $this->update('book_share', ['lend_status' => 1], "id = {$book_share_id}");
+        $r1 = $this->update('book_borrow', $kv, "id = {$book_borrow['id']}");
+        $r2 = $this->update('book_share', ['lend_status' => 1], "id = {$book_share_id} AND owner_openid = '{$openid}'");
 
         if ($r1 && $r2) {
             $this->db->commit();
