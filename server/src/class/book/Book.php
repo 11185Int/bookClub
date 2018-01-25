@@ -22,7 +22,7 @@ class Book extends AbstractModel
         );
         $name = isset($params['name']) ? $params['name'] : '';
         $page = isset($params['page']) ? intval($params['page']) : 1;
-        $pagesize = isset($params['pagesize']) ? intval($params['pagesize']) : 10;
+        $pagesize = isset($params['pagesize']) ? intval($params['pagesize']) : 100;
 
         $andWhere = '';
         if ($name) {
