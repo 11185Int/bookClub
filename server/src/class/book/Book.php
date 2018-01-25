@@ -166,10 +166,8 @@ class Book extends AbstractModel
             'summary' => $book['summary'],
         ];
         $isbn = $book['isbn13'] ?: $book['isbn10'];
-        if ($isbn && empty($this->findBook($isbn))) {
+        if ($isbn) {
             $this->insert('book', $kv);
-        } else {
-            return false;
         }
         return true;
     }
