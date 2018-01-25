@@ -1,2 +1,4 @@
 /.idea/
 .gitignore
+server/config.php
+server/wechat.php
