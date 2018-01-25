@@ -21,10 +21,14 @@ class Book extends AbstractModel
             'message' => 'success',
         );
         $name = isset($params['name']) ? $params['name'] : '';
+        $page = isset($params['page']) ? intval($params['page']) : 1;
+        $pagesize = isset($params['pagesize']) ? intval($params['pagesize']) : 10;
+
         $andWhere = '';
         if ($name) {
             $andWhere .= " and (b.title LIKE '%{$name}%' or b.author LIKE '%{$name}%' or b.publisher LIKE '%{$name}%' or b.tags LIKE '%{$name}%') ";
         }
+        $offset = ($page - 1) * $pagesize;
         $this->db->sql("select 
             b.id,b.isbn10,b.isbn13,b.title,b.image, s.share_status, s.lend_status,
             count(s.id) AS book_share_sum
@@ -33,7 +37,8 @@ class Book extends AbstractModel
             where s.share_status = 1 and s.lend_status = 1
             {$andWhere}
             group by b.id
-            order by s.id desc");
+            order by s.id desc 
+            limit {$pagesize} offset {$offset}");
         $res['data']['list'] = $this->db->getResult();
         return $res;
     }
