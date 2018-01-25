@@ -49,7 +49,7 @@ class Book extends AbstractModel
             ];
         }
 
-        if (empty($book) || true) {
+        if (empty($book)) {
             $api = new Douban();
             $bookDetail = $api->getBook($isbn);
             $this->saveBook($bookDetail);
