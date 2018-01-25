@@ -42,7 +42,14 @@ class Book extends AbstractModel
     {
         $book = $this->findBook($isbn);
 
-        if (empty($book)) {
+        if (!(strlen($isbn) == 10 || strlen($isbn) == 13)) {
+            return [
+                'status' => 6000,
+                'message' => 'isbn码错误',
+            ];
+        }
+
+        if (empty($book) || true) {
             $api = new Douban();
             $bookDetail = $api->getBook($isbn);
             $this->saveBook($bookDetail);
