@@ -23,7 +23,7 @@ class Book extends AbstractModel
         $name = isset($params['name']) ? $params['name'] : '';
         $andWhere = '';
         if ($name) {
-            $andWhere .= " and (b.title LIKE '%$name%' or b.author LIKE '%$name%') ";
+            $andWhere .= " and (b.title LIKE '%{$name}%' or b.author LIKE '%{$name}%' or b.publisher LIKE '%{$name}%') ";
         }
         $this->db->sql("select 
             b.id,b.isbn10,b.isbn13,b.title,b.image, s.share_status, s.lend_status,
