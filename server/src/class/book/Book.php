@@ -160,15 +160,15 @@ class Book extends AbstractModel
             'isbn10' => $book['isbn10'],
             'isbn13' => $book['isbn13'],
             'category_id' => 1,
-            'title' => $book['title'],
-            'author' => implode(',', $book['author']),
+            'title' => mb_strimwidth($book['title'], 0, 200, '...'),
+            'author' => mb_strimwidth(implode(',', $book['author']), 0, 200, '...'),
             'rating' => $book['rating']['average'],
-            'publisher' => $book['publisher'],
+            'publisher' => mb_strimwidth($book['publisher'], 0, 200, '...'),
             'price' => $book['price'],
             'image' => $image,
-            'tags' => $tags,
+            'tags' => mb_strimwidth($tags, 0, 180, '...'),
             'pubdate' => $book['pubdate'],
-            'summary' => $book['summary'],
+            'summary' => mb_strimwidth($book['summary'], 0, 1000, '...'),
         ];
         $isbn = $book['isbn13'] ?: $book['isbn10'];
         if ($isbn) {
