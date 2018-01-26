@@ -21,17 +21,15 @@ class BookShare extends AbstractModel
             'message' => '',
         );
 
-        $select = $this->db->sql(
-            "SELECT 
-            `share`.id AS book_share_id, `share`.book_id, book.isbn10, book.isbn13, book.title, book.image,
-            `share`.share_status, `share`.lend_status, `share`.share_time
-            FROM tb_book_share AS `share`
-            INNER JOIN tb_book AS book ON book.id = `share`.book_id
-            WHERE `share`.owner_openid = '{$openid}' and `share`.share_status = 1
-            ORDER BY `share`.share_time DESC"
-        );
-        if ($select) {
-            $res['data']['share'] = $this->db->getResult();
+        $builder = $this->capsule->table('book_share AS share')
+            ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
+            ->select('share.id AS book_share_id','share.book_id','book.isbn10','book.isbn13','book.title','book.image',                 'share.share_status','share.lend_status','share.share_time')
+            ->where('share.owner_openid', $openid)
+            ->where('share.share_status', 1)
+            ->orderBy('share.share_time', 'desc');
+
+        if ($builder) {
+            $res['data']['share'] = $builder->get();
         } else {
             $res = array(
                 'status' => 1001,

@@ -8,6 +8,8 @@ abstract class AbstractModel
 {
     protected $_db_prefix = 'tb_';
     public $db = null;
+    protected $capsule = null;
+
     public function __construct()
     {
         $mysql = new MysqlCrud();
@@ -15,7 +17,22 @@ abstract class AbstractModel
         $this->db = $mysql;
         mysql_query('SET NAMES "utf8"');
 
-
+        $capsule = new \Illuminate\Database\Capsule\Manager();
+        require __DIR__ . '/../../../config/database.php';
+        $config = isset($DB_CONFIG) ? $DB_CONFIG: [];
+        $capsule->addConnection([
+            'driver'    => 'mysql',
+            'host'      => $config['host'],
+            'port'      => $config['port'],
+            'database'  => $config['dbname'],
+            'username'  => $config['user'],
+            'password'  => $config['pass'],
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => 'tb_',
+        ]);
+        $capsule->setAsGlobal();
+        $this->capsule = $capsule;
     }
 
     public function __destruct()

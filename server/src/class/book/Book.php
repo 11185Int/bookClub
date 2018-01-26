@@ -23,23 +23,26 @@ class Book extends AbstractModel
         $name = isset($params['name']) ? $params['name'] : '';
         $page = isset($params['page']) ? intval($params['page']) : 1;
         $pagesize = isset($params['pagesize']) ? intval($params['pagesize']) : 100;
-
-        $andWhere = '';
-        if ($name) {
-            $andWhere .= " and (b.title LIKE '%{$name}%' or b.author LIKE '%{$name}%' or b.publisher LIKE '%{$name}%' or b.tags LIKE '%{$name}%') ";
-        }
         $offset = ($page - 1) * $pagesize;
-        $this->db->sql("select 
-            b.id,b.isbn10,b.isbn13,b.title,b.image, s.share_status, s.lend_status,
-            count(s.id) AS book_share_sum
-            from tb_book b
-            left join tb_book_share s on s.book_id = b.id
-            where s.share_status = 1 and s.lend_status = 1
-            {$andWhere}
-            group by b.id
-            order by s.id desc 
-            limit {$pagesize} offset {$offset}");
-        $res['data']['list'] = $this->db->getResult();
+
+        $builder = $this->capsule->table('book AS b')
+            ->leftJoin('book_share AS s', 's.book_id', '=', 'b.id')
+            ->select('b.id','b.isbn10','b.isbn13','b.title','b.image','s.share_status','s.lend_status')
+            ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'s.id) AS book_share_sum')
+            ->where('s.share_status', 1)
+            ->where('s.lend_status', 1);
+        if ($name) {
+            $builder->where(function ($q) use ($name) {
+                $q->where('b.title', 'like', "%{$name}%")
+                    ->orWhere('b.author', 'like', "%{$name}%")
+                    ->orWhere('b.publisher', 'like', "%{$name}%")
+                    ->orWhere('b.tags', 'like', "%{$name}%");
+            });
+        }
+        $builder->groupBy('b.id')
+            ->orderBy('s.id', 'desc')
+            ->limit($pagesize)->offset($offset);
+        $res['data']['list'] = $builder->get();
         return $res;
     }
 
@@ -83,21 +86,21 @@ class Book extends AbstractModel
             'status' => 0,
             'message' => '',
         );
+        $builder = $this->capsule->table('book_share AS share')
+            ->select('share.id AS book_share_id','user.nickname','user.headimgurl',
+                'share.share_status','share.lend_status','share.share_time')
+            ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
+            ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
+            ->where('share.share_status', 1)
+            ->where('share.lend_status', 1)
+            ->where(function ($q) use ($isbn) {
+                $q->where('book.isbn10', $isbn)->orWhere('isbn13', $isbn);
+            })
+            ->groupBy('user.id')
+            ->orderBy('share.share_time', 'desc');
 
-        $select = $this->db->sql(
-            "SELECT 
-            `share`.id AS book_share_id, `user`.nickname, `user`.headimgurl,
-            `share`.share_status, `share`.lend_status, `share`.share_time
-            FROM tb_book_share AS `share`
-            INNER JOIN tb_book AS book ON book.id = `share`.book_id
-            INNER JOIN tb_user AS user ON user.openid = `share`.owner_openid
-            WHERE (book.isbn10 = '{$isbn}' OR book.isbn13 = '{$isbn}')
-                AND `share`.share_status = 1 AND `share`.lend_status = 1
-            GROUP BY user.id
-            ORDER BY `share`.share_time DESC"
-        );
-        if ($select) {
-            $res['data']['list'] = $this->db->getResult();
+        if ($builder) {
+            $res['data']['list'] = $builder->get();
         } else {
             $res = array(
                 'status' => 1001,
@@ -115,20 +118,20 @@ class Book extends AbstractModel
             'message' => '',
         );
 
-        $select = $this->db->sql(
-            "SELECT
-            `share`.id AS book_share_id, `user`.nickname, `user`.headimgurl
-            FROM tb_book_borrow AS borrow
-            INNER JOIN tb_book_share AS `share` ON `share`.id = borrow.book_share_id
-            INNER JOIN tb_book AS book ON book.id = `share`.book_id 
-            INNER JOIN tb_user AS `user` ON `user`.openid = borrow.borrower_openid
-            WHERE (book.isbn10 = '{$isbn}' OR book.isbn13 = '{$isbn}')
-                AND `share`.owner_openid = '{$openid}' AND borrow.return_status = 0
-            GROUP BY `user`.id
-            ORDER BY `share`.share_time DESC"
-        );
-        if ($select) {
-            $res['data']['list'] = $this->db->getResult();
+        $builder = $this->capsule->table('book_borrow AS borrow')
+            ->select('share.id AS book_share_id','user.nickname','user.headimgurl')
+            ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
+            ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
+            ->join('user AS user', 'user.openid', '=', 'borrow.borrower_openid', 'inner')
+            ->where(function ($q) use ($isbn) {
+                $q->where('book.isbn10', $isbn)->orWhere('isbn13', $isbn);
+            })->where('share.owner_openid', $openid)
+            ->where('borrow.return_status', 0)
+            ->groupBy('user.id')
+            ->orderBy('share.share_time', 'desc');
+
+        if ($builder) {
+            $res['data']['list'] = $builder->get();
         } else {
             $res = array(
                 'status' => 1001,
@@ -141,8 +144,10 @@ class Book extends AbstractModel
 
     public function findBook($isbn)
     {
-        $where = " isbn10 = '{$isbn}' OR isbn13 = '{$isbn}' ";
-        return $this->fetch('book', $where);
+        $book = $this->capsule->table('book')
+            ->where('isbn10', $isbn)->orWhere('isbn13', $isbn)
+            ->first();
+        return $book ? $book->toArray() : [];
     }
 
     protected function saveBook($book)
@@ -172,7 +177,7 @@ class Book extends AbstractModel
         ];
         $isbn = $book['isbn13'] ?: $book['isbn10'];
         if ($isbn) {
-            $this->insert('book', $kv);
+            $this->capsule->table('book')->insert($kv);
         }
         return true;
     }

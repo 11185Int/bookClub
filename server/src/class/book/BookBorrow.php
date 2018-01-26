@@ -13,20 +13,18 @@ class BookBorrow extends AbstractModel
             'status' => 0,
             'message' => '',
         );
-
-        $select = $this->db->sql(
-            "SELECT 
-            `share`.id AS book_share_id, `share`.book_id, book.isbn10, book.isbn13, book.title, book.image,
-            `share`.owner_openid, borrow.borrow_time, min(borrow.return_status) as return_status
-            FROM tb_book_borrow AS borrow
-            INNER JOIN tb_book_share AS `share` ON `share`.id = borrow.book_share_id
-            INNER JOIN tb_book AS book ON book.id = `share`.book_id
-            WHERE borrow.borrower_openid = '{$openid}'
-            GROUP BY book.id
-            ORDER BY borrow.borrow_time DESC"
-        );
-        if ($select) {
-            $res['data']['borrow'] = $this->db->getResult();
+        $builder = $this->capsule->table('book_borrow AS borrow')
+            ->select('share.id AS book_share_id', 'share.book_id', 'book.isbn10', 'book.isbn13', 'book.title',
+                'book.image', 'share.owner_openid', 'borrow.borrow_time')
+            ->selectRaw('min(borrow.return_status) as return_status')
+            ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
+            ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
+            ->where('borrow.borrower_openid', $openid)
+            ->groupBy('book.id')
+            ->orderBy('borrow.borrow_time', 'desc');
+        
+        if ($builder) {
+            $res['data']['borrow'] = $builder->get();
         } else {
             $res = array(
                 'status' => 1001,
@@ -75,14 +73,14 @@ class BookBorrow extends AbstractModel
             'return_time' => 0,
             'remark' => $remark,
         );
-        $this->db->beginTransaction();
+        $this->capsule->getConnection()->beginTransaction();
 
-        $r1 = $this->insert('book_borrow', $kv);
-        $r2 = $this->update('book_share', ['lend_status' => 2], "id = {$book_share_id}");
+        $r1 = $this->capsule->table('book_borrow')->insert($kv);
+        $r2 = $this->capsule->table('book_share')->where('id', $book_share_id)->update(['lend_status' => 2]);
         if ($r1 && $r2) {
-            $this->db->commit();
+            $this->capsule->getConnection()->commit();
         } else {
-            $this->db->rollback();
+            $this->capsule->getConnection()->rollBack();
             return [
                 'status' => 10002,
                 'message' => '借阅失败',
@@ -106,7 +104,12 @@ class BookBorrow extends AbstractModel
             ];
         }
 
-        $book_borrow = $this->fetch('book_borrow', "book_share_id = {$book_share_id} AND return_status = 0", "id DESC");
+        $book_borrow = $this->capsule->table('book_borrow')
+            ->where('book_share_id', $book_share_id)
+            ->where('return_status', 0)
+            ->orderBy('id', 'desc')
+            ->first();
+        $book_borrow = $book_borrow ? $book_borrow->toArray() : [];
         if (empty($book_borrow['id'])) {
             return [
                 'status' => 99999,
@@ -119,15 +122,16 @@ class BookBorrow extends AbstractModel
             'return_time' => time(),
             'remark' => $remark,
         );
-        $this->db->beginTransaction();
+        $this->capsule->getConnection()->beginTransaction();
 
-        $r1 = $this->update('book_borrow', $kv, "id = {$book_borrow['id']}");
-        $r2 = $this->update('book_share', ['lend_status' => 1], "id = {$book_share_id} AND owner_openid = '{$openid}'");
+        $r1 = $this->capsule->table('book_borrow')->where('id', $book_borrow['id'])->update($kv);
+        $r2 = $this->capsule->table('book_share')->where('id', $book_share_id)->where('owner_openid', $openid)
+            ->update(['lend_status' => 1]);
 
         if ($r1 && $r2) {
-            $this->db->commit();
+            $this->capsule->getConnection()->commit();
         } else {
-            $this->db->rollback();
+            $this->capsule->getConnection()->rollBack();
             return [
                 'status' => 10002,
                 'message' => '借阅失败',
