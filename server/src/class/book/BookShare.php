@@ -42,8 +42,8 @@ class BookShare extends AbstractModel
 
     public function findBookShareById($book_share_id)
     {
-        $book_share = $this->fetch('book_share', "id = {$book_share_id}");
-        return $book_share;
+        $book_share = $this->capsule->table('book_share')->find($book_share_id);
+        return $book_share ? $book_share->toArray() : [];
     }
 
     /**
@@ -85,7 +85,7 @@ class BookShare extends AbstractModel
             'remark' => $remark,
         );
 
-        $this->insert('book_share', $kv);
+        $this->capsule->table('book_share')->insert($kv);
 
         return $res;
     }
@@ -129,8 +129,7 @@ class BookShare extends AbstractModel
             'lend_status' => 0,
         );
 
-        $this->update('book_share', $kv, "id = {$book_share_id}");
-
+        $this->capsule->table('book_share')->where('id', $book_share_id)->update($kv);
         return $res;
     }
 
@@ -173,7 +172,7 @@ class BookShare extends AbstractModel
             'lend_status' => 1,
         );
 
-        $this->update('book_share', $kv, "id = {$book_share_id}");
+        $this->capsule->table('book_share')->where('id', $book_share_id)->update($kv);
 
         return $res;
     }

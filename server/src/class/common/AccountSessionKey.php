@@ -29,16 +29,16 @@ class AccountSessionKey extends AbstractModel
     }
 
     public function getUserInfo($openid) {
-        $user = $this->fetch('user', "openid = '{$openid}'");
-        return $user ?: [];
+        $user = $this->capsule->table('user')->where('openid', $openid)->first();
+        return $user->toArray() ?: [];
     }
 
     public function updateUserInfo($openid, $data) {
         $userinfo = $this->getUserInfo($openid);
         if (empty($userinfo)) {
-            $this->insert('user', $data);
+            $this->capsule->table('user')->insert($data);
         } else {
-            $this->update('user', $data, "openid = '{$openid}'");
+            $this->capsule->table('user')->where('openid', $openid)->update($data);
         }
     }
 
@@ -99,7 +99,7 @@ class AccountSessionKey extends AbstractModel
             'expired' => time() + 7 * 24 * 3600,
         );
 
-        $res = $this->insert('session', $kv);
+        $res = $this->capsule->table('session')->insert($kv);
         return $res;
     }
 
@@ -110,10 +110,8 @@ class AccountSessionKey extends AbstractModel
             if (!$key) {
                 throw new \Exception('缺少KEY参数', 20001);
             }
-            $where = "`key` = '$key'";
-            $this->db->select($this->getTableName('session'), '*', null, $where);
-            $result = $this->db->getResult();
-            $kv = reset($result);
+            $kv = $this->capsule->table('session')->where('key', $key)->first();
+            $kv = $kv ? $kv->toArray() : [];
             if (empty($kv)) {
                 break;
             }

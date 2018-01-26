@@ -37,7 +37,7 @@ class Logger extends AbstractModel
 
     public function save($data)
     {
-        $this->insert('log', $data);
+        $this->capsule->table('log')->insert($data);
     }
 
     /**
