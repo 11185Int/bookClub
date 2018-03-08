@@ -229,6 +229,13 @@ class Book extends AbstractModel
             ];
         }
 
+        if ($image->getSize() > 2 * 1024 * 1024) {
+            return [
+                'status' => 99999,
+                'message' => '图片超过2M',
+            ];
+        }
+
         if ($image->getError() === UPLOAD_ERR_OK) {
             $directory = __DIR__. '/../../../public/resources/book/image/';
             $filename = $this->moveUploadedFile($directory, $image);
