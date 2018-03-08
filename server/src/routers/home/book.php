@@ -138,6 +138,9 @@ $app->post('/home/book/submit', function (\Slim\Http\Request $request, \Slim\Htt
 // 上传图书封面
 $app->post('/home/book/submit/image', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $account = new AccountSessionKey();
+    $account->getOpenIdByKey($request->getParam('key'));
+
     $uploadFiles = $request->getUploadedFiles();
     $image = isset($uploadFiles['image']) ? $uploadFiles['image'] : null;
 
