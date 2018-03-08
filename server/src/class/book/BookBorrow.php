@@ -16,7 +16,7 @@ class BookBorrow extends AbstractModel
         $builder = $this->capsule->table('book_borrow AS borrow')
             ->select('share.id AS book_share_id', 'share.book_id', 'book.isbn10', 'book.isbn13', 'book.title',
                 'book.image', 'share.owner_openid', 'borrow.borrow_time')
-            ->selectRaw('min(borrow.return_status) as return_status')
+            ->selectRaw('min('.$this->capsule->getConnection()->getTablePrefix().'borrow.return_status) as return_status')
             ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->where('borrow.borrower_openid', $openid)
