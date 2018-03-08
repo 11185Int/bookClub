@@ -66,8 +66,8 @@ class Book extends AbstractModel
 
         if (empty($book)) {
             return [
-                'status' => 6000,
-                'message' => '找不到图书',
+                'status' => 10004,
+                'message' => '找不到图书(Douban)',
             ];
         }
 
