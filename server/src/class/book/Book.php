@@ -147,7 +147,7 @@ class Book extends AbstractModel
         $book = $this->capsule->table('book')
             ->where('isbn10', $isbn)->orWhere('isbn13', $isbn)
             ->first();
-        return $book ? $book->toArray() : [];
+        return $book ?: [];
     }
 
     protected function saveBook($book)

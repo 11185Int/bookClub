@@ -30,7 +30,7 @@ class AccountSessionKey extends AbstractModel
 
     public function getUserInfo($openid) {
         $user = $this->capsule->table('user')->where('openid', $openid)->first();
-        return $user->toArray() ?: [];
+        return $user ?: [];
     }
 
     public function updateUserInfo($openid, $data) {
@@ -111,7 +111,7 @@ class AccountSessionKey extends AbstractModel
                 throw new \Exception('缺少KEY参数', 20001);
             }
             $kv = $this->capsule->table('session')->where('key', $key)->first();
-            $kv = $kv ? $kv->toArray() : [];
+            $kv = $kv ?: [];
             if (empty($kv)) {
                 break;
             }

@@ -109,7 +109,7 @@ class BookBorrow extends AbstractModel
             ->where('return_status', 0)
             ->orderBy('id', 'desc')
             ->first();
-        $book_borrow = $book_borrow ? $book_borrow->toArray() : [];
+        $book_borrow = $book_borrow ?: [];
         if (empty($book_borrow['id'])) {
             return [
                 'status' => 99999,

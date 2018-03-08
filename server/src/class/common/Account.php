@@ -68,7 +68,7 @@ class Account extends AbstractModel
         $openid = $this->_accountKey->getOpenIdByKey($key);
 
         $detail = $this->capsule->table('user')->where('openid', $openid)->first();
-        $res['data'] = $detail->toArray() ?: [];
+        $res['data'] = $detail ?: [];
 
         return $res;
     }

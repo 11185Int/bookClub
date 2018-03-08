@@ -43,7 +43,7 @@ class BookShare extends AbstractModel
     public function findBookShareById($book_share_id)
     {
         $book_share = $this->capsule->table('book_share')->find($book_share_id);
-        return $book_share ? $book_share->toArray() : [];
+        return $book_share ?: [];
     }
 
     /**

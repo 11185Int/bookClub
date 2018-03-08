@@ -26,13 +26,14 @@ abstract class AbstractModel
             'prefix'    => 'tb_',
         ]);
         $capsule->setAsGlobal();
+        $capsule->setFetchMode(\PDO::FETCH_ASSOC);
         $this->capsule = $capsule;
     }
 
     public function getUserIdByOpenid($openid)
     {
         $user = $this->capsule->table('user')->where('openid', $openid)->first();
-        $user = $user ? $user->toArray() : [];
+        $user = $user ?: [];
         return isset($user['id']) ? $user['id'] : 0;
     }
 
