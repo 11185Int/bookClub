@@ -151,18 +151,19 @@ class Book extends AbstractModel
         return $book ?: [];
     }
 
-    public function submit($form, $openid)
+    public function submit($form, $openid, $config)
     {
         $res = array(
             'status' => 0,
             'message' => '成功',
         );
+        $image = $form['image'];
 
         $message = '';
         if (empty($form['isbn'])) {
             $message = '缺少isbn';
         }
-        if (empty($form['title']) || empty($form['author']) || empty($form['image'])) {
+        if (empty($form['title']) || empty($form['author'])) {
             $message = '缺少参数';
         }
         if ($message) {
@@ -171,6 +172,21 @@ class Book extends AbstractModel
                 'message' => $message,
             ];
         }
+        if (!$image || !in_array($image->getClientMediaType(),
+                ['image/png','image/jpeg','image/gif','image/bmp','image/tiff','image/svg+xml'])) {
+            return [
+                'status' => 99999,
+                'message' => '图片不存在或格式错误',
+            ];
+        }
+
+        if ($image->getSize() > 2 * 1024 * 1024) {
+            return [
+                'status' => 99999,
+                'message' => '图片超过2M',
+            ];
+        }
+
         $isbn = $form['isbn'];
         $book = $this->findBook($isbn);
         if (!empty($book)) {
@@ -179,6 +195,14 @@ class Book extends AbstractModel
                 'message' => '此书已存在',
             ];
         }
+        $imageUrl = '';
+        if ($image->getError() === UPLOAD_ERR_OK) {
+            $directory = __DIR__. '/../../../public/resources/book/image/';
+            $filename = $this->moveUploadedFile($directory, $image);
+            $domain = $config['domain'];
+            $imageUrl = $domain . 'resources/book/image/'. $filename;
+        }
+
         $tags = empty($form['tags']) ? [] : explode(',', $form['tags']);
         $author = empty($form['author']) ? [] : explode(',', $form['author']);
 
@@ -191,7 +215,7 @@ class Book extends AbstractModel
         $book['rating'] = '';
         $book['publisher'] = empty($form['publisher']) ? '' : $form['publisher'];
         $book['price'] = empty($form['price']) ? '' : $form['price'];
-        $book['image'] = $form['image'];
+        $book['image'] = $imageUrl;
         $book['tags'] = $tags;
         $book['pubdate'] = empty($form['pubdate']) ? '' : $form['pubdate'];
         $book['summary'] = empty($form['summary']) ? '' : $form['summary'];
@@ -206,6 +230,7 @@ class Book extends AbstractModel
                 'message' => '添加失败',
             ];
         }
+        $res['book'] = $book;
         return $res;
     }
 
