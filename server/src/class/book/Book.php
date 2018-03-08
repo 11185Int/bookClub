@@ -10,6 +10,7 @@ namespace CP\book;
 
 use CP\api\Douban;
 use CP\common\AbstractModel;
+use Slim\Http\UploadedFile;
 
 class Book extends AbstractModel
 {
@@ -150,6 +151,105 @@ class Book extends AbstractModel
         return $book ?: [];
     }
 
+    public function submit($form, $openid)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '成功',
+        );
+
+        $message = '';
+        if (empty($form['isbn'])) {
+            $message = '缺少isbn';
+        }
+        if (empty($form['title']) || empty($form['author']) || empty($form['image'])) {
+            $message = '缺少参数';
+        }
+        if ($message) {
+            return [
+                'status' => 99999,
+                'message' => $message,
+            ];
+        }
+        $isbn = $form['isbn'];
+        $book = $this->findBook($isbn);
+        if (!empty($book)) {
+            return [
+                'status' => 99999,
+                'message' => '此书已存在',
+            ];
+        }
+        $tags = empty($form['tags']) ? [] : explode(',', $form['tags']);
+        $author = empty($form['author']) ? [] : explode(',', $form['author']);
+
+        $book = [];
+        $book['isbn10'] = strlen($isbn) == 10? $isbn : '';
+        $book['isbn13'] = strlen($isbn) == 13? $isbn : '';
+        $book['category_id'] = 1;
+        $book['title'] = $form['title'];
+        $book['author'] = $author;
+        $book['rating'] = '';
+        $book['publisher'] = empty($form['publisher']) ? '' : $form['publisher'];
+        $book['price'] = empty($form['price']) ? '' : $form['price'];
+        $book['image'] = $form['image'];
+        $book['tags'] = $tags;
+        $book['pubdate'] = empty($form['pubdate']) ? '' : $form['pubdate'];
+        $book['summary'] = empty($form['summary']) ? '' : $form['summary'];
+        $book['rating']['average'] = 4.0;
+        $book['ismanual'] = 1;
+        $book['openid'] = $openid;
+
+        $flag = $this->saveBook($book);
+        if (!$flag) {
+            return [
+                'status' => 99999,
+                'message' => '添加失败',
+            ];
+        }
+        return $res;
+    }
+
+    /**
+     * @param $image UploadedFile
+     * @return array
+     */
+    public function saveImage($image)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '',
+            'image' => '',
+        );
+
+        if (!$image || !in_array($image->getClientMediaType(),
+            ['image/png','image/jpeg','image/gif','image/bmp','image/tiff','image/svg+xml'])) {
+            return [
+                'status' => 99999,
+                'message' => '图片不存在或格式错误',
+            ];
+        }
+
+        if ($image->getError() === UPLOAD_ERR_OK) {
+            $directory = __DIR__. '/../../../public/resources/book/image/';
+            $filename = $this->moveUploadedFile($directory, $image);
+            $domain = 'https://weiapp.doyoteam.com/bookclub/public/';
+            $res['image'] = $domain . 'resources/book/image/'. $filename;
+        }
+
+        return $res;
+    }
+
+    protected function moveUploadedFile($directory, UploadedFile $uploadedFile)
+    {
+        $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+        $basename = bin2hex(random_bytes(8)); // see http://php.net/manual/en/function.random-bytes.php
+        $filename = sprintf('%s.%0.8s', $basename, $extension);
+
+        $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
+
+        return $filename;
+    }
+
     protected function saveBook($book)
     {
         if (empty($book)) {
@@ -174,11 +274,14 @@ class Book extends AbstractModel
             'tags' => mb_strimwidth($tags, 0, 180, '...'),
             'pubdate' => $book['pubdate'],
             'summary' => mb_strimwidth($book['summary'], 0, 1000, '...'),
+            'ismanual' => empty($book['ismanual']) ? '' : $book['ismanual'],
+            'openid' => empty($book['openid']) ? '' : $book['openid'],
         ];
         $isbn = $book['isbn13'] ?: $book['isbn10'];
-        if ($isbn) {
-            $this->capsule->table('book')->insert($kv);
+        if (!$isbn) {
+            return false;
         }
+        $this->capsule->table('book')->insert($kv);
         return true;
     }
 

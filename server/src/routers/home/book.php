@@ -122,3 +122,27 @@ $app->post('/home/book/return', function (\Slim\Http\Request $request, \Slim\Htt
 
     return $response->withJson($res);
 });
+
+// 提交图书表单
+$app->post('/home/book/submit', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+
+    $model = new Book();
+    $res = $model->submit($request->getParams(), $openid);
+
+    return $response->withJson($res);
+});
+
+// 上传图书封面
+$app->post('/home/book/submit/image', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $uploadFiles = $request->getUploadedFiles();
+    $image = isset($uploadFiles['image']) ? $uploadFiles['image'] : null;
+
+    $model = new Book();
+    $res = $model->saveImage($image);
+
+    return $response->withJson($res);
+});
