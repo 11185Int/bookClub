@@ -15,6 +15,9 @@ return [
             'path' => __DIR__ . '/../logs/app.log',
             'level' => \Monolog\Logger::DEBUG,
         ],
+
+        //configuration
+        'config' => include __DIR__.'/../config/config.php',
     ],
 
     //handle Exception and return json

@@ -213,7 +213,7 @@ class Book extends AbstractModel
      * @param $image UploadedFile
      * @return array
      */
-    public function saveImage($image)
+    public function saveImage($image, $config)
     {
         $res = array(
             'status' => 0,
@@ -232,7 +232,7 @@ class Book extends AbstractModel
         if ($image->getError() === UPLOAD_ERR_OK) {
             $directory = __DIR__. '/../../../public/resources/book/image/';
             $filename = $this->moveUploadedFile($directory, $image);
-            $domain = 'https://weiapp.doyoteam.com/bookclub/public/';
+            $domain = $config['domain'];
             $res['image'] = $domain . 'resources/book/image/'. $filename;
         }
 

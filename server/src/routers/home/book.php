@@ -143,9 +143,10 @@ $app->post('/home/book/submit/image', function (\Slim\Http\Request $request, \Sl
 
     $uploadFiles = $request->getUploadedFiles();
     $image = isset($uploadFiles['image']) ? $uploadFiles['image'] : null;
+    $config = $this->get('settings')['config'];
 
     $model = new Book();
-    $res = $model->saveImage($image);
+    $res = $model->saveImage($image, $config);
 
     return $response->withJson($res);
 });

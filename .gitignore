@@ -2,3 +2,6 @@
 .gitignore
 server/config.php
 server/wechat.php
+server/config/config.php
+server/config/database.php
+server/config/wechat.php
