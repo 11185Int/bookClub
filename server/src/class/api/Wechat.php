@@ -40,7 +40,7 @@ class Wechat
         //return array('openid' => 'openid' . rand(10000, 99999), 'session_key' => 'session_key' . rand(10000, 99999));
 
         $mini = $this->_app;
-        $session = $mini->user->getSessionKey($jscode);
+        $session = $mini->sns->getSessionKey($jscode);
         return $session;
     }
 
