@@ -10,6 +10,7 @@ use CP\book\Book;
 use CP\book\BookShare;
 use CP\book\BookBorrow;
 use CP\common\AccountSessionKey;
+use CP\common\AccessList;
 
 // 所有共享图书
 $app->get('/home/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
@@ -137,6 +138,42 @@ $app->post('/home/book/submit', function (\Slim\Http\Request $request, \Slim\Htt
 
     $model = new Book();
     $res = $model->submit($params, $openid, $config);
+
+    return $response->withJson($res);
+})->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, $next) {
+    //BEFORE
+    $key = $request->getParam('key');
+    $checkFlag = true;
+    if ($key) {
+        $accountKey = new AccountSessionKey();
+        $openid = $accountKey->getOpenIdByKey($key);
+        if ($openid) {
+            $model = new AccessList();
+            if (!$model->checkAccess($openid)) {
+                $checkFlag = false;
+            }
+        } else {
+            $checkFlag = false;
+        }
+    } else {
+        $checkFlag = false;
+    }
+    if (!$checkFlag) {
+        return $response->withJson(array(
+            'status' => 10005,
+            'message' => '没有权限操作',
+        ));
+    }
+    //NEXT
+    $response = $next($request, $response);
+    //AFTER
+    return $response;
+});
+
+$app->get('/home/book/clear', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $model = new Book();
+    $res = $model->clear();
 
     return $response->withJson($res);
 });

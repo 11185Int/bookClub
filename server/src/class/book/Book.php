@@ -289,7 +289,7 @@ class Book extends AbstractModel
         }
         $tagArr = [];
         foreach ($book['tags'] as $tag) {
-            $tagArr[] = $tag['title'];
+            $tagArr[] = $tag;
         }
         $tags = implode(',', $tagArr);
         $image = empty($book['images']['large']) ? $book['image'] : $book['images']['large'];
@@ -315,6 +315,19 @@ class Book extends AbstractModel
         }
         $this->capsule->table('book')->insert($kv);
         return true;
+    }
+
+    public function clear()
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '成功',
+        );
+        $bookids = $this->capsule->table('book')->where('ismanual', 1)->select('id')->get();
+        $bookids = array_column($bookids, 'id');
+        $this->capsule->table('book')->whereIn('id', $bookids)->delete();
+        $this->capsule->table('book_share')->whereIn('book_id', $bookids)->delete();
+        return $res;
     }
 
 }
