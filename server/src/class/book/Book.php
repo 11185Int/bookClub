@@ -173,7 +173,7 @@ class Book extends AbstractModel
             ];
         }
         if (!$image || !in_array($image->getClientMediaType(),
-                ['image/png','image/jpeg','image/gif','image/bmp','image/tiff','image/svg+xml'])) {
+                ['image/png','image/jpeg','image/jpg','image/gif','image/bmp','image/tiff','image/svg+xml'])) {
             return [
                 'status' => 99999,
                 'message' => '图片不存在或格式错误',
