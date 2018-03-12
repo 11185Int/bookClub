@@ -203,8 +203,14 @@ class Book extends AbstractModel
             $imageUrl = $domain . 'resources/book/image/'. $filename;
         }
 
-        $tags = empty($form['tags']) ? [] : explode(',', $form['tags']);
+        $tagsArray = empty($form['tags']) ? [] : explode(',', $form['tags']);
         $author = empty($form['author']) ? [] : explode(',', $form['author']);
+        $tags = [];
+        if (!empty($tagsArray)) {
+            foreach ($tagsArray as $item) {
+                $tags[]['title'] = $item;
+            }
+        }
 
         $book = [];
         $book['isbn10'] = strlen($isbn) == 10? $isbn : '';
@@ -289,7 +295,7 @@ class Book extends AbstractModel
         }
         $tagArr = [];
         foreach ($book['tags'] as $tag) {
-            $tagArr[] = $tag;
+            $tagArr[] = $tag['title'];
         }
         $tags = implode(',', $tagArr);
         $image = empty($book['images']['large']) ? $book['image'] : $book['images']['large'];
@@ -306,7 +312,7 @@ class Book extends AbstractModel
             'tags' => mb_strimwidth($tags, 0, 180, '...'),
             'pubdate' => $book['pubdate'],
             'summary' => mb_strimwidth($book['summary'], 0, 1000, '...'),
-            'ismanual' => empty($book['ismanual']) ? '' : $book['ismanual'],
+            'ismanual' => empty($book['ismanual']) ? 0 : $book['ismanual'],
             'openid' => empty($book['openid']) ? '' : $book['openid'],
         ];
         $isbn = $book['isbn13'] ?: $book['isbn10'];
