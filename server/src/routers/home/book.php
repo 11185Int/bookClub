@@ -104,7 +104,7 @@ $app->post('/home/book/borrow', function (\Slim\Http\Request $request, \Slim\Htt
     $book_share_id = $request->getParam('book_share_id');
     $remark = $request->getParam('remark');
 
-    $model = new BookBorrow();
+    $model = new BookBorrow($this);
     $res = $model->borrow($openid, $book_share_id, $remark);
 
     return $response->withJson($res);

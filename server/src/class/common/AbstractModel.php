@@ -8,9 +8,13 @@ abstract class AbstractModel
     protected $_db_prefix = 'tb_';
     public $db = null;
     protected $capsule = null;
+    protected $app = null;
 
-    public function __construct()
+    public function __construct($app = null)
     {
+        if ($app) {
+            $this->app = $app;
+        }
         $capsule = new \Illuminate\Database\Capsule\Manager();
         require __DIR__ . '/../../../config/database.php';
         $config = isset($DB_CONFIG) ? $DB_CONFIG: [];
