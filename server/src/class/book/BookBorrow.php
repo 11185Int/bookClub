@@ -3,6 +3,7 @@
 namespace CP\book;
 
 use CP\common\AbstractModel;
+use CP\common\Account;
 
 class BookBorrow extends AbstractModel
 {
@@ -46,6 +47,15 @@ class BookBorrow extends AbstractModel
             return [
                 'status' => 10000,
                 'message' => '参数不全',
+            ];
+        }
+
+        //是否设置了真实名字
+        $accountModel = new Account();
+        if ($accountModel->isRealNameEmpty($openid)) {
+            return [
+                'status' => 10006,
+                'message' => '还未设置真实名字',
             ];
         }
 

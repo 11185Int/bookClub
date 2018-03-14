@@ -95,4 +95,10 @@ class Account extends AbstractModel
         return $res;
     }
 
+    public function isRealNameEmpty($openid)
+    {
+        $user = $this->capsule->table('user')->where('openid', $openid)->first();
+        return empty($user['realname']);
+    }
+
 }
