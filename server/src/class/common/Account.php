@@ -72,4 +72,27 @@ class Account extends AbstractModel
 
         return $res;
     }
+
+    public function rename($openid, $name)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => 'success',
+        );
+
+        if (!$name) {
+            $res['status'] = 99999;
+            $res['message'] = '参数错误';
+            return $res;
+        }
+        $user = $this->capsule->table('user')->where('openid', $openid)->first();
+        if ($user['realname']) {
+            $res['status'] = 99999;
+            $res['message'] = '只能设置一次真实姓名';
+            return $res;
+        }
+        $this->capsule->table('user')->where('openid', $openid)->update(['realname' => $name]);
+        return $res;
+    }
+
 }
