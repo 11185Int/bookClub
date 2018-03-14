@@ -31,6 +31,7 @@ class Book extends AbstractModel
             ->leftJoin('book_share AS ss', 'ss.book_id', '=', 'b.id')
             ->leftJoin('book_borrow AS bb', 'bb.book_share_id', '=', 'ss.id')
             ->select('b.id','b.isbn10','b.isbn13','b.title','b.image','s.share_status','s.lend_status')
+            ->selectRaw('max('.$this->capsule->getConnection()->getTablePrefix().'s.id) AS sid')
             ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'s.id) AS book_share_sum')
             ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'bb.id) AS book_borrow_sum')
             ->where('s.share_status', 1)
@@ -41,13 +42,14 @@ class Book extends AbstractModel
         if ($name) {
             $builder->where(function ($q) use ($name) {
                 $q->where('b.title', 'like', "%{$name}%")
+
                     ->orWhere('b.author', 'like', "%{$name}%")
                     ->orWhere('b.publisher', 'like', "%{$name}%")
                     ->orWhere('b.tags', 'like', "%{$name}%");
             });
         }
         $totalCount = count($builder->get());
-        $builder->orderBy('s.id', 'desc')
+        $builder->orderBy('sid', 'desc')
             ->limit($pagesize)->offset($offset);
         $data = $builder->get();
         if (!empty($data)) {
