@@ -15,8 +15,8 @@ $app->post('/home/account/rename', function(\Slim\Http\Request $request, \Slim\H
     $account = new \CP\common\AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
     $model = new Account();
-    $name = $request->getParam('name');
-    $res = $model->rename($openid, $name);
+    $realname = $request->getParam('realname');
+    $res = $model->rename($openid, $realname);
 
     return $response->withJson($res);
 });
