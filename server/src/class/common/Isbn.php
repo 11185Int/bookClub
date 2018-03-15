@@ -1,4 +1,9 @@
 <?php
+/*
+Author: Mike White (m@mwhite.info)
+License: MIT License
+https://github.com/mwhite/php-isbn
+*/
 
 namespace CP\common;
 
