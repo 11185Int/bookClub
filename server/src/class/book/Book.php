@@ -109,6 +109,12 @@ class Book extends AbstractModel
             'status' => 0,
             'message' => '',
         );
+        if (!$isbn) {
+            return [
+                'status' => 1001,
+                'message' => 'isbn不能为空',
+            ];
+        }
         $builder = $this->capsule->table('book_share AS share')
             ->select('share.id AS book_share_id','user.nickname','user.headimgurl',
                 'share.share_status','share.lend_status','share.share_time')
@@ -140,7 +146,12 @@ class Book extends AbstractModel
             'status' => 0,
             'message' => '',
         );
-
+        if (!$isbn) {
+            return [
+                'status' => 1001,
+                'message' => 'isbn不能为空',
+            ];
+        }
         $builder = $this->capsule->table('book_borrow AS borrow')
             ->select('share.id AS book_share_id','user.nickname','user.headimgurl')
             ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
@@ -149,6 +160,42 @@ class Book extends AbstractModel
             ->where(function ($q) use ($isbn) {
                 $q->where('book.isbn10', $isbn)->orWhere('isbn13', $isbn);
             })->where('share.owner_openid', $openid)
+            ->where('borrow.return_status', 0)
+            ->groupBy('user.id')
+            ->orderBy('share.share_time', 'desc');
+
+        if ($builder) {
+            $res['data']['list'] = $builder->get();
+        } else {
+            $res = array(
+                'status' => 1001,
+                'message' => '获取数据失败',
+            );
+        }
+
+        return $res;
+    }
+
+    public function getMyReturnList($openid, $isbn)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '',
+        );
+        if (!$isbn) {
+            return [
+                'status' => 1001,
+                'message' => 'isbn不能为空',
+            ];
+        }
+        $builder = $this->capsule->table('book_borrow AS borrow')
+            ->select('share.id AS book_share_id','user.nickname','user.headimgurl')
+            ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
+            ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
+            ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
+            ->where(function ($q) use ($isbn) {
+                $q->where('book.isbn10', $isbn)->orWhere('isbn13', $isbn);
+            })->where('borrow.borrower_openid', $openid)
             ->where('borrow.return_status', 0)
             ->groupBy('user.id')
             ->orderBy('share.share_time', 'desc');

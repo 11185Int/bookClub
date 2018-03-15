@@ -115,17 +115,24 @@ class BookBorrow extends AbstractModel
                 'message' => '参数不全',
             ];
         }
-
+        //默认还最后借的那本
         $book_borrow = $this->capsule->table('book_borrow')
             ->where('book_share_id', $book_share_id)
             ->where('return_status', 0)
             ->orderBy('id', 'desc')
-            ->first();
-        $book_borrow = $book_borrow ?: [];
-        if (empty($book_borrow['id'])) {
+            ->first() ?: [];
+        $book_share = $this->capsule->table('book_share')->find($book_share_id) ?: [];
+        if (empty($book_borrow) || empty($book_share)) {
             return [
                 'status' => 99999,
                 'message' => '找不到该借阅记录',
+            ];
+        }
+        //操作只允许借出者和借入者双方执行
+        if ($book_share['owner_openid'] != $openid && $book_borrow['borrower_openid'] != $openid) {
+            return [
+                'status' => 20002,
+                'message' => '越权操作',
             ];
         }
 
@@ -137,8 +144,7 @@ class BookBorrow extends AbstractModel
         $this->capsule->getConnection()->beginTransaction();
 
         $r1 = $this->capsule->table('book_borrow')->where('id', $book_borrow['id'])->update($kv);
-        $r2 = $this->capsule->table('book_share')->where('id', $book_share_id)->where('owner_openid', $openid)
-            ->update(['lend_status' => 1]);
+        $r2 = $this->capsule->table('book_share')->where('id', $book_share_id)->update(['lend_status' => 1]);
 
         if ($r1 && $r2) {
             $this->capsule->getConnection()->commit();
