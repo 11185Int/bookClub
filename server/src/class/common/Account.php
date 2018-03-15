@@ -47,6 +47,9 @@ class Account extends AbstractModel
         ];
         $this->_accountKey->updateUserInfo($openid, $data);
 
+        $user = $this->capsule->table('user')->where('openid', $openid)->first();
+        $res['data']['realname'] = empty($user['realname']) ? '' : $user['realname'];
+
         $res['data']['key'] = $key;
         return $res;
     }
