@@ -10,6 +10,7 @@ namespace CP\book;
 
 use CP\api\Douban;
 use CP\common\AbstractModel;
+use CP\common\Isbn;
 use Slim\Http\UploadedFile;
 
 class Book extends AbstractModel
@@ -229,8 +230,8 @@ class Book extends AbstractModel
         $image = $form['image'];
 
         $message = '';
-        if (empty($form['isbn'])) {
-            $message = '缺少isbn';
+        if (empty($form['isbn']) || !Isbn::validate($form['isbn'])) {
+            $message = 'isbn错误';
         }
         if (empty($form['title']) || empty($form['author'])) {
             $message = '缺少参数';
@@ -282,8 +283,8 @@ class Book extends AbstractModel
         }
 
         $book = [];
-        $book['isbn10'] = strlen($isbn) == 10? $isbn : '';
-        $book['isbn13'] = strlen($isbn) == 13? $isbn : '';
+        $book['isbn10'] = strlen($isbn) == 10? $isbn : Isbn::to10($isbn);
+        $book['isbn13'] = strlen($isbn) == 13? $isbn : Isbn::to13($isbn);
         $book['category_id'] = 1;
         $book['title'] = $form['title'];
         $book['author'] = $author;
