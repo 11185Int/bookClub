@@ -22,6 +22,7 @@ class BookBorrow extends AbstractModel
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->where('borrow.borrower_openid', $openid)
             ->groupBy('book.id')
+            ->orderBy('return_status', 'asc')
             ->orderBy('borrow.borrow_time', 'desc');
         
         if ($builder) {

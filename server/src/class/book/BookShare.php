@@ -26,6 +26,7 @@ class BookShare extends AbstractModel
             ->select('share.id AS book_share_id','share.book_id','book.isbn10','book.isbn13','book.title','book.image',                 'share.share_status','share.lend_status','share.share_time')
             ->where('share.owner_openid', $openid)
             ->where('share.share_status', 1)
+            ->orderBy('share.lend_status', 'desc')
             ->orderBy('share.share_time', 'desc');
 
         if ($builder) {
