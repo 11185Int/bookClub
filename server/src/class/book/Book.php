@@ -393,17 +393,4 @@ class Book extends AbstractModel
         return true;
     }
 
-    public function clear()
-    {
-        $res = array(
-            'status' => 0,
-            'message' => '成功',
-        );
-        $bookids = $this->capsule->table('book')->where('ismanual', 1)->select('id')->get();
-        $bookids = array_column($bookids, 'id');
-        $this->capsule->table('book')->whereIn('id', $bookids)->delete();
-        $this->capsule->table('book_share')->whereIn('book_id', $bookids)->delete();
-        return $res;
-    }
-
 }
