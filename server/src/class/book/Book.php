@@ -30,15 +30,15 @@ class Book extends AbstractModel
         $builder = $this->capsule->table('book AS b')
             ->leftJoin('book_share AS s', 's.book_id', '=', 'b.id')
             ->leftJoin('book_share AS ss', 'ss.book_id', '=', 'b.id')
-            ->leftJoin('book_borrow AS bb', 'bb.book_share_id', '=', 'ss.id')
+            ->leftJoin('book_borrow AS bb', function($join) {
+                $join->on('bb.book_share_id', '=', 'ss.id');
+                $join->where('bb.return_status', '=', 0);
+            })
             ->select('b.id','b.isbn10','b.isbn13','b.title','b.image','s.share_status','s.lend_status')
             ->selectRaw('max('.$this->capsule->getConnection()->getTablePrefix().'s.id) AS sid')
             ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'s.id) AS book_share_sum')
             ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'bb.id) AS book_borrow_sum')
             ->where('s.share_status', 1)
-            ->where(function($q) {
-                $q->where('bb.return_status', 0)->orWhereNull('bb.return_status');
-            })
             ->groupBy('b.id');
         if ($name) {
             $builder->where(function ($q) use ($name) {
