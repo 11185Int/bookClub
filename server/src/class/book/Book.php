@@ -117,7 +117,7 @@ class Book extends AbstractModel
             ];
         }
         $builder = $this->capsule->table('book_share AS share')
-            ->select('share.id AS book_share_id','user.nickname','user.headimgurl',
+            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname',
                 'share.share_status','share.lend_status','share.share_time')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
@@ -130,7 +130,7 @@ class Book extends AbstractModel
             ->orderBy('share.share_time', 'desc');
 
         if ($builder) {
-            $res['data']['list'] = $builder->get();
+            $res['data']['list'] = $this->replaceRealName($builder->get());
         } else {
             $res = array(
                 'status' => 1001,
@@ -154,7 +154,7 @@ class Book extends AbstractModel
             ];
         }
         $builder = $this->capsule->table('book_borrow AS borrow')
-            ->select('share.id AS book_share_id','user.nickname','user.headimgurl')
+            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname')
             ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->join('user AS user', 'user.openid', '=', 'borrow.borrower_openid', 'inner')
@@ -166,7 +166,7 @@ class Book extends AbstractModel
             ->orderBy('share.share_time', 'desc');
 
         if ($builder) {
-            $res['data']['list'] = $builder->get();
+            $res['data']['list'] = $this->replaceRealName($builder->get());
         } else {
             $res = array(
                 'status' => 1001,
@@ -190,7 +190,7 @@ class Book extends AbstractModel
             ];
         }
         $builder = $this->capsule->table('book_borrow AS borrow')
-            ->select('share.id AS book_share_id','user.nickname','user.headimgurl')
+            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname')
             ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
@@ -202,7 +202,7 @@ class Book extends AbstractModel
             ->orderBy('share.share_time', 'desc');
 
         if ($builder) {
-            $res['data']['list'] = $builder->get();
+            $res['data']['list'] = $this->replaceRealName($builder->get());
         } else {
             $res = array(
                 'status' => 1001,

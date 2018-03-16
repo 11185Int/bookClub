@@ -41,4 +41,19 @@ abstract class AbstractModel
         return isset($user['id']) ? $user['id'] : 0;
     }
 
+    public function replaceRealName($array)
+    {
+        if (empty($array)) {
+            return $array;
+        }
+        $data = [];
+        foreach ($array as $item) {
+            if (!empty($item['realname'])) {
+                $item['nickname'] = $item['realname'];
+            }
+            $data[] = $item;
+        }
+        return $data;
+    }
+
 }
