@@ -18,9 +18,10 @@ $app->post('/home/my/share', function (\Slim\Http\Request $request, \Slim\Http\R
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
 
     $model = new BookShare();
-    $res = $model->getMyBookShare($openid);
+    $res = $model->getMyBookShare($groupId, $openid);
 
     return $response->withJson($res);
 });
@@ -30,9 +31,10 @@ $app->post('/home/my/borrow', function (\Slim\Http\Request $request, \Slim\Http\
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
 
     $model = new BookBorrow();
-    $res = $model->getMyBookBorrow($openid);
+    $res = $model->getMyBookBorrow($groupId, $openid);
 
     return $response->withJson($res);
 });

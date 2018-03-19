@@ -8,7 +8,7 @@ use CP\common\Account;
 class BookBorrow extends AbstractModel
 {
 
-    public function getMyBookBorrow($openid)
+    public function getMyBookBorrow($groupId, $openid)
     {
         $res = array(
             'status' => 0,
@@ -21,6 +21,7 @@ class BookBorrow extends AbstractModel
             ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->where('borrow.borrower_openid', $openid)
+            ->where('share.group_id', $groupId)
             ->groupBy('book.id')
             ->orderBy('return_status', 'asc')
             ->orderBy('borrow.borrow_time', 'desc');
@@ -37,7 +38,7 @@ class BookBorrow extends AbstractModel
         return $res;
     }
 
-    public function borrow($openid, $book_share_id, $remark)
+    public function borrow($groupId, $openid, $book_share_id, $remark)
     {
         $res = array(
             'status' => 0,
@@ -89,7 +90,8 @@ class BookBorrow extends AbstractModel
         $this->capsule->getConnection()->beginTransaction();
 
         $r1 = $this->capsule->table('book_borrow')->insert($kv);
-        $r2 = $this->capsule->table('book_share')->where('id', $book_share_id)->update(['lend_status' => 2]);
+        $r2 = $this->capsule->table('book_share')->where('id', $book_share_id)->where('group_id', $groupId)
+            ->update(['lend_status' => 2]);
         if ($r1 && $r2) {
             $this->capsule->getConnection()->commit();
         } else {
@@ -103,7 +105,7 @@ class BookBorrow extends AbstractModel
         return $res;
     }
 
-    public function returnBook($openid, $book_share_id, $remark)
+    public function returnBook($groupId, $openid, $book_share_id, $remark)
     {
         $res = array(
             'status' => 0,
@@ -145,7 +147,8 @@ class BookBorrow extends AbstractModel
         $this->capsule->getConnection()->beginTransaction();
 
         $r1 = $this->capsule->table('book_borrow')->where('id', $book_borrow['id'])->update($kv);
-        $r2 = $this->capsule->table('book_share')->where('id', $book_share_id)->update(['lend_status' => 1]);
+        $r2 = $this->capsule->table('book_share')->where('id', $book_share_id)->where('group_id', $groupId)
+            ->update(['lend_status' => 1]);
 
         if ($r1 && $r2) {
             $this->capsule->getConnection()->commit();

@@ -15,8 +15,10 @@ use CP\common\AccessList;
 // 所有共享图书
 $app->get('/home/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $account = new AccountSessionKey();
+    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
     $model = new Book();
-    $res = $model->getList($request->getParams());
+    $res = $model->getList($groupId, $request->getParams());
 
     return $response->withJson($res);
 });
@@ -36,9 +38,11 @@ $app->get('/home/book/isbn', function (\Slim\Http\Request $request, \Slim\Http\R
 $app->get('/home/book/shareList', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $isbn = $request->getParam('isbn');
+    $account = new AccountSessionKey();
+    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
 
     $model = new Book();
-    $res = $model->getShareList($isbn);
+    $res = $model->getShareList($groupId, $isbn);
 
     return $response->withJson($res);
 });
@@ -49,9 +53,10 @@ $app->get('/home/book/returnList', function (\Slim\Http\Request $request, \Slim\
     $isbn = $request->getParam('isbn');
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
 
     $model = new Book();
-    $res = $model->getReturnList($openid, $isbn);
+    $res = $model->getReturnList($groupId, $openid, $isbn);
 
     return $response->withJson($res);
 });
@@ -62,9 +67,10 @@ $app->get('/home/book/myReturnList', function (\Slim\Http\Request $request, \Sli
     $isbn = $request->getParam('isbn');
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
 
     $model = new Book();
-    $res = $model->getMyReturnList($openid, $isbn);
+    $res = $model->getMyReturnList($groupId, $openid, $isbn);
 
     return $response->withJson($res);
 });
@@ -74,11 +80,12 @@ $app->post('/home/book/share', function (\Slim\Http\Request $request, \Slim\Http
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
     $isbn = $request->getParam('isbn');
     $remark = $request->getParam('remark');
 
     $model = new BookShare();
-    $res = $model->share($openid, $isbn, $remark);
+    $res = $model->share($groupId, $openid, $isbn, $remark);
 
     return $response->withJson($res);
 });
@@ -88,10 +95,11 @@ $app->post('/home/book/unshare', function (\Slim\Http\Request $request, \Slim\Ht
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
     $book_share_id = $request->getParam('book_share_id');
 
     $model = new BookShare();
-    $res = $model->unShare($openid, $book_share_id);
+    $res = $model->unShare($groupId, $openid, $book_share_id);
 
     return $response->withJson($res);
 });
@@ -101,10 +109,11 @@ $app->post('/home/book/reshare', function (\Slim\Http\Request $request, \Slim\Ht
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
     $book_share_id = $request->getParam('book_share_id');
 
     $model = new BookShare();
-    $res = $model->reShare($openid, $book_share_id);
+    $res = $model->reShare($groupId, $openid, $book_share_id);
 
     return $response->withJson($res);
 });
@@ -114,11 +123,12 @@ $app->post('/home/book/borrow', function (\Slim\Http\Request $request, \Slim\Htt
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
     $book_share_id = $request->getParam('book_share_id');
     $remark = $request->getParam('remark');
 
     $model = new BookBorrow($this);
-    $res = $model->borrow($openid, $book_share_id, $remark);
+    $res = $model->borrow($groupId, $openid, $book_share_id, $remark);
 
     return $response->withJson($res);
 });
@@ -128,11 +138,12 @@ $app->post('/home/book/return', function (\Slim\Http\Request $request, \Slim\Htt
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
     $book_share_id = $request->getParam('book_share_id');
     $remark = $request->getParam('remark');
 
     $model = new BookBorrow();
-    $res = $model->returnBook($openid, $book_share_id, $remark);
+    $res = $model->returnBook($groupId, $openid, $book_share_id, $remark);
 
     return $response->withJson($res);
 });
@@ -181,12 +192,4 @@ $app->post('/home/book/submit', function (\Slim\Http\Request $request, \Slim\Htt
     $response = $next($request, $response);
     //AFTER
     return $response;
-});
-
-$app->get('/home/book/clear', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
-
-    $model = new Book();
-    $res = $model->clear();
-
-    return $response->withJson($res);
 });

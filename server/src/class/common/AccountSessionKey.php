@@ -51,6 +51,15 @@ class AccountSessionKey extends AbstractModel
         return isset($kv['openid']) ? $kv['openid'] : null;
     }
 
+    public function getCurrentGroupIdByKey($key) {
+        $openid = $this->getOpenIdByKey($key);
+        if (!$openid) {
+            return 0;
+        }
+        $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('is_current', 1)->first();
+        return isset($user_group['group_id']) ? $user_group['group_id'] : 0;
+    }
+
     /**
      * @param $key string 3rd session key
      * @return string 微信服务器的session_key

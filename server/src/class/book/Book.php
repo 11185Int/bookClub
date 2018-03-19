@@ -16,7 +16,7 @@ use Slim\Http\UploadedFile;
 class Book extends AbstractModel
 {
 
-    public function getList($params)
+    public function getList($groupId, $params)
     {
         $res = array(
             'status' => 1,
@@ -39,6 +39,7 @@ class Book extends AbstractModel
             ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'s.id) AS book_share_sum')
             ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'bb.id) AS book_borrow_sum')
             ->where('s.share_status', 1)
+            ->where('s.group_id', $groupId)
             ->groupBy('b.id');
         if ($name) {
             $builder->where(function ($q) use ($name) {
@@ -104,7 +105,7 @@ class Book extends AbstractModel
         ];
     }
 
-    public function getShareList($isbn)
+    public function getShareList($groupId, $isbn)
     {
         $res = array(
             'status' => 0,
@@ -126,6 +127,7 @@ class Book extends AbstractModel
             ->where(function ($q) use ($isbn) {
                 $q->where('book.isbn10', $isbn)->orWhere('isbn13', $isbn);
             })
+            ->where('share.group_id', $groupId)
             ->groupBy('user.id')
             ->orderBy('share.share_time', 'desc');
 
@@ -141,7 +143,7 @@ class Book extends AbstractModel
         return $res;
     }
 
-    public function getReturnList($openid, $isbn)
+    public function getReturnList($groupId, $openid, $isbn)
     {
         $res = array(
             'status' => 0,
@@ -162,6 +164,7 @@ class Book extends AbstractModel
                 $q->where('book.isbn10', $isbn)->orWhere('isbn13', $isbn);
             })->where('share.owner_openid', $openid)
             ->where('borrow.return_status', 0)
+            ->where('share.group_id', $groupId)
             ->groupBy('user.id')
             ->orderBy('share.share_time', 'desc');
 
@@ -177,7 +180,7 @@ class Book extends AbstractModel
         return $res;
     }
 
-    public function getMyReturnList($openid, $isbn)
+    public function getMyReturnList($groupId, $openid, $isbn)
     {
         $res = array(
             'status' => 0,
@@ -198,6 +201,7 @@ class Book extends AbstractModel
                 $q->where('book.isbn10', $isbn)->orWhere('isbn13', $isbn);
             })->where('borrow.borrower_openid', $openid)
             ->where('borrow.return_status', 0)
+            ->where('share.group_id', $groupId)
             ->groupBy('user.id')
             ->orderBy('share.share_time', 'desc');
 

@@ -14,7 +14,7 @@ use CP\common\AccountSessionKey;
 class BookShare extends AbstractModel
 {
 
-    public function getMyBookShare($openid)
+    public function getMyBookShare($groupId, $openid)
     {
         $res = array(
             'status' => 0,
@@ -26,6 +26,7 @@ class BookShare extends AbstractModel
             ->select('share.id AS book_share_id','share.book_id','book.isbn10','book.isbn13','book.title','book.image',                 'share.share_status','share.lend_status','share.share_time')
             ->where('share.owner_openid', $openid)
             ->where('share.share_status', 1)
+            ->where('share.group_id', $groupId)
             ->orderBy('share.lend_status', 'desc')
             ->orderBy('share.share_time', 'desc');
 
@@ -48,12 +49,13 @@ class BookShare extends AbstractModel
     }
 
     /**
+     * @param $groupId
      * @param $openid
      * @param $isbn
      * @param $remark
      * @return array
      */
-    public function share($openid, $isbn, $remark)
+    public function share($groupId, $openid, $isbn, $remark)
     {
         $res = array(
             'status' => 0,
@@ -84,6 +86,7 @@ class BookShare extends AbstractModel
             'lend_status' => 1,
             'share_time' => time(),
             'remark' => $remark,
+            'group_id' => $groupId
         );
 
         $this->capsule->table('book_share')->insert($kv);
@@ -91,7 +94,7 @@ class BookShare extends AbstractModel
         return $res;
     }
 
-    public function unShare($openid, $book_share_id)
+    public function unShare($groupId, $openid, $book_share_id)
     {
         $res = array(
             'status' => 0,
@@ -130,11 +133,11 @@ class BookShare extends AbstractModel
             'lend_status' => 0,
         );
 
-        $this->capsule->table('book_share')->where('id', $book_share_id)->update($kv);
+        $this->capsule->table('book_share')->where('id', $book_share_id)->where('group_id', $groupId)->update($kv);
         return $res;
     }
 
-    public function reShare($openid, $book_share_id)
+    public function reShare($groupId, $openid, $book_share_id)
     {
         $res = array(
             'status' => 0,
@@ -173,7 +176,7 @@ class BookShare extends AbstractModel
             'lend_status' => 1,
         );
 
-        $this->capsule->table('book_share')->where('id', $book_share_id)->update($kv);
+        $this->capsule->table('book_share')->where('id', $book_share_id)->where('group_id', $groupId)->update($kv);
 
         return $res;
     }
