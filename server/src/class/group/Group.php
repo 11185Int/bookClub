@@ -36,6 +36,7 @@ class Group extends AbstractModel
             'is_current' => 1,
             'realname' => '',
             'phone' => '',
+            'create_time' => time(),
         ];
         $r2 = $this->capsule->table('user_group')->insert($user_group);
 
@@ -143,6 +144,7 @@ class Group extends AbstractModel
             'is_admin' => 0,
             'realname' => $realname,
             'phone' => $phone,
+            'create_time' => time(),
         ];
         $r1 = $this->capsule->table('user_group')->insert($user_group_insert);
         $r2 = $this->capsule->table('group')->where('id', $groupId)->increment('group_amount');
