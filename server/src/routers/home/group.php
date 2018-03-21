@@ -33,7 +33,7 @@ $app->post('/home/group/member/list', function (\Slim\Http\Request $request, \Sl
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
+    $groupId = $request->getParam('group_id');
 
     $group = new Group();
     $res = $group->getList($openid, $groupId);

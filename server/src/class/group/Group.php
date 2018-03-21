@@ -72,6 +72,26 @@ class Group extends AbstractModel
 
     public function getList($openId, $groupId)
     {
+        if (!$groupId) {
+            return [
+                'status' => 99999,
+                'message' => '缺少图书馆ID',
+            ];
+        }
+        $group = $this->capsule->table('group')->find($groupId);
+        if (empty($group)) {
+            return [
+                'status' => 99999,
+                'message' => '图书馆不存在',
+            ];
+        }
+        $user_group = $this->capsule->table('user_group')->where('openid', $openId)->where('group_id', $groupId)->get();
+        if (empty($user_group)) {
+            return [
+                'status' => 99999,
+                'message' => '还未加入此图书馆',
+            ];
+        }
         $data = $this->capsule->table('user_group')
             ->leftJoin('user', 'user.openid', '=', 'user_group.openid')
             ->select('user.nickname','user.headimgurl','user.realname AS user_realname','user.openid',
