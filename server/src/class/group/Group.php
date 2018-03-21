@@ -47,6 +47,9 @@ class Group extends AbstractModel
             return [
                 'status' => 99999,
                 'message' => '创建图书馆失败',
+                'data' => [
+                    'group_id' => $r1
+                ]
             ];
         }
 
