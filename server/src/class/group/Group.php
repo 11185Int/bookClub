@@ -53,7 +53,7 @@ class Group extends AbstractModel
         return $res;
     }
 
-    public function detail($groupId)
+    public function detail($openid, $groupId)
     {
         $group = $this->capsule->table('group')->find($groupId);
         $data = [
@@ -61,6 +61,7 @@ class Group extends AbstractModel
             'group_name' => $group['group_name'],
             'group_amount' => $group['group_amount'],
             'create_time' => date('Y/m/d', $group['create_time']),
+            'is_admin' => $group['creator_openid'] == $openid ? 1 : 0,
         ];
         $res = array(
             'status' => 0,

@@ -20,10 +20,11 @@ $app->post('/home/group/create', function (\Slim\Http\Request $request, \Slim\Ht
 $app->post('/home/group/detail', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
     $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
 
     $group = new Group();
-    $res = $group->detail($groupId);
+    $res = $group->detail($openid, $groupId);
 
     return $response->withJson($res);
 });
