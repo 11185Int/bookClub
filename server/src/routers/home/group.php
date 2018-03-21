@@ -21,7 +21,7 @@ $app->post('/home/group/detail', function (\Slim\Http\Request $request, \Slim\Ht
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
+    $groupId = $request->getParam('group_id');
 
     $group = new Group();
     $res = $group->detail($openid, $groupId);
