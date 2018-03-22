@@ -47,11 +47,9 @@ class Group extends AbstractModel
             return [
                 'status' => 99999,
                 'message' => '创建图书馆失败',
-                'data' => [
-                    'group_id' => $r1
-                ]
             ];
         }
+        $res['data']['group_id'] = $r1;
 
         return $res;
     }
@@ -146,6 +144,73 @@ class Group extends AbstractModel
 
     public function deleteMember($groupId, $openid, $user_group_id)
     {
+        if (!$groupId) {
+            return [
+                'status' => 99999,
+                'message' => '缺少图书馆ID',
+            ];
+        }
+        $group = $this->capsule->table('group')->find($groupId);
+        if (empty($group)) {
+            return [
+                'status' => 99999,
+                'message' => '图书馆不存在',
+            ];
+        }
+        $user_group = $this->capsule->table('user_group')->where('openid', $openid)
+            ->where('group_id', $groupId)->first();
+        if (empty($user_group)) {
+            return [
+                'status' => 99999,
+                'message' => '还未加入此图书馆',
+            ];
+        }
+        //检查是否有操作权限
+        if ($user_group['is_admin'] == 0) {
+            return [
+                'status' => 99999,
+                'message' => '无操作权限',
+            ];
+        }
+        //检查被删人是否在此组
+        $target = $this->capsule->table('user_group')->find($user_group_id);
+        if ($target['group_id'] != $groupId) {
+            return [
+                'status' => 99999,
+                'message' => '无操作权限，此人不在该图书馆',
+            ];
+        }
+        //检查组织里是否只剩一个人
+        $user_group = $this->capsule->table('user_group')->where('group_id', $groupId)->get();
+        if (count($user_group) > 1 && $target['openid'] == $openid) {
+            return [
+                'status' => 99999,
+                'message' => '请先删除其他成员',
+            ];
+        }
+        //检查是否有未归还的图书
+        $unreturn = $this->capsule->table('book_borrow AS borrow')
+            ->leftJoin('book_share AS share', 'share.id', '=', 'borrow.book_share_id')
+            ->select('borrow.id')
+            ->where('share.group_id', $groupId)
+            ->where('borrow.borrower_openid', $target['openid'])
+            ->where('borrow.return_status', 0)
+            ->get();
+        if (count($unreturn) > 0) {
+            return [
+                'status' => 99999,
+                'message' => '成员还有未归还的图书',
+            ];
+        }
+
+        $this->capsule->getConnection()->beginTransaction();
+        //取消该成员在当前图书馆的所有分享
+        $this->capsule->table('book_share')
+            ->where('owner_openid', $target['openid'])
+            ->where('group_id', $groupId)
+            ->update(['share_status' => 0]);
+        //删除成员
+        $this->capsule->table('user_gruop')->delete($user_group_id);
 
         $res = array(
             'status' => 0,

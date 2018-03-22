@@ -21,7 +21,7 @@ $app->post('/home/group/detail', function (\Slim\Http\Request $request, \Slim\Ht
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id');
+    $groupId = $request->getParam('group_id') ?: $account->getCurrentGroupIdByKey($request->getParam('key'));
 
     $group = new Group();
     $res = $group->detail($openid, $groupId);
@@ -47,7 +47,7 @@ $app->post('/home/group/member/delete', function (\Slim\Http\Request $request, \
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
+    $groupId = $request->getParam('group_id');
     $user_group_id = $request->getParam('user_group_id');
 
     $group = new Group();
