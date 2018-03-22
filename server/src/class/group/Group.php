@@ -142,7 +142,14 @@ class Group extends AbstractModel
         return $res;
     }
 
-    public function deleteMember($groupId, $openid, $user_group_id)
+    /**
+     * @param $groupId
+     * @param $openid
+     * @param $user_group_id
+     * @param $force int 是否强制删除 1是 0不是
+     * @return array
+     */
+    public function deleteMember($groupId, $openid, $user_group_id, $force)
     {
         if (!$groupId) {
             return [
@@ -191,26 +198,45 @@ class Group extends AbstractModel
         //检查是否有未归还的图书
         $unreturn = $this->capsule->table('book_borrow AS borrow')
             ->leftJoin('book_share AS share', 'share.id', '=', 'borrow.book_share_id')
-            ->select('borrow.id')
+            ->select('borrow.id', 'borrow.book_share_id')
             ->where('share.group_id', $groupId)
             ->where('borrow.borrower_openid', $target['openid'])
             ->where('borrow.return_status', 0)
             ->get();
-        if (count($unreturn) > 0) {
+        if (count($unreturn) > 0 && !$force) { //非强制移除
             return [
-                'status' => 99999,
+                'status' => 10007,
                 'message' => '成员还有未归还的图书',
             ];
         }
 
         $this->capsule->getConnection()->beginTransaction();
-        //取消该成员在当前图书馆的所有分享
-        $this->capsule->table('book_share')
-            ->where('owner_openid', $target['openid'])
-            ->where('group_id', $groupId)
-            ->update(['share_status' => 0]);
-        //删除成员
-        $this->capsule->table('user_gruop')->delete($user_group_id);
+        try {
+            if (count($unreturn) > 0 && $force) { //强制移除，自动归还所有未归还的书
+                $kv = array(
+                    'return_status' => 1,
+                    'return_time' => time(),
+                    'remark' => '移除成员，自动归还',
+                );
+                $borrowIds = array_column($unreturn, 'id');
+                $this->capsule->table('book_borrow')->whereIn('id', $borrowIds)->update($kv);
+                $shareIds = array_column($unreturn, 'book_share_id');
+                $this->capsule->table('book_share')->whereIn('id', $shareIds)->update(['lend_status' => 1]);
+            }
+
+            //取消该成员在当前图书馆的所有分享
+            $this->capsule->table('book_share')
+                ->where('owner_openid', $target['openid'])
+                ->where('group_id', $groupId)
+                ->update(['share_status' => 0]);
+            //删除成员
+            $this->capsule->table('user_gruop')->delete($user_group_id);
+            $this->capsule->table('group')->where('id', $groupId)->decrement('group_amount');
+
+        } catch (\Exception $e) {
+            $this->capsule->getConnection()->rollBack();
+        }
+        $this->capsule->getConnection()->commit();
 
         $res = array(
             'status' => 0,

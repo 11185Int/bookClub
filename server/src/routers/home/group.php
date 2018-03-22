@@ -49,9 +49,10 @@ $app->post('/home/group/member/delete', function (\Slim\Http\Request $request, \
     $openid = $account->getOpenIdByKey($request->getParam('key'));
     $groupId = $request->getParam('group_id');
     $user_group_id = $request->getParam('user_group_id');
+    $force = $request->getParam('force', 0);
 
     $group = new Group();
-    $res = $group->deleteMember($groupId, $openid, $user_group_id);
+    $res = $group->deleteMember($groupId, $openid, $user_group_id, $force);
 
     return $response->withJson($res);
 });
