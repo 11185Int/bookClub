@@ -25,8 +25,8 @@ abstract class AbstractModel
             'database'  => $config['dbname'],
             'username'  => $config['user'],
             'password'  => $config['pass'],
-            'charset'   => 'utf8',
-            'collation' => 'utf8_unicode_ci',
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
             'prefix'    => 'tb_',
         ]);
         $capsule->setAsGlobal();

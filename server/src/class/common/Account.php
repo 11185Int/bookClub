@@ -50,6 +50,9 @@ class Account extends AbstractModel
         $user = $this->capsule->table('user')->where('openid', $openid)->first();
         $res['data']['realname'] = empty($user['realname']) ? '' : $user['realname'];
 
+        $group_amount = $this->capsule->table('user_group')->where('openid', $openid)->count();
+        $res['data']['group_amount'] = $group_amount;
+
         $res['data']['key'] = $key;
         return $res;
     }
