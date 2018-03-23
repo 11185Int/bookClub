@@ -40,6 +40,7 @@ class Book extends AbstractModel
             ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'bb.id) AS book_borrow_sum')
             ->where('s.share_status', 1)
             ->where('s.group_id', $groupId)
+            ->where('ss.group_id', $groupId)
             ->groupBy('b.id');
         if ($name) {
             $builder->where(function ($q) use ($name) {
