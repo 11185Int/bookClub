@@ -210,6 +210,10 @@ class Group extends AbstractModel
                 'message' => '还有未归还的图书',
             ];
         }
+        //获取目标其他组，默认一个作为当前
+        $next_user_group = $this->capsule->table('user_group')->where('openid', $target['openid'])
+            ->where('is_current', 0)->orderBy('id', 'desc')->first();
+        $next_group_id = empty($next_user_group) ? 0 : $next_user_group['id'];
 
         $this->capsule->getConnection()->beginTransaction();
         try {
@@ -233,6 +237,11 @@ class Group extends AbstractModel
             //删除成员
             $this->capsule->table('user_group')->delete($user_group_id);
             $this->capsule->table('group')->where('id', $groupId)->decrement('group_amount');
+
+            //设置一个默认图书馆
+            if ($next_group_id) {
+                $this->capsule->table('user_group')->where('id', $next_group_id)->update(['is_current' => 1]);
+            }
 
         } catch (\Exception $e) {
             $this->capsule->getConnection()->rollBack();
