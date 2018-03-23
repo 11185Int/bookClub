@@ -5,7 +5,7 @@ use CP\book\BookShare;
 use CP\book\BookBorrow;
 use CP\common\AccountSessionKey;
 
-$app->get('/home/my/detail', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+$app->post('/home/my/detail', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $model = new Account();
     $res = $model->getDetail($request->getParams());

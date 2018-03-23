@@ -143,6 +143,7 @@ class Group extends AbstractModel
     }
 
     /**
+     * 此方法有内部调用，修改谨慎
      * @param $groupId
      * @param $openid int 操作人的openid
      * @param $user_group_id int 删除的成员id
@@ -206,7 +207,7 @@ class Group extends AbstractModel
         if (count($unreturn) > 0 && !$force) { //非强制移除
             return [
                 'status' => 10007,
-                'message' => '成员还有未归还的图书',
+                'message' => '还有未归还的图书',
             ];
         }
 
@@ -346,6 +347,77 @@ class Group extends AbstractModel
                 'message' => '切换图书馆失败',
             ];
         }
+
+        $res = array(
+            'status' => 0,
+            'message' => 'success',
+        );
+        return $res;
+    }
+
+    public function edit($groupId, $openid, $name, $summary)
+    {
+        $exist = $this->capsule->table('user_group')
+            ->where('group_id', $groupId)
+            ->where('openid', $openid)
+            ->where('is_admin', 1)
+            ->first();
+        if (empty($exist)) {
+            return [
+                'status' => 99999,
+                'message' => '无权限操作，参数错误',
+            ];
+        }
+        if (!$name || mb_strlen($name,'utf8') > 10) {
+            return [
+                'status' => 99999,
+                'message' => '图书馆名称长度错误',
+            ];
+        }
+        if (mb_strlen($summary,'utf8') > 80) {
+            return [
+                'status' => 99999,
+                'message' => '图书馆简介长度超过80',
+            ];
+        }
+        $kv = [
+            'group_name' => $name,
+            'summary' => $summary,
+        ];
+        $this->capsule->table('group')->where('id', $groupId)->update($kv);
+
+        $res = array(
+            'status' => 0,
+            'message' => 'success',
+        );
+        return $res;
+    }
+
+    public function quit($groupId, $openid)
+    {
+        if (!$groupId) {
+            return [
+                'status' => 99999,
+                'message' => '缺少图书馆ID',
+            ];
+        }
+        $group = $this->capsule->table('group')->find($groupId);
+        if (empty($group)) {
+            return [
+                'status' => 99999,
+                'message' => '图书馆不存在',
+            ];
+        }
+        $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)
+            ->first();
+        if (empty($user_group)) {
+            return [
+                'status' => 99999,
+                'message' => '还未加入此图书馆',
+            ];
+        }
+        $creator_openid = $group['creator_openid'];
+        $this->deleteMember($groupId, $creator_openid, $user_group['id'], 0);
 
         $res = array(
             'status' => 0,

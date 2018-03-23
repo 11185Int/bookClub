@@ -96,3 +96,32 @@ $app->post('/home/group/switch', function (\Slim\Http\Request $request, \Slim\Ht
 
     return $response->withJson($res);
 });
+
+// 修改图书馆信息
+$app->post('/home/group/edit', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $request->getParam('group_id');
+    $name = $request->getParam('name');
+    $summary = $request->getParam('summary');
+
+    $group = new Group();
+    $res = $group->edit($groupId, $openid, $name, $summary);
+
+    return $response->withJson($res);
+});
+
+// 退出图书馆
+$app->post('/home/group/quit', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $request->getParam('group_id');
+
+    $group = new Group();
+    $res = $group->quit($groupId, $openid);
+
+    return $response->withJson($res);
+});
+
