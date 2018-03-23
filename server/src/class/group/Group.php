@@ -144,8 +144,8 @@ class Group extends AbstractModel
 
     /**
      * @param $groupId
-     * @param $openid
-     * @param $user_group_id
+     * @param $openid int 操作人的openid
+     * @param $user_group_id int 删除的成员id
      * @param $force int 是否强制删除 1是 0不是
      * @return array
      */
@@ -230,7 +230,7 @@ class Group extends AbstractModel
                 ->where('group_id', $groupId)
                 ->update(['share_status' => 0]);
             //删除成员
-            $this->capsule->table('user_gruop')->delete($user_group_id);
+            $this->capsule->table('user_group')->delete($user_group_id);
             $this->capsule->table('group')->where('id', $groupId)->decrement('group_amount');
 
         } catch (\Exception $e) {
