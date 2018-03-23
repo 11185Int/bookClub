@@ -34,7 +34,7 @@ $app->post('/home/group/member/list', function (\Slim\Http\Request $request, \Sl
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id');
+    $groupId = $request->getParam('group_id', 0);
 
     $group = new Group();
     $res = $group->getList($openid, $groupId);
@@ -47,8 +47,8 @@ $app->post('/home/group/member/delete', function (\Slim\Http\Request $request, \
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id');
-    $user_group_id = $request->getParam('user_group_id');
+    $groupId = $request->getParam('group_id', 0);
+    $user_group_id = $request->getParam('user_group_id', 0);
     $force = $request->getParam('force', 0);
 
     $group = new Group();
@@ -62,7 +62,7 @@ $app->post('/home/group/join', function (\Slim\Http\Request $request, \Slim\Http
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id');
+    $groupId = $request->getParam('group_id', 0);
     $realname = $request->getParam('realname');
     $phone = $request->getParam('phone');
 
@@ -89,7 +89,7 @@ $app->post('/home/group/switch', function (\Slim\Http\Request $request, \Slim\Ht
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id');
+    $groupId = $request->getParam('group_id', 0);
 
     $group = new Group();
     $res = $group->switchGroup($groupId, $openid);
@@ -102,9 +102,9 @@ $app->post('/home/group/edit', function (\Slim\Http\Request $request, \Slim\Http
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id');
-    $name = $request->getParam('name');
-    $summary = $request->getParam('summary');
+    $groupId = $request->getParam('group_id', 0);
+    $name = $request->getParam('name', '');
+    $summary = $request->getParam('summary', '');
 
     $group = new Group();
     $res = $group->edit($groupId, $openid, $name, $summary);
@@ -117,7 +117,7 @@ $app->post('/home/group/quit', function (\Slim\Http\Request $request, \Slim\Http
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id');
+    $groupId = $request->getParam('group_id', 0);
 
     $group = new Group();
     $res = $group->quit($groupId, $openid);
