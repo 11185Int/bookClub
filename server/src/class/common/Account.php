@@ -84,6 +84,8 @@ class Account extends AbstractModel
         $group_amount = $this->capsule->table('user_group')->where('openid', $openid)->count();
         $res['data']['group_amount'] = $group_amount;
 
+        $res['data']['group_id'] = $this->_accountKey->getCurrentGroupIdByKey($key);
+
         return $res;
     }
 
