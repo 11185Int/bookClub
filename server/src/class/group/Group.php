@@ -76,12 +76,14 @@ class Group extends AbstractModel
                 'message' => '还未加入此图书馆',
             ];
         }
+        $current_group = $this->capsule->table('user_group')->where('openid', $openid)->where('is_current', 1)->first();
         $data = [
             'group_id' => $group['id'],
             'group_name' => $group['group_name'],
             'group_amount' => $group['group_amount'],
             'create_time' => date('Y/m/d', $group['create_time']),
             'is_admin' => $group['creator_openid'] == $openid ? 1 : 0,
+            'is_current' => $groupId == $current_group['group_id'] ? 1 : 0,
         ];
         $res = array(
             'status' => 0,
