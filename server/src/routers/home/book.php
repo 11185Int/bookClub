@@ -193,3 +193,16 @@ $app->post('/home/book/submit', function (\Slim\Http\Request $request, \Slim\Htt
     //AFTER
     return $response;
 });
+
+// 图书借阅历史
+$app->post('/home/book/borrow/history', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $isbn = $request->getParam('isbn');
+    $account = new AccountSessionKey();
+    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
+
+    $model = new Book();
+    $res = $model->getBorrowHistory($groupId, $isbn);
+
+    return $response->withJson($res);
+});

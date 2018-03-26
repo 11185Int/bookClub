@@ -120,7 +120,7 @@ class Book extends AbstractModel
         }
         $builder = $this->capsule->table('book_share AS share')
             ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname',
-                'share.share_status','share.lend_status','share.share_time')
+                'share.share_status','share.lend_status','share.share_time','share.remark')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
             ->where('share.share_status', 1)
@@ -315,6 +315,56 @@ class Book extends AbstractModel
         return $res;
     }
 
+    public function getBorrowHistory($groupId, $isbn)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '成功',
+        );
+        if (!$isbn) {
+            return [
+                'status' => 10000,
+                'message' => '参数不全',
+            ];
+        }
+
+        $data = $this->capsule->table('book')
+            ->select('share.owner_openid','sharer.nickname AS sharer_nickname',
+                'sharer.headimgurl AS sharer_headimgurl','share.group_id','borrow.book_share_id','borrow.borrower_openid',
+                'borrower.nickname AS borrower_nickname','borrower.headimgurl AS borrower_headimgurl',
+                'borrow.borrow_time', 'borrow.return_status', 'borrow.return_time')
+            ->leftJoin('book_share AS share', 'share.book_id', '=', 'book.id')
+            ->rightJoin('book_borrow AS borrow', 'borrow.book_share_id', '=', 'share.id')
+            ->leftJoin('user AS sharer', 'sharer.openid', '=', 'share.owner_openid')
+            ->leftJoin('user AS borrower', 'borrower.openid', '=', 'borrow.borrower_openid')
+            ->where(function ($q) use ($isbn) {
+                $q->where('book.isbn10', $isbn)->orWhere('isbn13', $isbn);
+            })
+            ->where('share.group_id', $groupId)
+            ->orderBy('borrow.borrow_time', 'desc')
+            ->get();
+
+        $list = [];
+        foreach ($data as $datum) {
+            $share_id = $datum['book_share_id'];
+            $list[$share_id]['book_share_id'] = $share_id;
+            $list[$share_id]['history'][] = [
+                'sharer_nickname' => $datum['sharer_nickname'],
+                'sharer_headimgurl' => $datum['sharer_headimgurl'],
+                'borrower_nickname' => $datum['borrower_nickname'],
+                'borrower_headimgurl' => $datum['borrower_headimgurl'],
+                'borrow_time' => date('Y-m-d', $datum['borrow_time']),
+                'return_time' => $datum['return_time'] ? date('Y-m-d', $datum['return_time']) : '',
+                'return status' => $datum['return_status'],
+                'borrow_during' => $datum['return_status'] ?
+                    $this->calIntervalDays($datum['borrow_time'], $datum['return_time']).'天':'',
+            ];
+        }
+        $res['data']['list'] = array_values($list);
+
+        return $res;
+    }
+
     /**
      * @param $image UploadedFile
      * @return array
@@ -395,7 +445,24 @@ class Book extends AbstractModel
             return false;
         }
         $this->capsule->table('book')->insert($kv);
-        return true;
+         return true;
+    }
+
+
+    /**
+     * @param $begin int
+     * @param $end int
+     * @return int
+     */
+    protected function calIntervalDays($begin, $end)
+    {
+        if (!$begin || !$end) {
+            return 0;
+        }
+        $b = new \DateTime(date('Y-m-d',$begin));
+        $e = new \DateTime(date('Y-m-d',$end));
+        $interval = $b->diff($e);
+        return $interval->days + 1;
     }
 
 }
