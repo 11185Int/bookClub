@@ -396,10 +396,10 @@ class Group extends AbstractModel
                 'message' => '昵称长度错误',
             ];
         }
-        if ($name) {
+        if ($name && $exist['is_admin']) {
             $this->capsule->table('group')->where('id', $groupId)->update(['group_name' => $name]);
         }
-        if ($summary) {
+        if ($summary && $exist['is_admin']) {
             $this->capsule->table('group')->where('id', $groupId)->update(['summary' => $summary]);
         }
         if ($realname) {
