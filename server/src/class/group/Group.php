@@ -371,7 +371,6 @@ class Group extends AbstractModel
         $exist = $this->capsule->table('user_group')
             ->where('group_id', $groupId)
             ->where('openid', $openid)
-            ->where('is_admin', 1)
             ->first();
         if (empty($exist)) {
             return [
