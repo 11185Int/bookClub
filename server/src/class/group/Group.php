@@ -447,7 +447,7 @@ class Group extends AbstractModel
         return $res;
     }
 
-    public function transfer($groupId, $openid, $to_openid)
+    public function transfer($groupId, $openid, $to_user_group_id)
     {
         if (!$groupId) {
             return [
@@ -470,6 +470,14 @@ class Group extends AbstractModel
                 'message' => '还未加入此图书馆，或不是管理员',
             ];
         }
+        $to_user_group = $this->capsule->table('user_group')->find($to_user_group_id);
+        if (empty($to_user_group)) {
+            return [
+                'status' => 99999,
+                'message' => '图书馆成员id错误',
+            ];
+        }
+        $to_openid = $to_user_group['openid'];
         if ($openid == $to_openid) {
             return [
                 'status' => 0,

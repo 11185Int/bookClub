@@ -132,10 +132,10 @@ $app->post('/home/group/transfer', function (\Slim\Http\Request $request, \Slim\
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
     $groupId = $request->getParam('group_id', 0);
-    $to_openid = $request->getParam('to_openid');
+    $to_user_group_id = $request->getParam('to_user_group_id');
 
     $group = new Group();
-    $res = $group->transfer($groupId, $openid, $to_openid);
+    $res = $group->transfer($groupId, $openid, $to_user_group_id);
 
     return $response->withJson($res);
 });
