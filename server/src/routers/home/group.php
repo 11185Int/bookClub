@@ -105,9 +105,10 @@ $app->post('/home/group/edit', function (\Slim\Http\Request $request, \Slim\Http
     $groupId = $request->getParam('group_id', 0);
     $name = $request->getParam('name', '');
     $summary = $request->getParam('summary', '');
+    $realname = $request->getParam('realname', '');
 
     $group = new Group();
-    $res = $group->edit($groupId, $openid, $name, $summary);
+    $res = $group->edit($groupId, $openid, $name, $summary, $realname);
 
     return $response->withJson($res);
 });
@@ -121,6 +122,20 @@ $app->post('/home/group/quit', function (\Slim\Http\Request $request, \Slim\Http
 
     $group = new Group();
     $res = $group->quit($groupId, $openid);
+
+    return $response->withJson($res);
+});
+
+// 转让图书馆
+$app->post('/home/group/transfer', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $request->getParam('group_id', 0);
+    $to_openid = $request->getParam('to_openid');
+
+    $group = new Group();
+    $res = $group->transfer($groupId, $openid, $to_openid);
 
     return $response->withJson($res);
 });

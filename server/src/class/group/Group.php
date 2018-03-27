@@ -366,7 +366,7 @@ class Group extends AbstractModel
         return $res;
     }
 
-    public function edit($groupId, $openid, $name, $summary)
+    public function edit($groupId, $openid, $name, $summary, $realname)
     {
         $exist = $this->capsule->table('user_group')
             ->where('group_id', $groupId)
@@ -379,7 +379,7 @@ class Group extends AbstractModel
                 'message' => '无权限操作，参数错误',
             ];
         }
-        if (!$name || mb_strlen($name,'utf8') > 10) {
+        if (mb_strlen($name,'utf8') > 10) {
             return [
                 'status' => 99999,
                 'message' => '图书馆名称长度错误',
@@ -391,11 +391,22 @@ class Group extends AbstractModel
                 'message' => '图书馆简介长度超过80',
             ];
         }
-        $kv = [
-            'group_name' => $name,
-            'summary' => $summary,
-        ];
-        $this->capsule->table('group')->where('id', $groupId)->update($kv);
+        if (mb_strlen($realname,'utf8') > 10) {
+            return [
+                'status' => 99999,
+                'message' => '昵称长度错误',
+            ];
+        }
+        if ($name) {
+            $this->capsule->table('group')->where('id', $groupId)->update(['group_name' => $name]);
+        }
+        if ($summary) {
+            $this->capsule->table('group')->where('id', $groupId)->update(['summary' => $summary]);
+        }
+        if ($realname) {
+            $this->capsule->table('user_group')->where('group_id', $groupId)->where('openid', $openid)
+                ->update(['realname' => $realname]);
+        }
 
         $res = array(
             'status' => 0,
@@ -429,6 +440,62 @@ class Group extends AbstractModel
         }
         $creator_openid = $group['creator_openid'];
         $this->deleteMember($groupId, $creator_openid, $user_group['id'], 0);
+
+        $res = array(
+            'status' => 0,
+            'message' => 'success',
+        );
+        return $res;
+    }
+
+    public function transfer($groupId, $openid, $to_openid)
+    {
+        if (!$groupId) {
+            return [
+                'status' => 99999,
+                'message' => '缺少图书馆ID',
+            ];
+        }
+        $group = $this->capsule->table('group')->find($groupId);
+        if (empty($group)) {
+            return [
+                'status' => 99999,
+                'message' => '图书馆不存在',
+            ];
+        }
+        $user_group = $this->capsule->table('user_group')->where('group_id', $groupId)->where('openid', $openid)
+            ->where('is_admin', 1)->first();
+        if (empty($user_group)) {
+            return [
+                'status' => 99999,
+                'message' => '还未加入此图书馆，或不是管理员',
+            ];
+        }
+        if ($openid == $to_openid) {
+            return [
+                'status' => 0,
+                'message' => 'success',
+            ];
+        }
+
+        $this->capsule->getConnection()->beginTransaction();
+        try {
+            $r1 = $this->capsule->table('user_group')->where('group_id', $groupId)->where('openid', $openid)
+                ->update(['is_admin' => 0]);
+            $r2 = $this->capsule->table('user_group')->where('group_id', $groupId)->where('openid', $to_openid)
+                ->update(['is_admin' => 1]);
+            if ($r1 && $r2) {
+                $this->capsule->getConnection()->commit();
+            } else {
+                $this->capsule->getConnection()->rollBack();
+                return [
+                    'status' => 99999,
+                    'message' => '转让失败',
+                ];
+            }
+        } catch (\Exception $e) {
+            $this->capsule->getConnection()->rollBack();
+        }
 
         $res = array(
             'status' => 0,
