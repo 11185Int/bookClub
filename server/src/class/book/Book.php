@@ -126,9 +126,7 @@ class Book extends AbstractModel
             ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
             ->where('share.share_status', 1)
             ->where('share.lend_status', 1)
-            ->where(function ($q) use ($isbn) {
-                $q->where('book.isbn10', $isbn)->orWhere('isbn13', $isbn);
-            })
+            ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
             ->where('share.group_id', $groupId)
             ->groupBy('user.id')
             ->orderBy('share.share_time', 'desc');
@@ -162,9 +160,8 @@ class Book extends AbstractModel
             ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->join('user AS user', 'user.openid', '=', 'borrow.borrower_openid', 'inner')
-            ->where(function ($q) use ($isbn) {
-                $q->where('book.isbn10', $isbn)->orWhere('isbn13', $isbn);
-            })->where('share.owner_openid', $openid)
+            ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
+            ->where('share.owner_openid', $openid)
             ->where('borrow.return_status', 0)
             ->where('share.group_id', $groupId)
             ->groupBy('user.id')
@@ -199,9 +196,8 @@ class Book extends AbstractModel
             ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
-            ->where(function ($q) use ($isbn) {
-                $q->where('book.isbn10', $isbn)->orWhere('isbn13', $isbn);
-            })->where('borrow.borrower_openid', $openid)
+            ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
+            ->where('borrow.borrower_openid', $openid)
             ->where('borrow.return_status', 0)
             ->where('share.group_id', $groupId)
             ->groupBy('user.id')
@@ -222,7 +218,7 @@ class Book extends AbstractModel
     public function findBook($isbn)
     {
         $book = $this->capsule->table('book')
-            ->where('isbn10', $isbn)->orWhere('isbn13', $isbn)
+            ->where(strlen($isbn) == 10 ?'isbn10': 'isbn13', $isbn)
             ->first();
         return $book ?: [];
     }
@@ -338,9 +334,7 @@ class Book extends AbstractModel
             ->rightJoin('book_borrow AS borrow', 'borrow.book_share_id', '=', 'share.id')
             ->leftJoin('user AS sharer', 'sharer.openid', '=', 'share.owner_openid')
             ->leftJoin('user AS borrower', 'borrower.openid', '=', 'borrow.borrower_openid')
-            ->where(function ($q) use ($isbn) {
-                $q->where('book.isbn10', $isbn)->orWhere('isbn13', $isbn);
-            })
+            ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
             ->where('share.group_id', $groupId)
             ->orderBy('borrow.borrow_time', 'desc')
             ->get();
