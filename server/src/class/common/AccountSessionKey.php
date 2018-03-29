@@ -116,7 +116,10 @@ class AccountSessionKey extends AbstractModel
             'openid' => $openid,
             'session_key' => $session_key,
             'expired' => time() + 7 * 24 * 3600,
+            'enable' => 1,
         );
+        //将旧的kv设置失效
+        $this->capsule->table('session')->where('openid', $openid)->update(['enable' => 0]);
 
         $res = $this->capsule->table('session')->insert($kv);
         return $res;
@@ -135,7 +138,8 @@ class AccountSessionKey extends AbstractModel
                 break;
             }
             $expired = $kv['expired'];
-            if ($expired < time()) {
+            $enable = $kv['enable'];
+            if ($expired < time() || !$enable) {
                 //do not delete session when its expired
                 //$this->db->delete($this->getTableName('session'), $where);
                 break;
