@@ -1,13 +1,13 @@
 {
-  "name": "slim/slim-skeleton",
-  "description": "A Slim Framework skeleton application for rapid development",
+  "name": "11185Int/bookClub",
+  "description": "A Wechat miniprogram for manager books' sharing",
   "keywords": [
     "microframework",
-    "rest",
-    "router",
+    "wechat",
+    "miniprogram",
     "psr7"
   ],
-  "homepage": "http://github.com/slimphp/Slim-Skeleton",
+  "homepage": "https://github.com/11185Int/bookClub",
   "license": "MIT",
   "authors": [
     {
@@ -17,21 +17,8 @@
     },
     {
       "name": "Keson Lau",
-      "email": "longlongxs@gmail.com"
-    }
-  ],
-  "repositories": [
-    {
-      "type": "package",
-      "package": {
-        "name": "rorystandley/MySQL-CRUD-PHP-OOP",
-        "version": "1.0.0",
-        "source": {
-          "url": "https://github.com/rorystandley/MySQL-CRUD-PHP-OOP.git",
-          "type": "git",
-          "reference": "master"
-        }
-      }
+      "email": "longlongxs@gmail.com",
+      "homepage": "https://github.com/liujiasheng"
     }
   ],
   "require": {
