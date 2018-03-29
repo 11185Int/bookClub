@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "8beee498c27a60101f31526fba15b365",
+    "content-hash": "c0e730b8222e947ffd50a1d056040b3c",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -232,16 +232,16 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "6.3.0",
+            "version": "6.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "f4db5a78a5ea468d4831de7f0bf9d9415e348699"
+                "reference": "68d0ea14d5a3f42a20e87632a5f84931e2709c90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/guzzle/guzzle/f4db5a78a5ea468d4831de7f0bf9d9415e348699.zip",
-                "reference": "f4db5a78a5ea468d4831de7f0bf9d9415e348699",
+                "url": "https://files.phpcomposer.com/files/guzzle/guzzle/68d0ea14d5a3f42a20e87632a5f84931e2709c90.zip",
+                "reference": "68d0ea14d5a3f42a20e87632a5f84931e2709c90",
                 "shasum": ""
             },
             "require": {
@@ -251,7 +251,7 @@
             },
             "require-dev": {
                 "ext-curl": "*",
-                "phpunit/phpunit": "^4.0 || ^5.0",
+                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.4",
                 "psr/log": "^1.0"
             },
             "suggest": {
@@ -260,7 +260,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "6.2-dev"
+                    "dev-master": "6.3-dev"
                 }
             },
             "autoload": {
@@ -293,7 +293,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2017-06-22T18:50:49+00:00"
+            "time": "2018-03-26T16:33:04+00:00"
         },
         {
             "name": "guzzlehttp/promises",
@@ -690,25 +690,25 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "1.22.1",
+            "version": "1.25.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "7cdf42c0b1cc763ab7e4c33c47a24e27c66bfccc"
+                "reference": "cbcf13da0b531767e39eb86e9687f5deba9857b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/briannesbitt/Carbon/7cdf42c0b1cc763ab7e4c33c47a24e27c66bfccc.zip",
-                "reference": "7cdf42c0b1cc763ab7e4c33c47a24e27c66bfccc",
+                "url": "https://files.phpcomposer.com/files/briannesbitt/Carbon/cbcf13da0b531767e39eb86e9687f5deba9857b4.zip",
+                "reference": "cbcf13da0b531767e39eb86e9687f5deba9857b4",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0",
-                "symfony/translation": "~2.6 || ~3.0"
+                "php": ">=5.3.9",
+                "symfony/translation": "~2.6 || ~3.0 || ~4.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "~2",
-                "phpunit/phpunit": "~4.0 || ~5.0"
+                "phpunit/phpunit": "^4.8.35 || ^5.7"
             },
             "type": "library",
             "extra": {
@@ -739,24 +739,27 @@
                 "datetime",
                 "time"
             ],
-            "time": "2017-01-16T07:55:07+00:00"
+            "time": "2018-03-19T15:50:49+00:00"
         },
         {
             "name": "nikic/fast-route",
-            "version": "v1.2.0",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/FastRoute.git",
-                "reference": "b5f95749071c82a8e0f58586987627054400cdf6"
+                "reference": "181d480e08d9476e61381e04a71b34dc0432e812"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/FastRoute/zipball/b5f95749071c82a8e0f58586987627054400cdf6",
-                "reference": "b5f95749071c82a8e0f58586987627054400cdf6",
+                "url": "https://files.phpcomposer.com/files/nikic/FastRoute/181d480e08d9476e61381e04a71b34dc0432e812.zip",
+                "reference": "181d480e08d9476e61381e04a71b34dc0432e812",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35|~5.7"
             },
             "type": "library",
             "autoload": {
@@ -782,7 +785,7 @@
                 "router",
                 "routing"
             ],
-            "time": "2017-01-19T11:35:12+00:00"
+            "time": "2018-02-13T20:26:39+00:00"
         },
         {
             "name": "overtrue/socialite",
@@ -836,16 +839,16 @@
         },
         {
             "name": "overtrue/wechat",
-            "version": "3.3.24",
+            "version": "3.3.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/overtrue/wechat.git",
-                "reference": "ac7cd3cf33c080be7973f11271e198456aac1eb6"
+                "reference": "5ec0859780a2f6700215cb0ea8bc567d276e4332"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/overtrue/wechat/ac7cd3cf33c080be7973f11271e198456aac1eb6.zip",
-                "reference": "ac7cd3cf33c080be7973f11271e198456aac1eb6",
+                "url": "https://files.phpcomposer.com/files/overtrue/wechat/5ec0859780a2f6700215cb0ea8bc567d276e4332.zip",
+                "reference": "5ec0859780a2f6700215cb0ea8bc567d276e4332",
                 "shasum": ""
             },
             "require": {
@@ -890,7 +893,7 @@
                 "weixin",
                 "weixin-sdk"
             ],
-            "time": "2018-01-18T02:30:13+00:00"
+            "time": "2018-02-28T05:58:33+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -1137,16 +1140,6 @@
             "time": "2016-10-10T12:19:37+00:00"
         },
         {
-            "name": "rorystandley/MySQL-CRUD-PHP-OOP",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rorystandley/MySQL-CRUD-PHP-OOP.git",
-                "reference": "master"
-            },
-            "type": "library"
-        },
-        {
             "name": "slim/php-view",
             "version": "2.2.0",
             "source": {
@@ -1268,16 +1261,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v3.4.3",
+            "version": "v3.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "4a213be1cc8598089b8c7451529a2927b49b5d26"
+                "reference": "6f5935723c11b4125fc9927db6ad2feaa196e175"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/symfony/http-foundation/4a213be1cc8598089b8c7451529a2927b49b5d26.zip",
-                "reference": "4a213be1cc8598089b8c7451529a2927b49b5d26",
+                "url": "https://files.phpcomposer.com/files/symfony/http-foundation/6f5935723c11b4125fc9927db6ad2feaa196e175.zip",
+                "reference": "6f5935723c11b4125fc9927db6ad2feaa196e175",
                 "shasum": ""
             },
             "require": {
@@ -1318,20 +1311,20 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2018-01-03T17:14:19+00:00"
+            "time": "2018-02-22T10:48:49+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.6.0",
+            "version": "v1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "2ec8b39c38cb16674bbf3fea2b6ce5bf117e1296"
+                "reference": "78be803ce01e55d3491c1397cf1c64beb9c1b63b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/symfony/polyfill-mbstring/2ec8b39c38cb16674bbf3fea2b6ce5bf117e1296.zip",
-                "reference": "2ec8b39c38cb16674bbf3fea2b6ce5bf117e1296",
+                "url": "https://files.phpcomposer.com/files/symfony/polyfill-mbstring/78be803ce01e55d3491c1397cf1c64beb9c1b63b.zip",
+                "reference": "78be803ce01e55d3491c1397cf1c64beb9c1b63b",
                 "shasum": ""
             },
             "require": {
@@ -1343,7 +1336,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.6-dev"
+                    "dev-master": "1.7-dev"
                 }
             },
             "autoload": {
@@ -1377,20 +1370,20 @@
                 "portable",
                 "shim"
             ],
-            "time": "2017-10-11T12:05:26+00:00"
+            "time": "2018-01-30T19:27:44+00:00"
         },
         {
             "name": "symfony/polyfill-php70",
-            "version": "v1.6.0",
+            "version": "v1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php70.git",
-                "reference": "0442b9c0596610bd24ae7b5f0a6cdbbc16d9fcff"
+                "reference": "3532bfcd8f933a7816f3a0a59682fc404776600f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/symfony/polyfill-php70/0442b9c0596610bd24ae7b5f0a6cdbbc16d9fcff.zip",
-                "reference": "0442b9c0596610bd24ae7b5f0a6cdbbc16d9fcff",
+                "url": "https://files.phpcomposer.com/files/symfony/polyfill-php70/3532bfcd8f933a7816f3a0a59682fc404776600f.zip",
+                "reference": "3532bfcd8f933a7816f3a0a59682fc404776600f",
                 "shasum": ""
             },
             "require": {
@@ -1400,7 +1393,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.6-dev"
+                    "dev-master": "1.7-dev"
                 }
             },
             "autoload": {
@@ -1436,7 +1429,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2017-10-11T12:05:26+00:00"
+            "time": "2018-01-30T19:27:44+00:00"
         },
         {
             "name": "symfony/psr-http-message-bridge",
@@ -1500,16 +1493,16 @@
         },
         {
             "name": "symfony/translation",
-            "version": "v3.4.3",
+            "version": "v3.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/translation.git",
-                "reference": "17b5962d252b2d6d1d37a2485ebb7ddc5b2bef0a"
+                "reference": "80e19eaf12cbb546ac40384e5c55c36306823e57"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://files.phpcomposer.com/files/symfony/translation/17b5962d252b2d6d1d37a2485ebb7ddc5b2bef0a.zip",
-                "reference": "17b5962d252b2d6d1d37a2485ebb7ddc5b2bef0a",
+                "url": "https://files.phpcomposer.com/files/symfony/translation/80e19eaf12cbb546ac40384e5c55c36306823e57.zip",
+                "reference": "80e19eaf12cbb546ac40384e5c55c36306823e57",
                 "shasum": ""
             },
             "require": {
@@ -1564,7 +1557,7 @@
             ],
             "description": "Symfony Translation Component",
             "homepage": "https://symfony.com",
-            "time": "2018-01-03T07:37:34+00:00"
+            "time": "2018-02-22T06:28:18+00:00"
         }
     ],
     "packages-dev": [],
