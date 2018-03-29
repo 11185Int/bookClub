@@ -439,12 +439,8 @@ class Group extends AbstractModel
             ];
         }
         $creator_openid = $group['creator_openid'];
-        $this->deleteMember($groupId, $creator_openid, $user_group['id'], 0);
+        $res = $this->deleteMember($groupId, $creator_openid, $user_group['id'], 0);
 
-        $res = array(
-            'status' => 0,
-            'message' => 'success',
-        );
         return $res;
     }
 
