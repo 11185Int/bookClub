@@ -85,6 +85,7 @@ class Account extends AbstractModel
         $res['data']['group_amount'] = $group_amount;
 
         $res['data']['group_id'] = $this->_accountKey->getCurrentGroupIdByKey($key);
+        $res['data']['group_name'] = $this->_accountKey->getCurrentGroupNameByKey($key);
 
         return $res;
     }

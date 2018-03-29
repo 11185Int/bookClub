@@ -60,6 +60,16 @@ class AccountSessionKey extends AbstractModel
         return isset($user_group['group_id']) ? $user_group['group_id'] : 0;
     }
 
+    public function getCurrentGroupNameByKey($key)
+    {
+        $group_id = $this->getCurrentGroupIdByKey($key);
+        if (!$group_id) {
+            return '';
+        }
+        $group = $this->capsule->table('group')->find($group_id);
+        return $group['group_name'];
+    }
+
     /**
      * @param $key string 3rd session key
      * @return string 微信服务器的session_key
