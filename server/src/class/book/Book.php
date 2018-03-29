@@ -121,6 +121,7 @@ class Book extends AbstractModel
         $builder = $this->capsule->table('book_share AS share')
             ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname',
                 'share.share_status','share.lend_status','share.share_time','share.remark')
+            ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'share.id) AS amount')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
             ->where('share.share_status', 1)

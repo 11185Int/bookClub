@@ -62,7 +62,7 @@ class BookShare extends AbstractModel
             'message' => '',
         );
 
-        if (!$isbn) {
+        if (!$isbn || !$remark) {
             return [
                 'status' => 10000,
                 'message' => '参数不全',
