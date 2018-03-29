@@ -26,7 +26,7 @@ class Wechat
     {
         $userService = $this->_wechatApp->user;
         $user = $userService->get($openid);
-        return $user;
+        return $user->toArray();
     }
 
     /**

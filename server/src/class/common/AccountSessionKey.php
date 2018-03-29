@@ -14,8 +14,8 @@ class AccountSessionKey extends AbstractModel
      * @param $code string 微信服务器返回的那个code
      * @return string 返回我服务器生成的3rd session key
      */
-    public function generateKey($code) {
-
+    public function generateKey($code)
+    {
         $fetch = $this->_fetchFromWechat($code);
         if (!$fetch) {
             return false;
@@ -28,12 +28,14 @@ class AccountSessionKey extends AbstractModel
         return array($key, $openid, $session_key);
     }
 
-    public function getUserInfo($openid) {
+    public function getUserInfo($openid)
+    {
         $user = $this->capsule->table('user')->where('openid', $openid)->first();
         return $user ?: [];
     }
 
-    public function updateUserInfo($openid, $data) {
+    public function updateUserInfo($openid, $data)
+    {
         $userinfo = $this->getUserInfo($openid);
         if (empty($userinfo)) {
             $this->capsule->table('user')->insert($data);
@@ -46,12 +48,14 @@ class AccountSessionKey extends AbstractModel
      * @param $key string 3rd session key
      * @return string 账户对应openid
      */
-    public function getOpenIdByKey($key) {
+    public function getOpenIdByKey($key)
+    {
         $kv = $this->_getKV($key);
         return isset($kv['openid']) ? $kv['openid'] : null;
     }
 
-    public function getCurrentGroupIdByKey($key) {
+    public function getCurrentGroupIdByKey($key)
+    {
         $openid = $this->getOpenIdByKey($key);
         if (!$openid) {
             return 0;
@@ -74,13 +78,14 @@ class AccountSessionKey extends AbstractModel
      * @param $key string 3rd session key
      * @return string 微信服务器的session_key
      */
-    public function getSessionKeyByKey($key) {
+    public function getSessionKeyByKey($key)
+    {
         $kv = $this->_getKV($key);
         return isset($kv['session_key']) ? $kv['session_key'] : null;
     }
 
-    protected function _fetchUserInfoFromWechat($openid) {
-
+    protected function _fetchUserInfoFromWechat($openid)
+    {
         $wechat = new Wechat();
         $userinfo = $wechat->getUserInfo($openid);
 
@@ -95,7 +100,8 @@ class AccountSessionKey extends AbstractModel
         ];
     }
 
-    protected function _fetchFromWechat($code) {
+    protected function _fetchFromWechat($code)
+    {
         $wechat = new Wechat();
         $session = $wechat->jscode2session($code);
         if (isset($session['errcode'])) {
@@ -104,7 +110,8 @@ class AccountSessionKey extends AbstractModel
         return array($session['openid'], $session['session_key']);
     }
 
-    protected function _createKey($openid, $session_key) {
+    protected function _createKey($openid, $session_key)
+    {
         $arr = array($openid, $session_key, time());
         return md5(implode($arr));
     }
@@ -125,9 +132,9 @@ class AccountSessionKey extends AbstractModel
         return $res;
     }
 
-    protected function _getKV($key) {
-
-        $kv = array();
+    protected function _getKV($key)
+    {
+        $flag = true;
         do {
             if (!$key) {
                 throw new \Exception('缺少KEY参数', 20001);
@@ -135,18 +142,18 @@ class AccountSessionKey extends AbstractModel
             $kv = $this->capsule->table('session')->where('key', $key)->first();
             $kv = $kv ?: [];
             if (empty($kv)) {
+                $flag = false;
                 break;
             }
             $expired = $kv['expired'];
             $enable = $kv['enable'];
             if ($expired < time() || !$enable) {
-                //do not delete session when its expired
-                //$this->db->delete($this->getTableName('session'), $where);
+                $flag = false;
                 break;
             }
         } while (0);
 
-        if (empty($kv)) {
+        if (!$flag) {
             throw new \Exception('KEY错误或者已过期', 20000);
         }
 
