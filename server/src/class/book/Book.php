@@ -18,6 +18,12 @@ class Book extends AbstractModel
 
     public function getList($groupId, $params)
     {
+        if (!$groupId) {
+            return [
+                'status' => 10008,
+                'message' => '未加入图书馆',
+            ];
+        }
         $res = array(
             'status' => 1,
             'message' => 'success',
