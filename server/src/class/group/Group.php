@@ -69,7 +69,7 @@ class Group extends AbstractModel
                 'message' => '图书馆不存在',
             ];
         }
-        $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->get();
+        $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
         if (empty($user_group)) {
             return [
                 'status' => 99999,
