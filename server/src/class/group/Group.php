@@ -439,8 +439,10 @@ class Group extends AbstractModel
                 'message' => '还未加入此图书馆',
             ];
         }
-        $creator_openid = $group['creator_openid'];
-        $res = $this->deleteMember($groupId, $creator_openid, $user_group['id'], 0);
+        $admin_user_group = $this->capsule->table('user_group')->where('group_id', $groupId)->where('is_admin', 1)
+            ->first();
+        $admin_openid = $admin_user_group['openid'];
+        $res = $this->deleteMember($groupId, $admin_openid, $user_group['id'], 0);
 
         return $res;
     }
