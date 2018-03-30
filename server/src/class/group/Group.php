@@ -83,7 +83,7 @@ class Group extends AbstractModel
             'group_amount' => $group['group_amount'],
             'create_time' => date('Y/m/d', $group['create_time']),
             'summary' => $group['summary'],
-            'is_admin' => $group['creator_openid'] == $openid ? 1 : 0,
+            'is_admin' => intval($user_group['is_admin']),
             'is_current' => $groupId == $current_group['group_id'] ? 1 : 0,
         ];
         $res = array(
