@@ -3,10 +3,11 @@
 
 namespace CP\common;
 
+use Illuminate\Database\Capsule\Manager;
+
 abstract class AbstractModel
 {
     protected $_db_prefix = 'tb_';
-    public $db = null;
     protected $capsule = null;
     protected $app = null;
 
@@ -15,7 +16,7 @@ abstract class AbstractModel
         if ($app) {
             $this->app = $app;
         }
-        $capsule = new \Illuminate\Database\Capsule\Manager();
+        $capsule = new Manager();
         require __DIR__ . '/../../../config/database.php';
         $config = isset($DB_CONFIG) ? $DB_CONFIG: [];
         $capsule->addConnection([
@@ -27,7 +28,7 @@ abstract class AbstractModel
             'password'  => $config['pass'],
             'charset'   => 'utf8mb4',
             'collation' => 'utf8mb4_general_ci',
-            'prefix'    => 'tb_',
+            'prefix'    => $this->_db_prefix,
         ]);
         $capsule->setAsGlobal();
         $capsule->setFetchMode(\PDO::FETCH_ASSOC);
