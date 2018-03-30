@@ -131,8 +131,21 @@ class Book extends AbstractModel
             ->groupBy('user.id')
             ->orderBy('share.share_time', 'desc');
 
+        $lent_builder = $this->capsule->table('book_share AS share')
+            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname',
+                'share.share_status','share.lend_status','share.share_time','share.remark')
+            ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
+            ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
+            ->where('share.share_status', 1)
+            ->where('share.lend_status', 2)
+            ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
+            ->where('share.group_id', $groupId)
+            ->groupBy('user.id')
+            ->orderBy('share.share_time', 'desc');
+
         if ($builder) {
             $res['data']['list'] = $this->replaceRealName($builder->get());
+            $res['data']['lent_list'] = $this->replaceRealName($lent_builder->get());
         } else {
             $res = array(
                 'status' => 1001,
