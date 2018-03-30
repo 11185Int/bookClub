@@ -280,6 +280,7 @@ class Group extends AbstractModel
                 'message' => '已加入该图书馆',
             ];
         }
+        $user_group_exist = $this->capsule->table('user_group')->where('group_id', $groupId)->count();
 
         $this->capsule->getConnection()->beginTransaction();
 
@@ -288,7 +289,7 @@ class Group extends AbstractModel
             'group_id' => intval($groupId),
             'openid' => $openid,
             'is_current' => 1,
-            'is_admin' => 0,
+            'is_admin' => $user_group_exist > 0 ? 0 : 1,
             'realname' => $realname,
             'phone' => $phone,
             'create_time' => time(),
