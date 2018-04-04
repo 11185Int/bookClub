@@ -82,7 +82,7 @@ class Book extends AbstractModel
     {
         $book = $this->findBook($isbn);
 
-        if (!(strlen($isbn) == 10 || strlen($isbn) == 13)) {
+        if (!$isbn) {
             return [
                 'status' => 6000,
                 'message' => 'isbn码错误',
@@ -251,7 +251,7 @@ class Book extends AbstractModel
         $image = $form['image'];
 
         $message = '';
-        if (empty($form['isbn']) || !Isbn::validate($form['isbn'])) {
+        if (empty($form['isbn'])) {
             $message = 'isbn错误';
         }
         if (empty($form['title']) || empty($form['author'])) {
@@ -304,8 +304,8 @@ class Book extends AbstractModel
         }
 
         $book = [];
-        $book['isbn10'] = strlen($isbn) == 10? $isbn : Isbn::to10($isbn);
-        $book['isbn13'] = strlen($isbn) == 13? $isbn : Isbn::to13($isbn);
+        $book['isbn10'] = strlen($isbn) == 13? Isbn::to10($isbn) : $isbn;
+        $book['isbn13'] = strlen($isbn) == 10? Isbn::to13($isbn) : $isbn;
         $book['category_id'] = 1;
         $book['title'] = $form['title'];
         $book['author'] = $author;
