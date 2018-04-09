@@ -2,6 +2,9 @@
 
 use CP\common\AccountSessionKey;
 use CP\group\Group;
+use CP\common\ThrowValidation;
+use Respect\Validation\Validator;
+use DavidePastore\Slim\Validation\Validation;
 
 // 创建图书馆
 $app->post('/home/group/create', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
@@ -70,7 +73,10 @@ $app->post('/home/group/join', function (\Slim\Http\Request $request, \Slim\Http
     $res = $group->join($groupId, $openid, $realname, $phone);
 
     return $response->withJson($res);
-});
+})->add(new ThrowValidation)->add(new Validation([
+    'realname' => Validator::stringType()->notEmpty(),
+    'phone' => Validator::phone(),
+]));
 
 // 我的图书馆列表
 $app->post('/home/group/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
