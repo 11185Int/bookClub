@@ -13,7 +13,7 @@ class Group extends AbstractModel
             'status' => 0,
             'message' => 'success',
         );
-        if (!$name || mb_strlen($name,'utf8') > 10) {
+        if (!$name || strlen($name) > 30) {
             return [
                 'status' => 99999,
                 'message' => '图书馆名称长度错误',
