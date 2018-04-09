@@ -281,6 +281,7 @@ class Group extends AbstractModel
             ];
         }
         $user_group_exist = $this->capsule->table('user_group')->where('group_id', $groupId)->count();
+        $user = $this->capsule->table('user')->where('openid', $openid)->first();
 
         $this->capsule->getConnection()->beginTransaction();
 
@@ -296,6 +297,10 @@ class Group extends AbstractModel
         ];
         $r1 = $this->capsule->table('user_group')->insert($user_group_insert);
         $r2 = $this->capsule->table('group')->where('id', $groupId)->increment('group_amount');
+
+        if (empty($user['realname'])) {
+            $this->capsule->table('user')->where('openid', $openid)->update(['realname' => $realname]);
+        }
 
         if ($r1 && $r2) {
             $this->capsule->getConnection()->commit();
