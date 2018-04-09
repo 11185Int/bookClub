@@ -125,11 +125,15 @@ class Book extends AbstractModel
             ];
         }
         $builder = $this->capsule->table('book_share AS share')
-            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname',
+            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','ug.realname',
                 'share.share_status','share.lend_status','share.share_time','share.remark')
             ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'share.id) AS amount')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
+            ->leftJoin('user_group AS ug', function($join) use ($groupId) {
+                $join->on('ug.openid', '=', 'user.openid');
+                $join->where('ug.group_id', '=', $groupId);
+            })
             ->where('share.share_status', 1)
             ->where('share.lend_status', 1)
             ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
@@ -138,10 +142,14 @@ class Book extends AbstractModel
             ->orderBy('share.share_time', 'desc');
 
         $lent_builder = $this->capsule->table('book_share AS share')
-            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname',
+            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','ug.realname',
                 'share.share_status','share.lend_status','share.share_time','share.remark')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
+            ->leftJoin('user_group AS ug', function($join) use ($groupId) {
+                $join->on('ug.openid', '=', 'user.openid');
+                $join->where('ug.group_id', '=', $groupId);
+            })
             ->where('share.share_status', 1)
             ->where('share.lend_status', 2)
             ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
@@ -175,10 +183,14 @@ class Book extends AbstractModel
             ];
         }
         $builder = $this->capsule->table('book_borrow AS borrow')
-            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname')
+            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','ug.realname')
             ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->join('user AS user', 'user.openid', '=', 'borrow.borrower_openid', 'inner')
+            ->leftJoin('user_group AS ug', function($join) use ($groupId) {
+                $join->on('ug.openid', '=', 'user.openid');
+                $join->where('ug.group_id', '=', $groupId);
+            })
             ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
             ->where('share.owner_openid', $openid)
             ->where('borrow.return_status', 0)
@@ -211,10 +223,14 @@ class Book extends AbstractModel
             ];
         }
         $builder = $this->capsule->table('book_borrow AS borrow')
-            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname')
+            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','ug.realname')
             ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
+            ->leftJoin('user_group AS ug', function($join) use ($groupId) {
+                $join->on('ug.openid', '=', 'user.openid');
+                $join->where('ug.group_id', '=', $groupId);
+            })
             ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
             ->where('borrow.borrower_openid', $openid)
             ->where('borrow.return_status', 0)

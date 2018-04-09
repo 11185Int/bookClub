@@ -46,9 +46,11 @@ class Account extends AbstractModel
             'headimgurl' => isset($params['headimgurl']) ? $params['headimgurl'] : '',
         ];
         $this->_accountKey->updateUserInfo($openid, $data);
+        $groupid = $this->_accountKey->getCurrentGroupIdByKey($key);
 
         $user = $this->capsule->table('user')->where('openid', $openid)->first();
-        $res['data']['realname'] = empty($user['realname']) ? '' : $user['realname'];
+        $user_group = $this->capsule->table('user_group')->where('group_id',$groupid)->where('openid',$openid)->first();
+        $res['data']['realname'] = $user_group['realname'] ?: $user['realname'] ?: $user['nickname'] ?: '昵称';
 
         $group_amount = $this->capsule->table('user_group')->where('openid', $openid)->count();
         $res['data']['group_amount'] = $group_amount;
@@ -72,6 +74,7 @@ class Account extends AbstractModel
 
         $key = isset($params['key']) ? $params['key'] : '';
         $openid = $this->_accountKey->getOpenIdByKey($key);
+        $groupid = $this->_accountKey->getCurrentGroupIdByKey($key);
 
         $detail = $this->capsule->table('user')->where('openid', $openid)->first();
         $res['data'] = $detail ?: [];
@@ -79,7 +82,8 @@ class Account extends AbstractModel
         unset($res['data']['openid']);
 
         $user = $this->capsule->table('user')->where('openid', $openid)->first();
-        $res['data']['realname'] = empty($user['realname']) ? '' : $user['realname'];
+        $user_group = $this->capsule->table('user_group')->where('group_id',$groupid)->where('openid',$openid)->first();
+        $res['data']['realname'] = $user_group['realname'] ?: $user['realname'] ?: $user['nickname'] ?: '昵称';
 
         $group_amount = $this->capsule->table('user_group')->where('openid', $openid)->count();
         $res['data']['group_amount'] = $group_amount;
