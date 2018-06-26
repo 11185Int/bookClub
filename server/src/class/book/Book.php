@@ -21,7 +21,7 @@ class Book extends AbstractModel
         if (!$groupId) {
             return [
                 'status' => 10008,
-                'message' => '未加入图书馆',
+                'message' => '未加入小组',
             ];
         }
         $res = array(

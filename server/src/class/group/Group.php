@@ -16,7 +16,7 @@ class Group extends AbstractModel
         if (!$name || mb_strlen($name,'utf8') > 10) {
             return [
                 'status' => 99999,
-                'message' => '图书馆名称长度错误',
+                'message' => '名字不超过10个汉字',
             ];
         }
 
@@ -46,7 +46,7 @@ class Group extends AbstractModel
             $this->capsule->getConnection()->rollBack();
             return [
                 'status' => 99999,
-                'message' => '创建图书馆失败',
+                'message' => '创建小组失败',
             ];
         }
         $res['data']['group_id'] = $r1;
@@ -59,21 +59,21 @@ class Group extends AbstractModel
         if (!$groupId) {
             return [
                 'status' => 99999,
-                'message' => '缺少图书馆ID',
+                'message' => '缺少小组ID',
             ];
         }
         $group = $this->capsule->table('group')->find($groupId);
         if (empty($group)) {
             return [
                 'status' => 99999,
-                'message' => '图书馆不存在',
+                'message' => '小组不存在',
             ];
         }
         $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
         if (empty($user_group)) {
             return [
                 'status' => 99999,
-                'message' => '还未加入此图书馆',
+                'message' => '还未加入此小组',
             ];
         }
         $current_group = $this->capsule->table('user_group')->where('openid', $openid)->where('is_current', 1)->first();
@@ -99,21 +99,21 @@ class Group extends AbstractModel
         if (!$groupId) {
             return [
                 'status' => 99999,
-                'message' => '缺少图书馆ID',
+                'message' => '缺少小组ID',
             ];
         }
         $group = $this->capsule->table('group')->find($groupId);
         if (empty($group)) {
             return [
                 'status' => 99999,
-                'message' => '图书馆不存在',
+                'message' => '小组不存在',
             ];
         }
         $user_group = $this->capsule->table('user_group')->where('openid', $openId)->where('group_id', $groupId)->get();
         if (empty($user_group)) {
             return [
                 'status' => 99999,
-                'message' => '还未加入此图书馆',
+                'message' => '还未加入此小组',
             ];
         }
         $data = $this->capsule->table('user_group')
@@ -158,14 +158,14 @@ class Group extends AbstractModel
         if (!$groupId) {
             return [
                 'status' => 99999,
-                'message' => '缺少图书馆ID',
+                'message' => '缺少小组ID',
             ];
         }
         $group = $this->capsule->table('group')->find($groupId);
         if (empty($group)) {
             return [
                 'status' => 99999,
-                'message' => '图书馆不存在',
+                'message' => '小组不存在',
             ];
         }
         $user_group = $this->capsule->table('user_group')->where('openid', $openid)
@@ -173,7 +173,7 @@ class Group extends AbstractModel
         if (empty($user_group)) {
             return [
                 'status' => 99999,
-                'message' => '还未加入此图书馆',
+                'message' => '还未加入此小组',
             ];
         }
         //检查是否有操作权限
@@ -188,7 +188,7 @@ class Group extends AbstractModel
         if ($target['group_id'] != $groupId) {
             return [
                 'status' => 99999,
-                'message' => '无操作权限，此人不在该图书馆',
+                'message' => '无操作权限，此人不在该小组',
             ];
         }
         //检查组织里是否只剩一个人
@@ -232,7 +232,7 @@ class Group extends AbstractModel
                 $this->capsule->table('book_share')->whereIn('id', $shareIds)->update(['lend_status' => 1]);
             }
 
-            //取消该成员在当前图书馆的所有分享
+            //取消该成员在当前小组的所有分享
             $this->capsule->table('book_share')
                 ->where('owner_openid', $target['openid'])
                 ->where('group_id', $groupId)
@@ -241,7 +241,7 @@ class Group extends AbstractModel
             $this->capsule->table('user_group')->delete($user_group_id);
             $this->capsule->table('group')->where('id', $groupId)->decrement('group_amount');
 
-            //设置一个默认图书馆
+            //设置一个默认小组
             if ($next_group_id) {
                 $this->capsule->table('user_group')->where('id', $next_group_id)->update(['is_current' => 1]);
             }
@@ -263,21 +263,21 @@ class Group extends AbstractModel
         if (!$groupId) {
             return [
                 'status' => 99999,
-                'message' => '缺少图书馆ID',
+                'message' => '缺少小组ID',
             ];
         }
         $group = $this->capsule->table('group')->find($groupId);
         if (empty($group)) {
             return [
                 'status' => 99999,
-                'message' => '图书馆不存在',
+                'message' => '小组不存在',
             ];
         }
         $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->get();
         if (!empty($user_group)) {
             return [
                 'status' => 99999,
-                'message' => '已加入该图书馆',
+                'message' => '已加入该小组',
             ];
         }
         $user_group_exist = $this->capsule->table('user_group')->where('group_id', $groupId)->count();
@@ -303,7 +303,7 @@ class Group extends AbstractModel
             $this->capsule->getConnection()->rollBack();
             return [
                 'status' => 99999,
-                'message' => '加入图书馆失败',
+                'message' => '加入小组失败',
             ];
         }
 
@@ -335,14 +335,14 @@ class Group extends AbstractModel
         if (!$groupId) {
             return [
                 'status' => 99999,
-                'message' => '缺少图书馆ID',
+                'message' => '缺少小组ID',
             ];
         }
         $group = $this->capsule->table('group')->find($groupId);
         if (empty($group)) {
             return [
                 'status' => 99999,
-                'message' => '图书馆不存在',
+                'message' => '小组不存在',
             ];
         }
 
@@ -357,7 +357,7 @@ class Group extends AbstractModel
             $this->capsule->getConnection()->rollBack();
             return [
                 'status' => 99999,
-                'message' => '切换图书馆失败',
+                'message' => '切换小组失败',
             ];
         }
 
@@ -383,19 +383,19 @@ class Group extends AbstractModel
         if (mb_strlen($name,'utf8') > 10) {
             return [
                 'status' => 99999,
-                'message' => '图书馆名称长度错误',
+                'message' => '名称不超过10个汉字',
             ];
         }
         if (mb_strlen($summary,'utf8') > 80) {
             return [
                 'status' => 99999,
-                'message' => '图书馆简介长度超过80',
+                'message' => '小组简介不超过80个汉字',
             ];
         }
         if (mb_strlen($realname,'utf8') > 10) {
             return [
                 'status' => 99999,
-                'message' => '昵称长度错误',
+                'message' => '昵称不超过10个汉字',
             ];
         }
         if ($name && $exist['is_admin']) {
@@ -421,14 +421,14 @@ class Group extends AbstractModel
         if (!$groupId) {
             return [
                 'status' => 99999,
-                'message' => '缺少图书馆ID',
+                'message' => '缺少小组ID',
             ];
         }
         $group = $this->capsule->table('group')->find($groupId);
         if (empty($group)) {
             return [
                 'status' => 99999,
-                'message' => '图书馆不存在',
+                'message' => '小组不存在',
             ];
         }
         $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)
@@ -436,7 +436,7 @@ class Group extends AbstractModel
         if (empty($user_group)) {
             return [
                 'status' => 99999,
-                'message' => '还未加入此图书馆',
+                'message' => '还未加入此小组',
             ];
         }
         $admin_user_group = $this->capsule->table('user_group')->where('group_id', $groupId)->where('is_admin', 1)
@@ -452,14 +452,14 @@ class Group extends AbstractModel
         if (!$groupId) {
             return [
                 'status' => 99999,
-                'message' => '缺少图书馆ID',
+                'message' => '缺少小组ID',
             ];
         }
         $group = $this->capsule->table('group')->find($groupId);
         if (empty($group)) {
             return [
                 'status' => 99999,
-                'message' => '图书馆不存在',
+                'message' => '小组不存在',
             ];
         }
         $user_group = $this->capsule->table('user_group')->where('group_id', $groupId)->where('openid', $openid)
@@ -467,14 +467,14 @@ class Group extends AbstractModel
         if (empty($user_group)) {
             return [
                 'status' => 99999,
-                'message' => '还未加入此图书馆，或不是管理员',
+                'message' => '还未加入此小组，或不是管理员',
             ];
         }
         $to_user_group = $this->capsule->table('user_group')->find($to_user_group_id);
         if (empty($to_user_group)) {
             return [
                 'status' => 99999,
-                'message' => '图书馆成员id错误',
+                'message' => '小组成员id错误',
             ];
         }
         $to_openid = $to_user_group['openid'];

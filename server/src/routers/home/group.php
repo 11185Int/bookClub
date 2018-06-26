@@ -3,7 +3,7 @@
 use CP\common\AccountSessionKey;
 use CP\group\Group;
 
-// 创建图书馆
+// 创建小组
 $app->post('/home/group/create', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
@@ -16,7 +16,7 @@ $app->post('/home/group/create', function (\Slim\Http\Request $request, \Slim\Ht
     return $response->withJson($res);
 });
 
-// 获取当前图书馆信息
+// 获取当前小组信息
 $app->post('/home/group/detail', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
@@ -29,7 +29,7 @@ $app->post('/home/group/detail', function (\Slim\Http\Request $request, \Slim\Ht
     return $response->withJson($res);
 });
 
-// 图书馆成员列表
+// 小组成员列表
 $app->post('/home/group/member/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
@@ -57,7 +57,7 @@ $app->post('/home/group/member/delete', function (\Slim\Http\Request $request, \
     return $response->withJson($res);
 });
 
-// 加入图书馆
+// 加入小组
 $app->post('/home/group/join', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
@@ -72,7 +72,7 @@ $app->post('/home/group/join', function (\Slim\Http\Request $request, \Slim\Http
     return $response->withJson($res);
 });
 
-// 我的图书馆列表
+// 我的小组列表
 $app->post('/home/group/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
@@ -84,7 +84,7 @@ $app->post('/home/group/list', function (\Slim\Http\Request $request, \Slim\Http
     return $response->withJson($res);
 });
 
-// 切换图书馆
+// 切换小组
 $app->post('/home/group/switch', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
@@ -97,7 +97,7 @@ $app->post('/home/group/switch', function (\Slim\Http\Request $request, \Slim\Ht
     return $response->withJson($res);
 });
 
-// 修改图书馆信息
+// 修改小组信息
 $app->post('/home/group/edit', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
@@ -113,7 +113,7 @@ $app->post('/home/group/edit', function (\Slim\Http\Request $request, \Slim\Http
     return $response->withJson($res);
 });
 
-// 退出图书馆
+// 退出小组
 $app->post('/home/group/quit', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
@@ -126,7 +126,7 @@ $app->post('/home/group/quit', function (\Slim\Http\Request $request, \Slim\Http
     return $response->withJson($res);
 });
 
-// 转让图书馆
+// 转让小组
 $app->post('/home/group/transfer', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
