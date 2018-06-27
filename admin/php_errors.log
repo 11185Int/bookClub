@@ -1,0 +1,11 @@
+[27-Jun-2018 03:37:35 America/Sao_Paulo] PHP Fatal error:  Class 'Fedeisas\LaravelMailCssInliner\LaravelMailCssInlinerServiceProvider' not found in D:\work\bookclub\admin\vendor\laravel\framework\src\Illuminate\Foundation\ProviderRepository.php on line 208
+[27-Jun-2018 03:37:35 America/Sao_Paulo] PHP Stack trace:
+[27-Jun-2018 03:37:35 America/Sao_Paulo] PHP   1. {main}() D:\work\bookclub\admin\artisan:0
+[27-Jun-2018 03:37:35 America/Sao_Paulo] PHP   2. Illuminate\Foundation\Console\Kernel->handle() D:\work\bookclub\admin\artisan:36
+[27-Jun-2018 03:37:35 America/Sao_Paulo] PHP   3. Illuminate\Foundation\Console\Kernel->bootstrap() D:\work\bookclub\admin\vendor\laravel\framework\src\Illuminate\Foundation\Console\Kernel.php:114
+[27-Jun-2018 03:37:35 America/Sao_Paulo] PHP   4. Illuminate\Foundation\Application->bootstrapWith() D:\work\bookclub\admin\vendor\laravel\framework\src\Illuminate\Foundation\Console\Kernel.php:267
+[27-Jun-2018 03:37:35 America/Sao_Paulo] PHP   5. Illuminate\Foundation\Bootstrap\RegisterProviders->bootstrap() D:\work\bookclub\admin\vendor\laravel\framework\src\Illuminate\Foundation\Application.php:208
+[27-Jun-2018 03:37:35 America/Sao_Paulo] PHP   6. Illuminate\Foundation\Application->registerConfiguredProviders() D:\work\bookclub\admin\vendor\laravel\framework\src\Illuminate\Foundation\Bootstrap\RegisterProviders.php:17
+[27-Jun-2018 03:37:35 America/Sao_Paulo] PHP   7. Illuminate\Foundation\ProviderRepository->load() D:\work\bookclub\admin\vendor\laravel\framework\src\Illuminate\Foundation\Application.php:549
+[27-Jun-2018 03:37:35 America/Sao_Paulo] PHP   8. Illuminate\Foundation\ProviderRepository->compileManifest() D:\work\bookclub\admin\vendor\laravel\framework\src\Illuminate\Foundation\ProviderRepository.php:61
+[27-Jun-2018 03:37:35 America/Sao_Paulo] PHP   9. Illuminate\Foundation\ProviderRepository->createProvider() D:\work\bookclub\admin\vendor\laravel\framework\src\Illuminate\Foundation\ProviderRepository.php:144
