@@ -416,6 +416,22 @@ class Book extends AbstractModel
         return $res;
     }
 
+    public function getSearchList($q, $page, $pagesize)
+    {
+        $api = new Douban();
+        $list = $api->searchBook($q, $page, $pagesize);
+        return [
+            'status' => 0,
+            'message' => '成功',
+            'data' => [
+                'list' => $this->filterSearchBooks($list['books']),
+                'total' => $list['total'],
+                'pagesize' => $pagesize,
+                'totalpage' => ceil($list['total'] / $pagesize),
+            ]
+        ];
+    }
+
     protected function moveUploadedFile($directory, UploadedFile $uploadedFile)
     {
         $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
@@ -479,4 +495,33 @@ class Book extends AbstractModel
         return $interval->days + 1;
     }
 
+    protected function filterSearchBooks($books)
+    {
+        $retBooks = [];
+        foreach ($books as $book) {
+            $tagArr = [];
+            foreach ($book['tags'] as $tag) {
+                $tagArr[] = $tag['title'];
+            }
+            $tags = implode(',', $tagArr);
+            $image = empty($book['images']['large']) ? $book['image'] : $book['images']['large'];
+            $b = [
+                'isbn10' => $book['isbn10'],
+                'isbn13' => $book['isbn13'],
+                'category_id' => 1,
+                'title' => mb_strimwidth($book['title'], 0, 200, '...'),
+                'author' => mb_strimwidth(implode(',', $book['author']), 0, 200, '...'),
+                'rating' => $book['rating']['average'],
+                'publisher' => mb_strimwidth($book['publisher'], 0, 200, '...'),
+                'price' => $book['price'],
+                'image' => $image,
+                'tags' => mb_strimwidth($tags, 0, 180, '...'),
+                'pubdate' => $book['pubdate'],
+                'summary' => mb_strimwidth($book['summary'], 0, 1000, '...'),
+                'ismanual' => 0,
+            ];
+            $retBooks[] = $b;
+        }
+        return $retBooks;
+    }
 }
