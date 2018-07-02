@@ -418,6 +418,12 @@ class Book extends AbstractModel
 
     public function getSearchList($q, $page, $pagesize)
     {
+        if (!$q) {
+            return [
+                'status' => 1001,
+                'message' => '关键字不能为空',
+            ];
+        }
         $api = new Douban();
         $list = $api->searchBook($q, $page, $pagesize);
         return [
