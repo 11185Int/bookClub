@@ -5,4 +5,6 @@ return [
     'domain' => 'https://localhost/bookclub/public/',
     //能否借阅自己分享的书籍
     'borrowSelf' => true,
+    //执行日志驱动file,mysql
+    'loggerDriver' => 'mysql',
 ];

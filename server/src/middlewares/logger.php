@@ -11,7 +11,7 @@ $app->add(function (Request $request, Response $response, $next) {
     $response = $next($request, $response);
     //AFTER
 
-    $logger = new \CP\common\Logger();
+    $logger = new \CP\common\Logger($this);
     $logger->log($request, $response);
 
     return $response;

@@ -37,7 +37,12 @@ class Logger extends AbstractModel
 
     public function save($data)
     {
-        $this->capsule->table('log')->insert($data);
+        $config = $this->app->get('settings')['config'];
+        $loggerDriver = !isset($config['loggerDriver']) ? 'mysql' : $config['loggerDriver'];
+        $saveFunc = 'saveIn'. ucfirst($loggerDriver);
+        if (method_exists($this, $saveFunc)) {
+            call_user_func(array($this, $saveFunc), $data);
+        }
     }
 
     /**
@@ -74,4 +79,22 @@ class Logger extends AbstractModel
     {
         return $this->get_client_ip(1) ? $this->get_client_ip(0) : '';
     }
+
+    protected function saveInMysql($data)
+    {
+        $this->capsule->table('log')->insert($data);
+    }
+
+    protected function saveInFile($data)
+    {
+        $fileName = __DIR__."/../../../logs/running-". date('Y-m-d', time()) . '.log';
+        $dataStr = "";
+        foreach ($data as $key => $value) {
+            $dataStr .= $key.'='.$value. PHP_EOL;
+        }
+        $dataStr .= PHP_EOL;
+        file_put_contents($fileName, $dataStr, FILE_APPEND|LOCK_EX);
+    }
+
+
 }

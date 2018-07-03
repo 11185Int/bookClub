@@ -28,7 +28,7 @@ return [
                     'status' => $exception->getCode() ?: 99999,
                     'message' => $exception->getMessage(),
                 ));
-            $logger = new \CP\common\Logger();
+            $logger = new \CP\common\Logger($c);
             $logger->log($request, $ret);
             return $ret;
         };
