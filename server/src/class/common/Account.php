@@ -139,7 +139,7 @@ class Account extends AbstractModel
             ->where('bs.share_status', 1)
             ->groupBy('bs.book_id')
             ->orderBy('b.rating', 'desc')
-            ->limit(20)
+            ->limit(500)
             ->select('b.id','b.title','b.author','b.rating','b.image','b.tags')->selectRaw('count(tb_bs.id) AS cnt')
             ->get();
 
@@ -153,9 +153,9 @@ class Account extends AbstractModel
             $tags = explode(',', $booksDatum['tags']);
             foreach ($tags as $tag) {
                 if (isset($allTags[$tag])) {
-                    $allTags[$tag] += 1;
+                    $allTags[$tag] += floatval($booksDatum['rating']);
                 } else {
-                    $allTags[$tag] = 1;
+                    $allTags[$tag] = floatval($booksDatum['rating']);
                 }
             }
             $data['books'][] = [
@@ -166,6 +166,7 @@ class Account extends AbstractModel
         }
         arsort($allTags);
         $data['tags'] = array_slice(array_keys($allTags), 0, 10);
+        $data['books'] = array_slice($data['books'], 0, 20);
         $res['data'] = $data;
         return $res;
     }
