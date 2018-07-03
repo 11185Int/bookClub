@@ -38,3 +38,13 @@ $app->post('/home/my/borrow', function (\Slim\Http\Request $request, \Slim\Http\
 
     return $response->withJson($res);
 });
+
+// 我的藏书海报数据
+$app->post('/home/my/poster/data', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $model = new Account();
+    $res = $model->getPosterData($openid);
+    return $response->withJson($res);
+});

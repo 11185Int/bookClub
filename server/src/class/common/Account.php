@@ -118,4 +118,56 @@ class Account extends AbstractModel
         return empty($user['realname']);
     }
 
+    public function getPosterData($openid)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => 'success',
+        );
+        $user = $this->capsule->table('user')->where('openid', $openid)->first();
+        $data = [
+            'name' => $user['nickname'],
+            'book_cnt' => 0,
+            'best_book' => '',
+            'best_rating' => 0,
+            'tags' => [],
+            'books' => [],
+        ];
+        $booksData = $this->capsule->table('book_share AS bs')
+            ->leftJoin('book AS b', 'b.id', '=', 'bs.book_id')
+            ->where('bs.owner_openid', $openid)
+            ->where('bs.share_status', 1)
+            ->groupBy('bs.book_id')
+            ->orderBy('b.rating', 'desc')
+            ->limit(20)
+            ->select('b.id','b.title','b.author','b.rating','b.image','b.tags')->selectRaw('count(tb_bs.id) AS cnt')
+            ->get();
+
+        $allTags = [];
+        foreach ($booksData as $booksDatum) {
+            $data['book_cnt'] += intval($booksDatum['cnt']);
+            if ($booksDatum['rating'] > $data['best_rating']) {
+                $data['best_rating'] = $booksDatum['rating'];
+                $data['best_book'] = $booksDatum['title'];
+            }
+            $tags = explode(',', $booksDatum['tags']);
+            foreach ($tags as $tag) {
+                if (isset($allTags[$tag])) {
+                    $allTags[$tag] += 1;
+                } else {
+                    $allTags[$tag] = 1;
+                }
+            }
+            $data['books'][] = [
+                'title' => $booksDatum['title'],
+                'author' => $booksDatum['author'],
+                'image' => $booksDatum['image'],
+            ];
+        }
+        arsort($allTags);
+        $data['tags'] = array_slice(array_keys($allTags), 0, 10);
+        $res['data'] = $data;
+        return $res;
+    }
+
 }
