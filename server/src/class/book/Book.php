@@ -25,7 +25,7 @@ class Book extends AbstractModel
             ];
         }
         $res = array(
-            'status' => 1,
+            'status' => 0,
             'message' => 'success',
         );
         $name = isset($params['name']) ? $params['name'] : '';
