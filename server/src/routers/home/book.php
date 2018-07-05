@@ -210,7 +210,7 @@ $app->post('/home/book/borrow/history', function (\Slim\Http\Request $request, \
 // 通过豆瓣搜索图书
 $app->get('/home/book/search', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
-    $q = $request->getParam('q');
+    $q = $request->getParam('name');
     $page = $request->getParam('page', 1);
     $pagesize = $request->getParam('pagesize', 20);
 
