@@ -71,12 +71,7 @@ class Group extends AbstractModel
             ];
         }
         $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
-        if (empty($user_group)) {
-            return [
-                'status' => 99999,
-                'message' => '还未加入此小组',
-            ];
-        }
+
         $current_group = $this->capsule->table('user_group')->where('openid', $openid)->where('is_current', 1)->first();
         $data = [
             'group_id' => $group['id'],
@@ -84,7 +79,7 @@ class Group extends AbstractModel
             'group_amount' => $group['group_amount'],
             'create_time' => date('Y/m/d', $group['create_time']),
             'summary' => $group['summary'],
-            'is_admin' => intval($user_group['is_admin']),
+            'is_admin' => isset($user_group['is_admin'])? intval($user_group['is_admin']) : 0,
             'is_current' => $groupId == $current_group['group_id'] ? 1 : 0,
         ];
         $res = array(
