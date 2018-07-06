@@ -1,0 +1,1 @@
+store the mini_program qrcode

@@ -2,6 +2,7 @@
 
 namespace CP\group;
 
+use CP\api\Wechat;
 use CP\common\AbstractModel;
 
 class Group extends AbstractModel
@@ -508,6 +509,49 @@ class Group extends AbstractModel
             'status' => 0,
             'message' => 'success',
         );
+        return $res;
+    }
+
+    public function getWxCode($groupId, $openid, $params)
+    {
+        if (!$groupId) {
+            return [
+                'status' => 99999,
+                'message' => '缺少小组ID',
+            ];
+        }
+        $group = $this->capsule->table('group')->find($groupId);
+        if (empty($group)) {
+            return [
+                'status' => 99999,
+                'message' => '小组不存在',
+            ];
+        }
+        $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)
+            ->first();
+        if (empty($user_group)) {
+            return [
+                'status' => 99999,
+                'message' => '还未加入此小组',
+            ];
+        }
+
+        $scene = $params['scene'];
+        $page = $params['page'];
+        $width = $params['width'];
+        $auto_color = $params['auto_color'];
+        $line_color = $params['line_color'];
+        $wechat = new Wechat();
+        $config = $this->app->get('settings')['config'];
+        $qrcode = $wechat->getWxCode($groupId, $config, $scene, $page, $width, $auto_color, $line_color);
+
+        $res = [
+            'status' => 0,
+            'message' => 'success',
+            'data' => [
+                'qrcode' => $qrcode,
+            ]
+        ];
         return $res;
     }
 

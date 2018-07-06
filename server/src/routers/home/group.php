@@ -140,3 +140,22 @@ $app->post('/home/group/transfer', function (\Slim\Http\Request $request, \Slim\
     return $response->withJson($res);
 });
 
+// 转让小组
+$app->post('/home/group/wxcode', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $request->getParam('group_id', 0);
+
+    $params = [
+        'scene' => $request->getParam('scene'),
+        'page' => $request->getParam('page'),
+        'width' => $request->getParam('width'),
+        'auto_color' => $request->getParam('auto_color'),
+        'line_color' => $request->getParam('line_color'),
+    ];
+    $group = new Group($this);
+    $res = $group->getWxCode($groupId, $openid, $params);
+
+    return $response->withJson($res);
+});

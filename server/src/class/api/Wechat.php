@@ -44,5 +44,37 @@ class Wechat
         return $session;
     }
 
+    public function getWxCodeFileName($group_id)
+    {
+        $time = time();
+        $fileNameReal = "qrcode-{$group_id}-". date('Y-m-dH:i:00',$time);
+        $hashName = md5($fileNameReal).'.png';
+        return $hashName;
+    }
+
+    /**
+     * @param $group_id
+     * @param $scene
+     * @param $page
+     * @param $width
+     * @param $auto_color
+     * @param $line_color
+     * @return string
+     */
+    public function getWxCode($group_id, $config, $scene, $page, $width, $auto_color, $line_color)
+    {
+        $directory = __DIR__. '/../../../public/resources/qrcode/';
+        $domain = $config['domain'];
+        $filename = $this->getWxCodeFileName($group_id);
+        $qrcode_url = $domain . 'resources/qrcode/'. $filename;
+        if (file_exists($directory.$filename)) {
+            return $qrcode_url;
+        }
+        $mini = $this->_app;
+        $qrcode = $mini->qrcode->appCodeUnlimit($scene, $page?:null, $width?:null, $auto_color?:null, $line_color?:null);
+        file_put_contents($directory.$filename, $qrcode);
+        return $qrcode_url;
+    }
+
 
 }
