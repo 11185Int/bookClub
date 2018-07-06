@@ -140,7 +140,7 @@ $app->post('/home/group/transfer', function (\Slim\Http\Request $request, \Slim\
     return $response->withJson($res);
 });
 
-// 转让小组
+// 获取小程序码
 $app->post('/home/group/wxcode', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
