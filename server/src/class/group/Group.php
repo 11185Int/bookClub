@@ -516,7 +516,7 @@ class Group extends AbstractModel
         $line_color = $params['line_color'];
         $wechat = new Wechat();
         $config = $this->app->get('settings')['config'];
-        $qrcode = $wechat->getWxCode($openid, $config, $scene, $page, $width, $auto_color, $line_color);
+        $qrcode = $wechat->getWxCode($config, $scene, $page, $width, $auto_color, $line_color);
 
         $res = [
             'status' => 0,

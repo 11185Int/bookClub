@@ -44,16 +44,15 @@ class Wechat
         return $session;
     }
 
-    public function getWxCodeFileName($openid)
+    public function getWxCodeFileName($scene, $page)
     {
         $time = time();
-        $fileNameReal = "qrcode-{$openid}-". date('Y-m-dH:i:s',$time);
+        $fileNameReal = "qrcode-{$scene}-{$page}-". date('Y-m-dH:i',$time);
         $hashName = md5($fileNameReal).'.png';
         return $hashName;
     }
 
     /**
-     * @param $openid
      * @param $scene
      * @param $page
      * @param $width
@@ -61,11 +60,11 @@ class Wechat
      * @param $line_color
      * @return string
      */
-    public function getWxCode($openid, $config, $scene, $page, $width, $auto_color, $line_color)
+    public function getWxCode($config, $scene, $page, $width, $auto_color, $line_color)
     {
         $directory = __DIR__. '/../../../public/resources/qrcode/';
         $domain = $config['domain'];
-        $filename = $this->getWxCodeFileName($openid);
+        $filename = $this->getWxCodeFileName($scene, $page);
         $qrcode_url = $domain . 'resources/qrcode/'. $filename;
         if (file_exists($directory.$filename)) {
             return $qrcode_url;
