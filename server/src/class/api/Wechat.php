@@ -47,7 +47,9 @@ class Wechat
     public function getWxCodeFileName($scene, $page)
     {
         $time = time();
-        $fileNameReal = "qrcode-{$scene}-{$page}-". date('Y-m-dH:i',$time);
+        $cache_during = 10*60; //10 minutes
+        $time = intval($time / $cache_during);
+        $fileNameReal = "qrcode-{$scene}-{$page}-{$time}";
         $hashName = md5($fileNameReal).'.png';
         return $hashName;
     }
