@@ -118,7 +118,7 @@ class Account extends AbstractModel
         return empty($user['realname']);
     }
 
-    public function getPosterData($openid)
+    public function getPosterData($openid, $tags_cnt = 10, $books_cnt = 20)
     {
         $res = array(
             'status' => 0,
@@ -165,8 +165,8 @@ class Account extends AbstractModel
             ];
         }
         arsort($allTags);
-        $data['tags'] = array_slice(array_keys($allTags), 0, 10);
-        $data['books'] = array_slice($data['books'], 0, 20);
+        $data['tags'] = array_slice(array_keys($allTags), 0, $tags_cnt);
+        $data['books'] = array_slice($data['books'], 0, $books_cnt);
         $res['data'] = $data;
         return $res;
     }
