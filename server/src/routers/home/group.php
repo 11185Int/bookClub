@@ -145,7 +145,6 @@ $app->post('/home/group/wxcode', function (\Slim\Http\Request $request, \Slim\Ht
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id', 0);
 
     $params = [
         'scene' => $request->getParam('scene'),
@@ -155,7 +154,7 @@ $app->post('/home/group/wxcode', function (\Slim\Http\Request $request, \Slim\Ht
         'line_color' => $request->getParam('line_color'),
     ];
     $group = new Group($this);
-    $res = $group->getWxCode($groupId, $openid, $params);
+    $res = $group->getWxCode($openid, $params);
 
     return $response->withJson($res);
 });

@@ -507,30 +507,8 @@ class Group extends AbstractModel
         return $res;
     }
 
-    public function getWxCode($groupId, $openid, $params)
+    public function getWxCode($openid, $params)
     {
-        if (!$groupId) {
-            return [
-                'status' => 99999,
-                'message' => '缺少小组ID',
-            ];
-        }
-        $group = $this->capsule->table('group')->find($groupId);
-        if (empty($group)) {
-            return [
-                'status' => 99999,
-                'message' => '小组不存在',
-            ];
-        }
-        $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)
-            ->first();
-        if (empty($user_group)) {
-            return [
-                'status' => 99999,
-                'message' => '还未加入此小组',
-            ];
-        }
-
         $scene = $params['scene'];
         $page = $params['page'];
         $width = $params['width'];
@@ -538,7 +516,7 @@ class Group extends AbstractModel
         $line_color = $params['line_color'];
         $wechat = new Wechat();
         $config = $this->app->get('settings')['config'];
-        $qrcode = $wechat->getWxCode($groupId, $config, $scene, $page, $width, $auto_color, $line_color);
+        $qrcode = $wechat->getWxCode($openid, $config, $scene, $page, $width, $auto_color, $line_color);
 
         $res = [
             'status' => 0,
