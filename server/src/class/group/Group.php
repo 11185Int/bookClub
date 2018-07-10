@@ -234,8 +234,10 @@ class Group extends AbstractModel
                 ->where('group_id', $groupId)
                 ->update(['share_status' => 0]);
             //删除成员
-            $this->capsule->table('user_group')->delete($user_group_id);
-            $this->capsule->table('group')->where('id', $groupId)->decrement('group_amount');
+            $r1 = $this->capsule->table('user_group')->delete($user_group_id);
+            if ($r1) {
+                $this->capsule->table('group')->where('id', $groupId)->decrement('group_amount');
+            }
 
             //设置一个默认小组
             if ($next_group_id) {
