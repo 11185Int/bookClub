@@ -130,6 +130,8 @@ class Account extends AbstractModel
             'book_cnt' => 0,
             'best_book' => '',
             'best_rating' => 0,
+            'avg_rating' => 0,
+            'taste_percent' => 0,
             'tags' => [],
             'books' => [],
         ];
@@ -143,6 +145,7 @@ class Account extends AbstractModel
             ->select('b.id','b.title','b.author','b.rating','b.image','b.tags')->selectRaw('count(tb_bs.id) AS cnt')
             ->get();
 
+        $allRating = 0;
         $allTags = [];
         foreach ($booksData as $booksDatum) {
             $data['book_cnt'] += intval($booksDatum['cnt']);
@@ -150,6 +153,7 @@ class Account extends AbstractModel
                 $data['best_rating'] = $booksDatum['rating'];
                 $data['best_book'] = $booksDatum['title'];
             }
+            $allRating += $booksDatum['rating'] * $booksDatum['cnt'];
             $tags = explode(',', $booksDatum['tags']);
             foreach ($tags as $tag) {
                 if (isset($allTags[$tag])) {
@@ -164,6 +168,8 @@ class Account extends AbstractModel
                 'image' => $booksDatum['image'],
             ];
         }
+        $data['avg_rating'] = round($allRating/$data['book_cnt'], 1);
+        $data['taste_percent'] = $data['avg_rating'] > 2 ? round($allRating/$data['book_cnt'] * 12.38 - 23.75) : 0;
         arsort($allTags);
         $data['tags'] = array_slice(array_keys($allTags), 0, $tags_cnt);
         $data['books'] = array_slice($data['books'], 0, $books_cnt);
