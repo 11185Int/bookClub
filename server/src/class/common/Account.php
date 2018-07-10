@@ -168,8 +168,9 @@ class Account extends AbstractModel
                 'image' => $booksDatum['image'],
             ];
         }
-        $data['avg_rating'] = round($allRating/$data['book_cnt'], 1);
-        $data['taste_percent'] = $data['avg_rating'] > 2 ? round($allRating/$data['book_cnt'] * 12.38 - 23.75) : 0;
+        $data['avg_rating'] = $data['book_cnt'] > 0 ? round($allRating/$data['book_cnt'], 1) : 0;
+        $data['taste_percent'] = $data['avg_rating'] > 2 && $data['book_cnt'] > 0 ?
+            round($allRating/$data['book_cnt'] * 12.38 - 23.75) : 0;
         arsort($allTags);
         $data['tags'] = array_slice(array_keys($allTags), 0, $tags_cnt);
         $data['books'] = array_slice($data['books'], 0, $books_cnt);
