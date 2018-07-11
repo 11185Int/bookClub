@@ -156,6 +156,10 @@ class Account extends AbstractModel
             $allRating += $booksDatum['rating'] * $booksDatum['cnt'];
             $tags = explode(',', $booksDatum['tags']);
             foreach ($tags as $tag) {
+                if (mb_strlen($tag) > 6) {
+                    $allTags[$tag] = 0;
+                    continue;
+                }
                 if (isset($allTags[$tag])) {
                     $allTags[$tag] += floatval($booksDatum['rating']);
                 } else {
