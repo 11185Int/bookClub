@@ -112,8 +112,13 @@ class Account extends AbstractModel
         return $res;
     }
 
-    public function isRealNameEmpty($openid)
+    public function isRealNameEmpty($openid, $group_id)
     {
+        $user_group = $this->capsule->table('user_group')
+            ->where('group_id', $group_id)->where('openid', $openid)->first();
+        if ($user_group) {
+            return empty($user_group['realname']);
+        }
         $user = $this->capsule->table('user')->where('openid', $openid)->first();
         return empty($user['realname']);
     }

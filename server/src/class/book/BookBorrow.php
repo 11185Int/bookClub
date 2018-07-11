@@ -54,7 +54,7 @@ class BookBorrow extends AbstractModel
 
         //是否设置了真实名字
         $accountModel = new Account();
-        if ($accountModel->isRealNameEmpty($openid)) {
+        if ($accountModel->isRealNameEmpty($openid, $groupId)) {
             return [
                 'status' => 10006,
                 'message' => '还未设置真实名字',

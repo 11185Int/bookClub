@@ -20,6 +20,7 @@ class Group extends AbstractModel
                 'message' => '名字不超过10个汉字',
             ];
         }
+        $user = $this->capsule->table('user')->where('openid', $openid)->first();
 
         $this->capsule->getConnection()->beginTransaction();
         $group = [
@@ -35,7 +36,7 @@ class Group extends AbstractModel
             'openid' => $openid,
             'is_admin' => 1,
             'is_current' => 1,
-            'realname' => '',
+            'realname' => $user['realname'] ?: '',
             'phone' => '',
             'create_time' => time(),
         ];
