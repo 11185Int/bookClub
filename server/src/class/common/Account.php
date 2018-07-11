@@ -170,6 +170,7 @@ class Account extends AbstractModel
                 'title' => $booksDatum['title'],
                 'author' => $booksDatum['author'],
                 'image' => $booksDatum['image'],
+                'cnt' => intval($booksDatum['cnt']),
             ];
         }
         $data['avg_rating'] = $data['book_cnt'] > 0 ? round($allRating/$data['book_cnt'], 1) : 0;
