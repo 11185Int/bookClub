@@ -461,8 +461,8 @@ class Book extends AbstractModel
         $tags = implode(',', $tagArr);
         $image = empty($book['images']['large']) ? $book['image'] : $book['images']['large'];
         $kv = [
-            'isbn10' => $book['isbn10'],
-            'isbn13' => $book['isbn13'],
+            'isbn10' => isset($book['isbn10']) ? $book['isbn10'] : '',
+            'isbn13' => isset($book['isbn13']) ? $book['isbn13'] : '',
             'category_id' => 1,
             'title' => mb_strimwidth($book['title'], 0, 200, '...'),
             'author' => mb_strimwidth(implode(',', $book['author']), 0, 200, '...'),
@@ -513,8 +513,8 @@ class Book extends AbstractModel
 //            $tags = implode(',', $tagArr);
             $image = empty($book['images']['large']) ? $book['image'] : $book['images']['large'];
             $b = [
-                'isbn10' => $book['isbn10'],
-                'isbn13' => $book['isbn13'],
+                'isbn10' => isset($book['isbn10']) ? $book['isbn10'] : '',
+                'isbn13' => isset($book['isbn13']) ? $book['isbn13'] : '',
                 'category_id' => 1,
                 'title' => mb_strimwidth($book['title'], 0, 200, '...'),
                 'author' => mb_strimwidth(implode(',', $book['author']), 0, 200, '...'),
