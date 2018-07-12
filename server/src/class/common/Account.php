@@ -123,7 +123,7 @@ class Account extends AbstractModel
         return empty($user['realname']);
     }
 
-    public function getPosterData($openid, $tags_cnt = 10, $books_cnt = 20)
+    public function getPosterData($openid, $groupId, $tags_cnt = 10, $books_cnt = 20)
     {
         $res = array(
             'status' => 0,
@@ -144,6 +144,7 @@ class Account extends AbstractModel
             ->leftJoin('book AS b', 'b.id', '=', 'bs.book_id')
             ->where('bs.owner_openid', $openid)
             ->where('bs.share_status', 1)
+            ->where('bs.group_id', $groupId)
             ->groupBy('bs.book_id')
             ->orderBy('b.rating', 'desc')
             ->limit(500)
