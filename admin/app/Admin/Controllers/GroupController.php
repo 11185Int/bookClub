@@ -56,7 +56,7 @@ class GroupController extends Controller
             $grid->column('create_time', '创建时间')->display(function ($create_time) {
                 return date('Y-m-d H:i:s', $create_time);
             });
-            $grid->column('summary', '小组简介');
+            $grid->column('summary', '小组简介')->setAttributes(['width'=>300]);
 
         });
     }
