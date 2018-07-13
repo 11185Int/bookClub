@@ -116,8 +116,8 @@ class Account extends AbstractModel
     {
         $user_group = $this->capsule->table('user_group')
             ->where('group_id', $group_id)->where('openid', $openid)->first();
-        if ($user_group) {
-            return empty($user_group['realname']);
+        if ($user_group && !empty($user_group['realname'])) {
+            return false;
         }
         $user = $this->capsule->table('user')->where('openid', $openid)->first();
         return empty($user['realname']);
