@@ -11,6 +11,7 @@ use CP\book\BookShare;
 use CP\book\BookBorrow;
 use CP\common\AccountSessionKey;
 use CP\common\AccessList;
+use CP\book\Search;
 
 // 所有共享图书
 $app->get('/home/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
@@ -219,5 +220,14 @@ $app->get('/home/book/search', function (\Slim\Http\Request $request, \Slim\Http
     $model = new Book();
     $res = $model->getSearchList($q, $page, $pagesize);
 
+    return $response->withJson($res);
+});
+
+$app->get('/home/book/search/hot', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $model = new Search();
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $res = $model->getHotSearch($openid);
     return $response->withJson($res);
 });
