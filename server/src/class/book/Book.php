@@ -16,6 +16,8 @@ use Slim\Http\UploadedFile;
 class Book extends AbstractModel
 {
 
+    const BOOK_VERSION = 1;
+
     public function getList($openid, $groupIds, $params)
     {
         $res = array(
@@ -159,10 +161,11 @@ class Book extends AbstractModel
             ];
         }
 
-        if (empty($book)) {
+        if (empty($book) || $this->isBookOutdated($book)) {
+            $id = empty($book['id']) ? 0 : $book['id'];
             $api = new Douban();
             $bookDetail = $api->getBook($isbn);
-            $this->saveBook($bookDetail);
+            $this->saveBook($bookDetail, $id);
             $book = $this->findBook($isbn);
         }
 
@@ -519,7 +522,7 @@ class Book extends AbstractModel
         return $filename;
     }
 
-    protected function saveBook($book)
+    protected function saveBook($book, $id = 0)
     {
         if (empty($book)) {
             return false;
@@ -543,15 +546,21 @@ class Book extends AbstractModel
             'tags' => mb_strimwidth($tags, 0, 180, '...'),
             'pubdate' => $book['pubdate'],
             'summary' => mb_strimwidth($book['summary'], 0, 1000, '...'),
+            'catalog' => empty($book['catalog']) ? '': mb_strimwidth($book['catalog'], 0, 9999, '...'),
             'ismanual' => empty($book['ismanual']) ? 0 : $book['ismanual'],
             'openid' => empty($book['openid']) ? '' : $book['openid'],
             'hd_image' => $this->getHdImage($image),
+            'version' => self::BOOK_VERSION,
         ];
         $isbn = $book['isbn13'] ?: $book['isbn10'];
         if (!$isbn) {
             return false;
         }
-        $this->capsule->table('book')->insert($kv);
+        if ($id > 0) {
+            $this->capsule->table('book')->where('id', $id)->update($kv);
+        } else {
+            $this->capsule->table('book')->insert($kv);
+        }
          return true;
     }
 
@@ -610,4 +619,14 @@ class Book extends AbstractModel
         return $url;
     }
 
+    protected function isBookOutdated($book)
+    {
+        if (empty($book)) {
+            return false;
+        }
+        if ($book['ismanual'] == 0 && $book['version'] < self::BOOK_VERSION) {
+            return true;
+        }
+        return false;
+    }
 }
