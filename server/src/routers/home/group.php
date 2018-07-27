@@ -3,7 +3,7 @@
 use CP\common\AccountSessionKey;
 use CP\group\Group;
 
-// 所有共享图书
+// 小组共享图书
 $app->get('/home/group/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
