@@ -148,7 +148,8 @@ class Account extends AbstractModel
             ->groupBy('bs.book_id')
             ->orderBy('b.rating', 'desc')
             ->limit(500)
-            ->select('b.id','b.title','b.author','b.rating','b.image','b.tags')->selectRaw('count(tb_bs.id) AS cnt')
+            ->select('b.id','b.title','b.author','b.rating','b.image','b.tags')
+            ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'bs.id) AS cnt')
             ->get();
 
         $allRating = 0;

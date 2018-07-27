@@ -16,9 +16,11 @@ use CP\common\AccessList;
 $app->get('/home/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
-    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
+    $key = $request->getParam('key');
+    $openid = $account->getOpenIdByKey($key);
+    $groupIds = $account->getAllGroupIdByKey($key);
     $model = new Book();
-    $res = $model->getList($groupId, $request->getParams());
+    $res = $model->getList($openid, $groupIds, $request->getParams());
 
     return $response->withJson($res);
 });

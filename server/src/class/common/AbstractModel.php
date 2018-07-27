@@ -7,7 +7,7 @@ use Illuminate\Database\Capsule\Manager;
 
 abstract class AbstractModel
 {
-    protected $_db_prefix = 'tb_';
+    protected $_db_prefix = 'tb_qsjy_';
     protected $capsule = null;
     protected $app = null;
 

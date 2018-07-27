@@ -3,6 +3,19 @@
 use CP\common\AccountSessionKey;
 use CP\group\Group;
 
+// 所有共享图书
+$app->get('/home/group/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $key = $request->getParam('key');
+    $openid = $account->getOpenIdByKey($key);
+    $groupId = $request->getParam('group_id');
+    $model = new \CP\book\Book();
+    $res = $model->getListByGroup($openid, $groupId, $request->getParams());
+
+    return $response->withJson($res);
+});
+
 // 创建小组
 $app->post('/home/group/create', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
