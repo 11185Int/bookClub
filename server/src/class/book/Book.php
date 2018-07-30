@@ -36,22 +36,20 @@ class Book extends AbstractModel
                 $join->on('bb.book_share_id', '=', 'ss.id');
                 $join->where('bb.return_status', '=', 0);
             })
-            ->select('b.id','b.isbn10','b.isbn13','b.title','b.image','s.share_status','s.lend_status')
+            ->select('b.id','b.isbn10','b.isbn13','b.title','b.image','s.share_status','s.lend_status','bb.borrower_openid')
             ->selectRaw('max('.$this->capsule->getConnection()->getTablePrefix().'s.id) AS sid')
             ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'s.id) AS book_share_sum')
             ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'bb.id) AS book_borrow_sum')
             ->where('s.share_status', 1)
-            ->where(function ($q) use ($openid, $groupIds) {
-                $q->whereIn('s.group_id', $groupIds)
-                    ->orWhere(function ($q) use ($openid) {
-                        $q->where('s.group_id', 0)->where('s.owner_openid', $openid);
-                    });
+            ->where(function ($q) use ($openid) {
+                $q->where(function ($q) use ($openid) {
+                    $q->where('s.group_id', 0)->where('s.owner_openid', $openid);
+                })->orWhere('bb.borrower_openid', $openid);
             })
-            ->where(function ($q) use ($openid, $groupIds) {
-                $q->whereIn('ss.group_id', $groupIds)
-                    ->orWhere(function ($q) use ($openid) {
-                        $q->where('ss.group_id', 0)->where('ss.owner_openid', $openid);
-                    });
+            ->where(function ($q) use ($openid) {
+                $q->where(function ($q) use ($openid) {
+                    $q->where('ss.group_id', 0)->where('ss.owner_openid', $openid);
+                })->orWhere('bb.borrower_openid', $openid);
             })
             ->groupBy('b.id');
         if ($name) {
@@ -71,6 +69,8 @@ class Book extends AbstractModel
             $newData = [];
             foreach ($data as $item) {
                 $item['canBorrow'] = $item['book_share_sum'] > $item['book_borrow_sum'] ? 1 : 0;
+                $item['shouldReturn'] = $item['borrower_openid'] == $openid ? 1: 0;
+                unset($item['borrower_openid']);
                 $newData[] = $item;
             }
             $data = $newData;

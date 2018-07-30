@@ -13,7 +13,7 @@ use CP\common\AccountSessionKey;
 use CP\common\AccessList;
 use CP\book\Search;
 
-// 所有共享图书
+// 个人藏书页
 $app->get('/home/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
