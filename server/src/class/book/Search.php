@@ -19,8 +19,14 @@ class Search extends AbstractModel
         $hotSearch = $this->capsule->table('hot_search')->where('type', 'hot')->get();
         $hotRank = $this->capsule->table('hot_search AS h')
             ->leftJoin('book AS b', 'b.isbn13', '=', 'h.key')
+            ->leftJoin('book_share AS s', function ($join) use ($openid) {
+                $join->on('s.book_id', '=', 'b.id');
+                $join->where('s.owner_openid', '=', $openid);
+            })
             ->select('b.id','b.isbn10','b.isbn13','b.title','b.image')
+            ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'s.id) AS share_cnt')
             ->where('h.type', 'rank')
+            ->groupBy('b.id')
             ->get();
         $hot = [];
         $rank = [];
@@ -28,7 +34,7 @@ class Search extends AbstractModel
             $hot[] = $item['key'];
         }
         foreach ($hotRank as $item) {
-            $item['is_add'] = 0;
+            $item['is_add'] = $item['share_cnt'] > 0 ? 1: 0;
             $rank[] = $item;
         }
 
