@@ -241,6 +241,128 @@ class Book extends AbstractModel
         ];
     }
 
+    public function getBookStatusByGroup($isbn, $openid, $groupId)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '',
+        );
+        $book = $this->findBook($isbn);
+        if (!$book) {
+            return [
+                'status' => 6000,
+                'message' => '找不到图书',
+            ];
+        }
+        $shouldReturn = 0;
+        $canBorrow = 0;
+        $book_shares = $this->capsule->table('book_share')->where('book_id', $book['id'])
+            ->where('group_id', $groupId)->where('share_status', 1)->get(); //查看分享的所有book_share
+
+        //是否需要还
+        foreach ($book_shares as $book_share) {
+
+            $book_borrow = $this->capsule->table('book_borrow')->where('book_share_id', $book_share['id'])
+                ->where('borrower_openid', $openid)->first();
+            if ($book_borrow['return_status'] == 0) {
+                $shouldReturn = 1;
+                break;
+            }
+        }
+
+        //是否能借
+        if ($shouldReturn == 0) {
+            foreach ($book_shares as $book_share) {
+                if ($book_share['lend_status'] == 1) { //在架,未借出
+                    $canBorrow = 1;
+                    break;
+                }
+            }
+        }
+
+        //是否已经添加
+        $add_cnt = $this->capsule->table('book_share')->where('book_id', $book['id'])
+                ->where('group_id', $groupId)->count();
+        $isAdd = $add_cnt > 0? 1: 0;
+        $share_status = 0;
+        if ($book_share = reset($book_shares)) {
+            $share_status = $book_share['share_status'];
+        }
+
+        $bmModel = new BookMark();
+        $bookmark = $bmModel->getBookmark($book['id'], $openid);
+
+        $res['data'] = [
+            'shouldReturn' => $shouldReturn,
+            'canBorrow' => $canBorrow,
+            'isAdd' => $isAdd,
+            'share_status' => $share_status,
+            'bookmark' => $bookmark,
+        ];
+
+        return $res;
+    }
+
+    public function getBookStatusByUser($isbn, $openid, $owner_openid)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '',
+        );
+        $book = $this->findBook($isbn);
+        if (!$book) {
+            return [
+                'status' => 6000,
+                'message' => '找不到图书',
+            ];
+        }
+        $shouldReturn = 0;
+        $canBorrow = 0;
+
+        $book_shares = $this->capsule->table('book_share')->where('book_id', $book['id'])
+            ->where('group_id', 0)->where('owner_openid', $owner_openid)->where('share_status', 1)->get();//查看分享的所有book_share
+
+        //是否需要还
+        foreach ($book_shares as $book_share) {
+            $book_borrow = $this->capsule->table('book_borrow')->where('book_share_id', $book_share['id'])
+                ->where('borrower_openid', $openid)->first();
+            if ($book_borrow['return_status'] == 0) {
+                $shouldReturn = 1;
+                break;
+            }
+        }
+        //是否能借
+        if ($shouldReturn == 0) {
+            foreach ($book_shares as $book_share) {
+                if ($book_share['lend_status'] == 1) { //在架,未借出
+                    $canBorrow = 1;
+                    break;
+                }
+            }
+        }
+        //是否已经添加
+        $add_cnt = $this->capsule->table('book_share')->where('book_id', $book['id'])
+            ->where('group_id', 0)->where('owner_openid', $owner_openid)->count();
+        $isAdd = $add_cnt > 0? 1: 0;
+        $share_status = 0;
+        if ($book_share = reset($book_shares)) {
+            $share_status = $book_share['share_status'];
+        }
+
+        $bmModel = new BookMark();
+        $bookmark = $bmModel->getBookmark($book['id'], $openid);
+
+        $res['data'] = [
+            'shouldReturn' => $shouldReturn,
+            'canBorrow' => $canBorrow,
+            'isAdd' => $isAdd,
+            'share_status' => $share_status,
+            'bookmark' => $bookmark,
+        ];
+
+        return $res;
+    }
+
     public function getShareList($groupId, $isbn)
     {
         $res = array(

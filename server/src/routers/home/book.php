@@ -12,6 +12,7 @@ use CP\book\BookBorrow;
 use CP\common\AccountSessionKey;
 use CP\common\AccessList;
 use CP\book\Search;
+use CP\user\User;
 
 // 个人藏书页
 $app->get('/home/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
@@ -36,6 +37,32 @@ $app->get('/home/book/isbn', function (\Slim\Http\Request $request, \Slim\Http\R
 
     return $response->withJson($res);
 });
+
+// 获取图书状态 1、能否借  2、能否归还 3、是否已添加 4、是否已共享 5、标记+书签
+$app->get('/home/book/status', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $isbn = $request->getParam('isbn');
+    $groupId = $request->getParam('group_id');
+    $userId = $request->getParam('user_id');
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+
+    $model = new Book();
+    if ($groupId) {
+        $res = $model->getBookStatusByGroup($isbn, $openid, $groupId);
+    } else if ($userId) {
+        $user = new User();
+        $owner_openid = $user->getOpenIdByUserId($userId);
+        $res = $model->getBookStatusByUser($isbn, $openid, $owner_openid);
+    } else {
+        $res = array(
+            'status' => 99999,
+            'message' => '参数错误',
+        );
+    }
+    return $response->withJson($res);
+});
+
 
 // 获取某图书可借阅列表
 $app->get('/home/book/shareList', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
