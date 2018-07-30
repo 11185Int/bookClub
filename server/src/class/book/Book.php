@@ -561,7 +561,7 @@ class Book extends AbstractModel
             'data' => [
                 'list' => $this->filterSearchBooks($list['books']),
                 'total' => $list['total'],
-                'pagesize' => $pagesize,
+                'pagesize' => intval($pagesize),
                 'totalpage' => ceil($list['total'] / $pagesize),
             ]
         ];
