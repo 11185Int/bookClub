@@ -363,7 +363,7 @@ class Book extends AbstractModel
         return $res;
     }
 
-    public function getShareList($groupId, $isbn)
+    public function getShareList($isbn, $groupId, $userId, $myOpenid)
     {
         $res = array(
             'status' => 0,
@@ -375,30 +375,78 @@ class Book extends AbstractModel
                 'message' => 'isbn不能为空',
             ];
         }
-        $builder = $this->capsule->table('book_share AS share')
-            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname',
-                'share.share_status','share.lend_status','share.share_time','share.remark')
-            ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'share.id) AS amount')
-            ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
-            ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
-            ->where('share.share_status', 1)
-            ->where('share.lend_status', 1)
-            ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
-            ->where('share.group_id', $groupId)
-            ->groupBy('user.id')
-            ->orderBy('share.share_time', 'desc');
+        $builder = null;
+        $lent_builder = null;
 
-        $lent_builder = $this->capsule->table('book_share AS share')
-            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname',
-                'share.share_status','share.lend_status','share.share_time','share.remark')
-            ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
-            ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
-            ->where('share.share_status', 1)
-            ->where('share.lend_status', 2)
-            ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
-            ->where('share.group_id', $groupId)
-            ->groupBy('user.id')
-            ->orderBy('share.share_time', 'desc');
+        if ($groupId) { //小组
+            $user_group = $this->capsule->table('user_group')->where('group_id', $groupId)
+                ->where('openid', $myOpenid)->first();
+            if (empty($user_group)) {
+                return [
+                    'status' => 99999,
+                    'message' => '还未加入此小组',
+                ];
+            }
+            $builder = $this->capsule->table('book_share AS share')
+                ->select('book.id AS book_id','share.id AS book_share_id','user.nickname','user.headimgurl','user.realname',
+                    'share.share_status','share.lend_status','share.share_time','share.remark')
+                ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'share.id) AS amount')
+                ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
+                ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
+                ->where('share.share_status', 1)
+                ->where('share.lend_status', 1)
+                ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
+                ->where('share.group_id', $groupId)
+                ->groupBy('user.id')
+                ->orderBy('share.share_time', 'desc');
+
+            $lent_builder = $this->capsule->table('book_share AS share')
+                ->select('book.id AS book_id','share.id AS book_share_id','user.nickname','user.headimgurl','user.realname',
+                    'share.share_status','share.lend_status','share.share_time','share.remark')
+                ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
+                ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
+                ->where('share.share_status', 1)
+                ->where('share.lend_status', 2)
+                ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
+                ->where('share.group_id', $groupId)
+                ->groupBy('user.id')
+                ->orderBy('share.share_time', 'desc');
+
+        } else if ($userId) { //好友书库
+
+            $builder = $this->capsule->table('book_share AS share')
+                ->select('book.id AS book_id','share.id AS book_share_id','user.nickname','user.headimgurl','user.realname',
+                    'share.share_status','share.lend_status','share.share_time','share.remark')
+                ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'share.id) AS amount')
+                ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
+                ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
+                ->where('share.share_status', 1)
+                ->where('share.lend_status', 1)
+                ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
+                ->where('share.group_id', 0)
+                ->where('share.owner_id', $userId)
+                ->groupBy('user.id')
+                ->orderBy('share.share_time', 'desc');
+
+            $lent_builder = $this->capsule->table('book_share AS share')
+                ->select('book.id AS book_id','share.id AS book_share_id','user.nickname','user.headimgurl','user.realname',
+                    'share.share_status','share.lend_status','share.share_time','share.remark')
+                ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
+                ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
+                ->where('share.share_status', 1)
+                ->where('share.lend_status', 2)
+                ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
+                ->where('share.group_id', 0)
+                ->where('share.owner_id', $userId)
+                ->groupBy('user.id')
+                ->orderBy('share.share_time', 'desc');
+
+        } else {
+            $res = array(
+                'status' => 99999,
+                'message' => '参数错误',
+            );
+        }
 
         if ($builder) {
             $res['data']['list'] = $this->replaceRealName($builder->get());

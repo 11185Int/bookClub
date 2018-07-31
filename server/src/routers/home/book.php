@@ -83,11 +83,12 @@ $app->post('/home/book/saveBookmark', function (\Slim\Http\Request $request, \Sl
 $app->get('/home/book/shareList', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $isbn = $request->getParam('isbn');
+    $groupId = $request->getParam('group_id');
+    $userId = $request->getParam('user_id');
     $account = new AccountSessionKey();
-    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
-
+    $myOpenid = $account->getOpenIdByKey($request->getParam('key'));
     $model = new Book();
-    $res = $model->getShareList($groupId, $isbn);
+    $res = $model->getShareList($isbn, $groupId, $userId, $myOpenid);
 
     return $response->withJson($res);
 });
