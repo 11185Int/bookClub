@@ -63,6 +63,21 @@ $app->get('/home/book/status', function (\Slim\Http\Request $request, \Slim\Http
     return $response->withJson($res);
 });
 
+// 扫码 获取图书基本信息
+$app->post('/home/book/saveBookmark', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $bookId = $request->getParam('book_id');
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $params = $request->getParams();
+
+    $model = new \CP\book\BookMark();
+    $res = $model->saveBookmark($bookId, $openid, $params);
+
+    return $response->withJson($res);
+});
+
+
 
 // 获取某图书可借阅列表
 $app->get('/home/book/shareList', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
