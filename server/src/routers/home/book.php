@@ -111,12 +111,13 @@ $app->get('/home/book/returnList', function (\Slim\Http\Request $request, \Slim\
 $app->get('/home/book/myReturnList', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $isbn = $request->getParam('isbn');
+    $groupId = $request->getParam('group_id');
+    $userId = $request->getParam('user_id');
     $account = new AccountSessionKey();
-    $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
+    $myOpenid = $account->getOpenIdByKey($request->getParam('key'));
 
     $model = new Book();
-    $res = $model->getMyReturnList($groupId, $openid, $isbn);
+    $res = $model->getMyReturnList($isbn, $groupId, $userId, $myOpenid);
 
     return $response->withJson($res);
 });
