@@ -497,7 +497,7 @@ class Book extends AbstractModel
         return $res;
     }
 
-    public function getMyReturnList($isbn, $groupId, $userId, $myOpenid)
+    public function getMyReturnList($openid, $isbn)
     {
         $res = array(
             'status' => 0,
@@ -509,46 +509,17 @@ class Book extends AbstractModel
                 'message' => 'isbn不能为空',
             ];
         }
-        $builder = null;
-
-        if ($groupId) { //小组
-            $user_group = $this->capsule->table('user_group')->where('group_id', $groupId)
-                ->where('openid', $myOpenid)->first();
-            if (empty($user_group)) {
-                return [
-                    'status' => 99999,
-                    'message' => '还未加入此小组',
-                ];
-            }
-            $builder = $this->capsule->table('book_borrow AS borrow')
-                ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname')
-                ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
-                ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
-                ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
-                ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
-                ->where('borrow.borrower_openid', $myOpenid)
-                ->where('borrow.return_status', 0)
-                ->where('share.group_id', $groupId)
-                ->groupBy('user.id')
-                ->orderBy('share.share_time', 'desc');
-
-        } else if ($userId) { //个人
-
-            $builder = $this->capsule->table('book_borrow AS borrow')
-                ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname')
-                ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
-                ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
-                ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
-                ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
-                ->where('borrow.borrower_openid', $myOpenid)
-                ->where('borrow.return_status', 0)
-                ->where('share.owner_id', $userId)
-                ->where('share.group_id', 0)
-                ->groupBy('user.id')
-                ->orderBy('share.share_time', 'desc');
-
-        }
-
+        $builder = $this->capsule->table('book_borrow AS borrow')
+            ->select('share.id AS book_share_id','user.nickname','user.headimgurl','user.realname')
+            ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
+            ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
+            ->join('user AS user', 'user.openid', '=', 'share.owner_openid', 'inner')
+            ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
+            ->where('borrow.borrower_openid', $openid)
+            ->where('borrow.return_status', 0)
+            //->where('share.group_id', $groupId)
+            ->groupBy('user.id')
+            ->orderBy('share.share_time', 'desc');
 
         if ($builder) {
             $res['data']['list'] = $this->replaceRealName($builder->get());
