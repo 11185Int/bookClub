@@ -94,7 +94,7 @@ $app->get('/home/book/shareList', function (\Slim\Http\Request $request, \Slim\H
 });
 
 // 获取某本图书我的可归还列表（拥有者）
-$app->get('/home/book/returnList', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+/*$app->get('/home/book/returnList', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $isbn = $request->getParam('isbn');
     $account = new AccountSessionKey();
@@ -105,7 +105,7 @@ $app->get('/home/book/returnList', function (\Slim\Http\Request $request, \Slim\
     $res = $model->getReturnList($groupId, $openid, $isbn);
 
     return $response->withJson($res);
-});
+});*/
 
 // 获取某本图书我的阅读主动归还列表（借阅者）
 $app->get('/home/book/myReturnList', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {

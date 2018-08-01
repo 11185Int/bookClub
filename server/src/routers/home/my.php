@@ -14,7 +14,7 @@ $app->post('/home/my/detail', function (\Slim\Http\Request $request, \Slim\Http\
 });
 
 // 我的图书
-$app->post('/home/my/share', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+/*$app->post('/home/my/share', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
@@ -24,10 +24,10 @@ $app->post('/home/my/share', function (\Slim\Http\Request $request, \Slim\Http\R
     $res = $model->getMyBookShare($groupId, $openid);
 
     return $response->withJson($res);
-});
+});*/
 
 // 我的借阅
-$app->post('/home/my/borrow', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+/*$app->post('/home/my/borrow', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
@@ -37,7 +37,7 @@ $app->post('/home/my/borrow', function (\Slim\Http\Request $request, \Slim\Http\
     $res = $model->getMyBookBorrow($groupId, $openid);
 
     return $response->withJson($res);
-});
+});*/
 
 // 我的藏书海报数据
 $app->post('/home/my/poster/data', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
