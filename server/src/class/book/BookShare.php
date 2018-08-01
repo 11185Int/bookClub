@@ -86,88 +86,147 @@ class BookShare extends AbstractModel
             'lend_status' => 1,
             'share_time' => time(),
             'remark' => $remark,
-            'group_id' => $groupId
+            'group_id' => $groupId ? intval($groupId) : 0,
         );
 
-        $this->capsule->table('book_share')->insert($kv);
+        if ($groupId) { //添加到小组
+
+            $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
+            if (empty($user_group)) {
+                return [
+                    'status' => 99999,
+                    'message' => '还未加入此小组',
+                ];
+            }
+            if ($user_group['is_admin'] == 0) {
+                return [
+                    'status' => 99999,
+                    'message' => '无权限操作',
+                ];
+            }
+            $this->capsule->table('book_share')->insert($kv);
+
+        } else { //添加到个人藏书
+
+            $kv['group_id'] = 0;
+            $this->capsule->table('book_share')->insert($kv);
+
+        }
+
 
         return $res;
     }
 
-    public function unShare($groupId, $openid, $book_share_id)
+    public function unShare($groupId, $openid, $isbn)
     {
         $res = array(
             'status' => 0,
             'message' => '',
         );
 
-        if (!$book_share_id) {
+        if (!$isbn) {
             return [
                 'status' => 10000,
                 'message' => '参数不全',
             ];
         }
+        $bookModel = new Book();
+        $book = $bookModel->findBook($isbn);
+        if (!$book) {
+            return [
+                'status' => 6000,
+                'message' => '找不到图书',
+            ];
+        }
+        $book_id = $book['id'];
+        $groupId = $groupId ? intval($groupId) : 0;
 
-        $bookShare = $this->findBookShareById($book_share_id);
-        if ($bookShare['owner_openid'] != $openid) {
+        if ($groupId) { //检查权限
+            $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
+            if (empty($user_group)) {
+                return [
+                    'status' => 99999,
+                    'message' => '还未加入此小组',
+                ];
+            }
+            if ($user_group['is_admin'] == 0) {
+                return [
+                    'status' => 99999,
+                    'message' => '无权限操作',
+                ];
+            }
+        }
+        $bookShares = $this->capsule->table('book_share')->where('book_id', $book_id)
+                ->where('owner_openid', $openid)->where('group_id', $groupId)->get();
+
+
+        if (empty($bookShares)) {
             return [
                 'status' => 6000,
                 'message' => '找不到此分享图书',
             ];
         }
-        if (empty($bookShare)) {
-            return [
-                'status' => 6000,
-                'message' => '找不到此分享图书',
-            ];
-        }
-        if ($bookShare['lend_status'] == 2) {
-            return [
-                'status' => 6000,
-                'message' => '此图书借出中，无法取消共享',
-            ];
-        }
 
+        $this->forceReturn($bookShares);
         $kv = array(
             'share_status' => 0,
             'lend_status' => 0,
         );
 
-        $this->capsule->table('book_share')->where('id', $book_share_id)->where('group_id', $groupId)->update($kv);
+        $this->capsule->table('book_share')->where('book_id', $book_id)->where('owner_openid', $openid)
+            ->where('group_id', $groupId)->update($kv);
+
         return $res;
     }
 
-    public function reShare($groupId, $openid, $book_share_id)
+    public function reShare($groupId, $openid, $isbn)
     {
         $res = array(
             'status' => 0,
             'message' => '',
         );
 
-        if (!$book_share_id) {
+        if (!$isbn) {
             return [
                 'status' => 10000,
                 'message' => '参数不全',
             ];
         }
+        $bookModel = new Book();
+        $book = $bookModel->findBook($isbn);
+        if (!$book) {
+            return [
+                'status' => 6000,
+                'message' => '找不到图书',
+            ];
+        }
+        $book_id = $book['id'];
+        $groupId = $groupId ? intval($groupId) : 0;
 
-        $bookShare = $this->findBookShareById($book_share_id);
-        if ($bookShare['owner_openid'] != $openid) {
-            return [
-                'status' => 6000,
-                'message' => '找不到此分享图书',
-            ];
+        if ($groupId) { //检查权限
+            $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
+            if (empty($user_group)) {
+                return [
+                    'status' => 99999,
+                    'message' => '还未加入此小组',
+                ];
+            }
+            if ($user_group['is_admin'] == 0) {
+                return [
+                    'status' => 99999,
+                    'message' => '无权限操作',
+                ];
+            }
         }
-        if (empty($bookShare)) {
+
+        $bookShares = $this->capsule->table('book_share')->where('book_id', $book_id)
+            ->where('owner_openid', $openid)->where('group_id', $groupId)->get();
+
+
+        if (empty($bookShares)) {
             return [
                 'status' => 6000,
-                'message' => '找不到此分享图书',
-            ];
-        }
-        if ($bookShare['share_status'] || $bookShare['lend_status']) {
-            return [
-                'status' => 6000,
-                'message' => '此图书无法恢复共享',
+                'message' => '找不到此图书',
             ];
         }
 
@@ -176,9 +235,34 @@ class BookShare extends AbstractModel
             'lend_status' => 1,
         );
 
-        $this->capsule->table('book_share')->where('id', $book_share_id)->where('group_id', $groupId)->update($kv);
+        $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', $groupId)
+            ->where('owner_openid', $openid)->update($kv);
 
         return $res;
+    }
+
+    protected function forceReturn($bookShares)
+    {
+        if (empty($bookShares)) {
+            return false;
+        }
+        foreach ($bookShares as $bookShare) {
+            if ($bookShare['lend_status'] == 2) {
+                $book_borrow = $this->capsule->table('book_borrow')
+                    ->where('book_share_id', $bookShare['id'])
+                    ->where('return_status', 0)
+                    ->first() ?: [];
+                if (!empty($book_borrow)) {
+                    $kv = array(
+                        'return_status' => 1,
+                        'return_time' => time(),
+                        'remark' => '系统自动归还',
+                    );
+                    $this->capsule->table('book_borrow')->where('id', $book_borrow['id'])->update($kv);
+                }
+            }
+        }
+        return true;
     }
 
 }
