@@ -38,20 +38,35 @@ class BookBorrow extends AbstractModel
         return $res;
     }
 
-    public function borrow($groupId, $openid, $book_share_id, $remark)
+    public function borrow($groupId, $userId, $openid, $isbn, $remark)
     {
         $res = array(
             'status' => 0,
             'message' => '',
         );
 
-        if (!$book_share_id) {
+        if (!$isbn) {
             return [
                 'status' => 10000,
                 'message' => '参数不全',
             ];
         }
-
+        if (!$groupId && !$userId) {
+            return [
+                'status' => 10000,
+                'message' => '参数不全',
+            ];
+        }
+        $bookModel = new Book();
+        $book = $bookModel->findBook($isbn);
+        if (!$book) {
+            return [
+                'status' => 6000,
+                'message' => '找不到图书',
+            ];
+        }
+        $book_id = $book['id'];
+        $groupId = $groupId ? intval($groupId) : 0;
         //是否设置了真实名字
         $accountModel = new Account();
         if ($accountModel->isRealNameEmpty($openid, $groupId)) {
@@ -61,9 +76,22 @@ class BookBorrow extends AbstractModel
             ];
         }
 
-        $bookShareModel = new BookShare();
-        $bookShare = $bookShareModel->findBookShareById($book_share_id);
-        if (empty($bookShare) || $bookShare['share_status'] != 1 || $bookShare['lend_status'] != 1) {
+        $bookShare = null;
+        if ($groupId) {
+            $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
+            if (empty($user_group)) {
+                return [
+                    'status' => 99999,
+                    'message' => '还未加入此小组',
+                ];
+            }
+            $bookShare = $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', $groupId)
+                ->where('share_status', 1)->where('lend_status', 1)->first();
+        } else if ($userId) {
+            $bookShare = $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', 0)
+                ->where('owner_id', $userId)->where('share_status', 1)->where('lend_status', 1)->first();
+        }
+        if (empty($bookShare)) {
             return [
                 'status' => 10001,
                 'message' => '图书未分享或已被借出',
@@ -79,7 +107,7 @@ class BookBorrow extends AbstractModel
         }
 
         $kv = array(
-            'book_share_id' => $book_share_id,
+            'book_share_id' => $bookShare['id'],
             'borrower_id' => $this->getUserIdByOpenid($openid),
             'borrower_openid' => $openid,
             'borrow_time' => time(),
@@ -90,7 +118,7 @@ class BookBorrow extends AbstractModel
         $this->capsule->getConnection()->beginTransaction();
 
         $r1 = $this->capsule->table('book_borrow')->insert($kv);
-        $r2 = $this->capsule->table('book_share')->where('id', $book_share_id)->where('group_id', $groupId)
+        $r2 = $this->capsule->table('book_share')->where('id', $bookShare['id'])->where('group_id', $groupId)
             ->update(['lend_status' => 2]);
         if ($r1 && $r2) {
             $this->capsule->getConnection()->commit();
@@ -105,27 +133,46 @@ class BookBorrow extends AbstractModel
         return $res;
     }
 
-    public function returnBook($groupId, $openid, $book_share_id, $remark)
+    public function returnBook($openid, $isbn, $remark)
     {
         $res = array(
             'status' => 0,
             'message' => '',
         );
 
-        if (!$book_share_id) {
+        if (!$isbn) {
             return [
                 'status' => 10000,
                 'message' => '参数不全',
             ];
         }
+        $bookModel = new Book();
+        $book = $bookModel->findBook($isbn);
+        if (!$book) {
+            return [
+                'status' => 6000,
+                'message' => '找不到图书',
+            ];
+        }
+        $book_id = $book['id'];
+
         //默认还最后借的那本
-        $book_borrow = $this->capsule->table('book_borrow')
-            ->where('book_share_id', $book_share_id)
-            ->where('return_status', 0)
-            ->orderBy('id', 'desc')
+        $book_borrow = $this->capsule->table('book_borrow AS bb')
+            ->leftJoin('book_share AS bs', 'bs.id', '=', 'bb.book_share_id')
+            ->select('bb.*')
+            ->where('bb.borrower_openid', $openid)
+            ->where('bs.book_id', $book_id)
+            ->where('bb.return_status', 0)
+            ->orderBy('bb.id', 'desc')
             ->first() ?: [];
-        $book_share = $this->capsule->table('book_share')->find($book_share_id) ?: [];
-        if (empty($book_borrow) || empty($book_share)) {
+        if (empty($book_borrow)) {
+            return [
+                'status' => 99999,
+                'message' => '找不到该借阅记录',
+            ];
+        }
+        $book_share = $this->capsule->table('book_share')->find($book_borrow['book_share_id']) ?: [];
+        if (empty($book_share)) {
             return [
                 'status' => 99999,
                 'message' => '找不到该借阅记录',
@@ -147,8 +194,7 @@ class BookBorrow extends AbstractModel
         $this->capsule->getConnection()->beginTransaction();
 
         $r1 = $this->capsule->table('book_borrow')->where('id', $book_borrow['id'])->update($kv);
-        $r2 = $this->capsule->table('book_share')->where('id', $book_share_id)->where('group_id', $groupId)
-            ->update(['lend_status' => 1]);
+        $r2 = $this->capsule->table('book_share')->where('id', $book_share['id'])->update(['lend_status' => 1]);
 
         if ($r1 && $r2) {
             $this->capsule->getConnection()->commit();
