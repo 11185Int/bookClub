@@ -62,7 +62,7 @@ class BookShare extends AbstractModel
             'message' => '',
         );
 
-        if (!$isbn || !$remark) {
+        if (!$isbn) {
             return [
                 'status' => 10000,
                 'message' => '参数不全',
@@ -85,7 +85,7 @@ class BookShare extends AbstractModel
             'share_status' => 1,
             'lend_status' => 1,
             'share_time' => time(),
-            'remark' => $remark,
+            'remark' => $remark ?: '',
             'group_id' => $groupId ? intval($groupId) : 0,
         );
 

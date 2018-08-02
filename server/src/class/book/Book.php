@@ -254,6 +254,14 @@ class Book extends AbstractModel
                 'message' => '找不到图书',
             ];
         }
+        $user_group = $this->capsule->table('user_group')->where('group_id', $groupId)
+            ->where('openid', $openid)->first();
+        if (empty($user_group)) {
+            return [
+                'status' => 99999,
+                'message' => '还未加入此小组',
+            ];
+        }
         $shouldReturn = 0;
         $canBorrow = 0;
         $book_shares = $this->capsule->table('book_share')->where('book_id', $book['id'])
@@ -280,14 +288,14 @@ class Book extends AbstractModel
             }
         }
 
-        //是否已经添加
-        $add_cnt = $this->capsule->table('book_share')->where('book_id', $book['id'])
+        $isAdd = 0;
+        if ($user_group['is_admin'] == 1) {
+            //是否已经添加
+            $add_cnt = $this->capsule->table('book_share')->where('book_id', $book['id'])
                 ->where('group_id', $groupId)->count();
-        $isAdd = $add_cnt > 0? 1: 0;
-        $share_status = 0;
-        if ($book_share = reset($book_shares)) {
-            $share_status = $book_share['share_status'];
+            $isAdd = $add_cnt > 0? 1: 0;
         }
+
 
         $bmModel = new BookMark();
         $bookmark = $bmModel->getBookmark($book['id'], $openid);
@@ -296,7 +304,6 @@ class Book extends AbstractModel
             'shouldReturn' => $shouldReturn,
             'canBorrow' => $canBorrow,
             'isAdd' => $isAdd,
-            'share_status' => $share_status,
             'bookmark' => $bookmark,
         ];
 
@@ -344,10 +351,6 @@ class Book extends AbstractModel
         $add_cnt = $this->capsule->table('book_share')->where('book_id', $book['id'])
             ->where('group_id', 0)->where('owner_openid', $owner_openid)->count();
         $isAdd = $add_cnt > 0? 1: 0;
-        $share_status = 0;
-        if ($book_share = reset($book_shares)) {
-            $share_status = $book_share['share_status'];
-        }
 
         $bmModel = new BookMark();
         $bookmark = $bmModel->getBookmark($book['id'], $openid);
@@ -356,7 +359,6 @@ class Book extends AbstractModel
             'shouldReturn' => $shouldReturn,
             'canBorrow' => $canBorrow,
             'isAdd' => $isAdd,
-            'share_status' => $share_status,
             'bookmark' => $bookmark,
         ];
 
@@ -411,19 +413,16 @@ class Book extends AbstractModel
         $add_cnt = $this->capsule->table('book_share')->where('book_id', $book['id'])
             ->where('group_id', 0)->where('owner_openid', $openid)->count();
         $isAdd = $add_cnt > 0? 1: 0;
-        $share_status = 0;
-        if ($book_share = reset($book_shares)) {
-            $share_status = $book_share['share_status'];
-        }
 
         $bmModel = new BookMark();
         $bookmark = $bmModel->getBookmark($book['id'], $openid);
+
+
 
         $res['data'] = [
             'shouldReturn' => $shouldReturn,
             'canBorrow' => $canBorrow,
             'isAdd' => $isAdd,
-            'share_status' => $share_status,
             'bookmark' => $bookmark,
         ];
 
