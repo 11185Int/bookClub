@@ -426,8 +426,13 @@ class Book extends AbstractModel
         $bmModel = new BookMark();
         $bookmark = $bmModel->getBookmark($book['id'], $openid);
 
-        $userModel = new User();
-        $sharer = $userModel->getSharerInfo($openid);
+        $sharer = [];
+        $book_share = $this->capsule->table('book_share')->where('book_id', $book['id'])->where('share_status', 1)
+            ->first();
+        if (!empty($book_share)) {
+            $userModel = new User();
+            $sharer = $userModel->getSharerInfo($book_share['owner_openid']);
+        }
 
         $res['data'] = [
             'sharer' => $sharer,
