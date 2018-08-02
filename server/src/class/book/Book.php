@@ -11,6 +11,7 @@ namespace CP\book;
 use CP\api\Douban;
 use CP\common\AbstractModel;
 use CP\common\Isbn;
+use CP\user\User;
 use Slim\Http\UploadedFile;
 
 class Book extends AbstractModel
@@ -296,11 +297,15 @@ class Book extends AbstractModel
             $isAdd = $add_cnt > 0? 1: 0;
         }
 
-
         $bmModel = new BookMark();
         $bookmark = $bmModel->getBookmark($book['id'], $openid);
 
+        $admin = $this->capsule->table('user_group')->where('group_id', $groupId)->where('is_admin', 1)->first();
+        $userModel = new User();
+        $sharer = $userModel->getSharerInfo($admin['openid'], $groupId);
+
         $res['data'] = [
+            'sharer' => $sharer,
             'shouldReturn' => $shouldReturn,
             'canBorrow' => $canBorrow,
             'isAdd' => $isAdd,
@@ -355,7 +360,11 @@ class Book extends AbstractModel
         $bmModel = new BookMark();
         $bookmark = $bmModel->getBookmark($book['id'], $openid);
 
+        $userModel = new User();
+        $sharer = $userModel->getSharerInfo($owner_openid);
+
         $res['data'] = [
+            'sharer' => $sharer,
             'shouldReturn' => $shouldReturn,
             'canBorrow' => $canBorrow,
             'isAdd' => $isAdd,
@@ -417,9 +426,11 @@ class Book extends AbstractModel
         $bmModel = new BookMark();
         $bookmark = $bmModel->getBookmark($book['id'], $openid);
 
-
+        $userModel = new User();
+        $sharer = $userModel->getSharerInfo($openid);
 
         $res['data'] = [
+            'sharer' => $sharer,
             'shouldReturn' => $shouldReturn,
             'canBorrow' => $canBorrow,
             'isAdd' => $isAdd,
