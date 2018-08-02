@@ -209,7 +209,7 @@ class Account extends AbstractModel
     {
         $titleArr = [
             1 => ['白丁','伴读书童','穷酸秀才','举人','进士','状元','学士','司徒','太傅','圣贤'],
-            2 => ['白丁','伴读书童','穷酸秀才','举人','进士','状元','学士','司徒','太傅','圣贤'],
+            2 => ['平民','九品芝麻官','八品县丞','七品知县','六品通判','五品郎中','四品道员','三品御史','二品侍郎','一品大学士'],
         ];
         $pos = [
             1 => 0,  //(0-1]
@@ -231,8 +231,8 @@ class Account extends AbstractModel
                 break;
             }
         }
-
-        return $titleArr[1][$class_pos];
+        $class_type = array_rand($titleArr);
+        return $titleArr[$class_type][$class_pos];
     }
 
 }
