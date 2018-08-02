@@ -53,7 +53,11 @@ $app->get('/home/book/status', function (\Slim\Http\Request $request, \Slim\Http
     } else if ($userId) {
         $user = new User();
         $owner_openid = $user->getOpenIdByUserId($userId);
-        $res = $model->getBookStatusByUser($isbn, $openid, $owner_openid);
+        if ($owner_openid == $openid) {
+            $res = $model->getBookStatusBySelf($isbn, $openid);
+        } else {
+            $res = $model->getBookStatusByUser($isbn, $openid, $owner_openid);
+        }
     } else {
         $res = array(
             'status' => 99999,
