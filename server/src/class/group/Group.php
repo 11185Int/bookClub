@@ -317,7 +317,7 @@ class Group extends AbstractModel
     {
         $data = $this->capsule->table('user_group')
             ->leftJoin('group', 'group.id', '=', 'user_group.group_id')
-            ->select('group.id AS group_id','group.group_name','user_group.is_current')
+            ->select('group.id AS group_id','group.group_name','user_group.is_current','user_group.is_admin')
             ->where('user_group.openid', $openid)
             ->orderBy('user_group.id', 'asc')
             ->get();
