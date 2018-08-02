@@ -143,17 +143,28 @@ class Account extends AbstractModel
             'tags' => [],
             'books' => [],
         ];
-        $booksData = $this->capsule->table('book_share AS bs')
+        $builder = $this->capsule->table('book_share AS bs')
             ->leftJoin('book AS b', 'b.id', '=', 'bs.book_id')
-            ->where('bs.owner_openid', $openid)
             ->where('bs.share_status', 1)
-            ->where('bs.group_id', $groupId)
             ->groupBy('bs.book_id')
             ->orderBy('b.rating', 'desc')
             ->limit(500)
             ->select('b.id','b.title','b.author','b.rating','b.image','b.tags')
-            ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'bs.id) AS cnt')
-            ->get();
+            ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'bs.id) AS cnt');
+
+        if ($groupId) {
+            $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
+            if (empty($user_group)) {
+                return [
+                    'status' => 99999,
+                    'message' => '还未加入此小组',
+                ];
+            }
+            $builder->where('bs.group_id', $groupId);
+        } else {
+            $builder->where('bs.group_id', 0)->where('bs.owner_openid', $openid);
+        }
+        $booksData = $builder->get();
 
         $allRating = 0;
         $allTags = [];
@@ -188,9 +199,40 @@ class Account extends AbstractModel
             round($allRating/$data['book_cnt'] * 12.38 - 23.75) : 0;
         arsort($allTags);
         $data['tags'] = array_slice(array_keys($allTags), 0, $tags_cnt);
+        $data['title'] = $this->getTitleByNum($data['book_cnt']);
         $data['books'] = array_slice($data['books'], 0, $books_cnt);
         $res['data'] = $data;
         return $res;
+    }
+
+    protected function getTitleByNum($num)
+    {
+        $titleArr = [
+            1 => ['白丁','伴读书童','穷酸秀才','举人','进士','状元','学士','司徒','太傅','圣贤'],
+            2 => ['白丁','伴读书童','穷酸秀才','举人','进士','状元','学士','司徒','太傅','圣贤'],
+        ];
+        $pos = [
+            1 => 0,  //(0-1]
+            5 => 1,  //(1-5]
+            10 => 2, //(5-10]
+            20 => 3, //(10-20]
+            35 => 4, //(20-35]
+            50 => 5, //(35-50]
+            75 => 6, //(50-75]
+            100 => 7,//(75-100]
+            200 => 8,//(100-200]
+        ];
+        $class_pos = 0;
+        foreach ($pos as $max => $pos_value) {
+            if ($num > $max) {
+                $class_pos = $pos_value + 1;
+            } else { //$num <= $max
+                $class_pos = $pos_value;
+                break;
+            }
+        }
+
+        return $titleArr[1][$class_pos];
     }
 
 }
