@@ -707,7 +707,7 @@ class Book extends AbstractModel
         return $res;
     }
 
-    public function getBorrowHistory($groupId, $isbn)
+    public function getBorrowHistory($openid, $isbn, $groupId)
     {
         $res = array(
             'status' => 0,
@@ -720,25 +720,48 @@ class Book extends AbstractModel
             ];
         }
 
-        $data = $this->capsule->table('book')
-            ->select('share.owner_openid','sharer.nickname AS sharer_nickname',
-                'sharer.headimgurl AS sharer_headimgurl','share.group_id','borrow.book_share_id','borrow.borrower_openid',
-                'borrower.nickname AS borrower_nickname','borrower.headimgurl AS borrower_headimgurl',
-                'borrow.borrow_time', 'borrow.return_status', 'borrow.return_time')
-            ->leftJoin('book_share AS share', 'share.book_id', '=', 'book.id')
-            ->rightJoin('book_borrow AS borrow', 'borrow.book_share_id', '=', 'share.id')
-            ->leftJoin('user AS sharer', 'sharer.openid', '=', 'share.owner_openid')
-            ->leftJoin('user AS borrower', 'borrower.openid', '=', 'borrow.borrower_openid')
-            ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
-            ->where('share.group_id', $groupId)
-            ->orderBy('borrow.borrow_time', 'desc')
-            ->get();
+        $data = [];
+        $share_status = 0;
+        if ($groupId) {
+            $book_shares = $this->capsule->table('book_share')->where('group_id', $groupId)
+                ->where('share_status', '>', 0)->select('id')->get();
+            $share_status = count($book_shares) > 0 ? 1: 0;
+            $data = $this->capsule->table('book')
+                ->select('share.owner_openid','sharer.nickname AS sharer_nickname',
+                    'sharer.headimgurl AS sharer_headimgurl','share.group_id','borrow.book_share_id','borrow.borrower_openid',
+                    'borrower.nickname AS borrower_nickname','borrower.headimgurl AS borrower_headimgurl',
+                    'borrow.borrow_time', 'borrow.return_status', 'borrow.return_time')
+                ->leftJoin('book_share AS share', 'share.book_id', '=', 'book.id')
+                ->rightJoin('book_borrow AS borrow', 'borrow.book_share_id', '=', 'share.id')
+                ->leftJoin('user AS sharer', 'sharer.openid', '=', 'share.owner_openid')
+                ->leftJoin('user AS borrower', 'borrower.openid', '=', 'borrow.borrower_openid')
+                ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
+                ->where('share.group_id', $groupId)
+                ->orderBy('borrow.borrow_time', 'desc')
+                ->get();
+        } else {
+            $book_shares = $this->capsule->table('book_share')->where('group_id', 0)->where('owner_openid', $openid)
+                ->where('share_status', '>', 0)->select('id')->get();
+            $share_status = count($book_shares) > 0 ? 1: 0;
+            $data = $this->capsule->table('book')
+                ->select('share.book_id','share.owner_openid','sharer.nickname AS sharer_nickname',
+                    'sharer.headimgurl AS sharer_headimgurl','share.group_id','borrow.book_share_id','borrow.borrower_openid',
+                    'borrower.nickname AS borrower_nickname','borrower.headimgurl AS borrower_headimgurl',
+                    'borrow.borrow_time', 'borrow.return_status', 'borrow.return_time')
+                ->leftJoin('book_share AS share', 'share.book_id', '=', 'book.id')
+                ->rightJoin('book_borrow AS borrow', 'borrow.book_share_id', '=', 'share.id')
+                ->leftJoin('user AS sharer', 'sharer.openid', '=', 'share.owner_openid')
+                ->leftJoin('user AS borrower', 'borrower.openid', '=', 'borrow.borrower_openid')
+                ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
+                ->where('share.group_id', 0)
+                ->where('share.owner_openid', $openid)
+                ->orderBy('borrow.borrow_time', 'desc')
+                ->get();
+        }
 
         $list = [];
         foreach ($data as $datum) {
-            $share_id = $datum['book_share_id'];
-            $list[$share_id]['book_share_id'] = $share_id;
-            $list[$share_id]['history'][] = [
+            $list[] = [
                 'sharer_nickname' => $datum['sharer_nickname'],
                 'sharer_headimgurl' => $datum['sharer_headimgurl'],
                 'borrower_nickname' => $datum['borrower_nickname'],
@@ -750,7 +773,8 @@ class Book extends AbstractModel
                     $this->calIntervalDays($datum['borrow_time'], $datum['return_time']).'天':'',
             ];
         }
-        $res['data']['list'] = array_values($list);
+        $res['data']['share_status'] = $share_status;
+        $res['data']['history'] = $list;
 
         return $res;
     }

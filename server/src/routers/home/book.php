@@ -248,10 +248,11 @@ $app->post('/home/book/borrow/history', function (\Slim\Http\Request $request, \
 
     $isbn = $request->getParam('isbn');
     $account = new AccountSessionKey();
-    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $request->getParam('group_id');
 
     $model = new Book();
-    $res = $model->getBorrowHistory($groupId, $isbn);
+    $res = $model->getBorrowHistory($openid, $isbn, $groupId);
 
     return $response->withJson($res);
 });
