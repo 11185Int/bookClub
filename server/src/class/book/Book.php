@@ -723,6 +723,13 @@ class Book extends AbstractModel
         $data = [];
         $share_status = 0;
         if ($groupId) {
+            $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
+            if (empty($user_group)) {
+                return [
+                    'status' => 99999,
+                    'message' => '还未加入此小组',
+                ];
+            }
             $book_shares = $this->capsule->table('book_share')->where('group_id', $groupId)
                 ->where('share_status', '>', 0)->select('id')->get();
             $share_status = count($book_shares) > 0 ? 1: 0;

@@ -141,7 +141,7 @@ class BookShare extends AbstractModel
         $book_id = $book['id'];
         $groupId = $groupId ? intval($groupId) : 0;
 
-        if ($groupId) { //检查权限
+        if ($groupId) { //小组的检查权限
             $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
             if (empty($user_group)) {
                 return [
@@ -155,9 +155,12 @@ class BookShare extends AbstractModel
                     'message' => '无权限操作',
                 ];
             }
+            $bookShares = $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', $groupId)->get();
+        } else { //个人的
+            $bookShares = $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', 0)
+                ->where('owner_openid', $openid)->get();
         }
-        $bookShares = $this->capsule->table('book_share')->where('book_id', $book_id)
-                ->where('owner_openid', $openid)->where('group_id', $groupId)->get();
+
 
 
         if (empty($bookShares)) {
@@ -173,8 +176,12 @@ class BookShare extends AbstractModel
             'lend_status' => 0,
         );
 
-        $this->capsule->table('book_share')->where('book_id', $book_id)->where('owner_openid', $openid)
-            ->where('group_id', $groupId)->update($kv);
+        if ($groupId) {
+            $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', $groupId)->update($kv);
+        } else {
+            $this->capsule->table('book_share')->where('book_id', $book_id)->where('owner_openid', $openid)
+                ->where('group_id', 0)->update($kv);
+        }
 
         return $res;
     }
@@ -203,7 +210,7 @@ class BookShare extends AbstractModel
         $book_id = $book['id'];
         $groupId = $groupId ? intval($groupId) : 0;
 
-        if ($groupId) { //检查权限
+        if ($groupId) { //小组 检查权限
             $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
             if (empty($user_group)) {
                 return [
@@ -217,11 +224,12 @@ class BookShare extends AbstractModel
                     'message' => '无权限操作',
                 ];
             }
+            $bookShares = $this->capsule->table('book_share')->where('book_id', $book_id)
+                ->where('group_id', $groupId)->get();
+        } else { //个人
+            $bookShares = $this->capsule->table('book_share')->where('book_id', $book_id)
+                ->where('owner_openid', $openid)->where('group_id', 0)->get();
         }
-
-        $bookShares = $this->capsule->table('book_share')->where('book_id', $book_id)
-            ->where('owner_openid', $openid)->where('group_id', $groupId)->get();
-
 
         if (empty($bookShares)) {
             return [
@@ -235,8 +243,12 @@ class BookShare extends AbstractModel
             'lend_status' => 1,
         );
 
-        $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', $groupId)
-            ->where('owner_openid', $openid)->update($kv);
+        if ($groupId) {
+            $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', $groupId)->update($kv);
+        } else {
+            $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', 0)
+                ->where('owner_openid', $openid)->update($kv);
+        }
 
         return $res;
     }
