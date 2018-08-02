@@ -225,10 +225,10 @@ class BookShare extends AbstractModel
                 ];
             }
             $bookShares = $this->capsule->table('book_share')->where('book_id', $book_id)
-                ->where('group_id', $groupId)->get();
+                ->where('group_id', $groupId)->orderBy('id','desc')->get();
         } else { //个人
             $bookShares = $this->capsule->table('book_share')->where('book_id', $book_id)
-                ->where('owner_openid', $openid)->where('group_id', 0)->get();
+                ->where('owner_openid', $openid)->where('group_id', 0)->orderBy('id','desc')->get();
         }
 
         if (empty($bookShares)) {
@@ -243,11 +243,12 @@ class BookShare extends AbstractModel
             'lend_status' => 1,
         );
 
+        $latest_book_share = reset($bookShares);
+        $latest_book_share_id = $latest_book_share['id'];
         if ($groupId) {
-            $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', $groupId)->update($kv);
+            $this->capsule->table('book_share')->where('id',$latest_book_share_id)->update($kv);
         } else {
-            $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', 0)
-                ->where('owner_openid', $openid)->update($kv);
+            $this->capsule->table('book_share')->where('id',$latest_book_share_id)->update($kv);
         }
 
         return $res;
