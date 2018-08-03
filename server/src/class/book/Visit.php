@@ -14,8 +14,8 @@ class Visit extends AbstractModel
 
         $data = [
 
-            'visit_cnt' => $visit_cnt,
-            'be_visited_cnt' => $summary['view_cnt'],
+            'visit_cnt' => intval($visit_cnt),
+            'be_visited_cnt' => intval($summary['view_cnt']),
         ];
         return $data;
     }

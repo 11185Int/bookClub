@@ -2,6 +2,7 @@
 
 use CP\common\AccountSessionKey;
 use CP\group\Group;
+use CP\book\Visit;
 
 // 小组共享图书
 $app->get('/home/group/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
@@ -12,6 +13,11 @@ $app->get('/home/group/book/list', function (\Slim\Http\Request $request, \Slim\
     $groupId = $request->getParam('group_id');
     $model = new \CP\book\Book();
     $res = $model->getListByGroup($openid, $groupId, $request->getParams());
+
+    if ($res['status'] == 0) {
+        $visit = new Visit();
+        $visit->visitGroup($openid, $groupId);
+    }
 
     return $response->withJson($res);
 });
