@@ -107,7 +107,7 @@ $app->post('/home/group/list', function (\Slim\Http\Request $request, \Slim\Http
 });
 
 // 切换小组
-$app->post('/home/group/switch', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+/*$app->post('/home/group/switch', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
@@ -117,7 +117,7 @@ $app->post('/home/group/switch', function (\Slim\Http\Request $request, \Slim\Ht
     $res = $group->switchGroup($groupId, $openid);
 
     return $response->withJson($res);
-});
+});*/
 
 // 修改小组信息
 $app->post('/home/group/edit', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
@@ -152,7 +152,7 @@ $app->post('/home/group/quit', function (\Slim\Http\Request $request, \Slim\Http
 });
 
 // 转让小组
-/*$app->post('/home/group/transfer', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+$app->post('/home/group/transfer', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
@@ -163,7 +163,7 @@ $app->post('/home/group/quit', function (\Slim\Http\Request $request, \Slim\Http
     $res = $group->transfer($groupId, $openid, $to_user_group_id);
 
     return $response->withJson($res);
-});*/
+});
 
 // 获取小程序码
 $app->post('/home/group/wxcode', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
