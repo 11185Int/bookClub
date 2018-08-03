@@ -279,6 +279,14 @@ class Book extends AbstractModel
             }
         }
 
+        $share_sum = count($book_shares);
+        $lend_sum = 0;
+        foreach ($book_shares as $book_share) {
+            if ($book_share['lend_status'] == 2) { //在架,未借出
+                $lend_sum ++;
+            }
+        }
+
         //是否能借
         if ($shouldReturn == 0) {
             foreach ($book_shares as $book_share) {
@@ -307,6 +315,8 @@ class Book extends AbstractModel
         $res['data'] = [
             'sharer' => $sharer,
             'shouldReturn' => $shouldReturn,
+            'share_sum' => $share_sum,
+            'lend_sum' => $lend_sum,
             'canBorrow' => $canBorrow,
             'isAdd' => $isAdd,
             'bookmark' => $bookmark,
@@ -343,6 +353,14 @@ class Book extends AbstractModel
                 break;
             }
         }
+        $share_sum = count($book_shares);
+        $lend_sum = 0;
+        foreach ($book_shares as $book_share) {
+            if ($book_share['lend_status'] == 2) { //在架,未借出
+                $lend_sum ++;
+            }
+        }
+
         //是否能借
         if ($shouldReturn == 0) {
             foreach ($book_shares as $book_share) {
@@ -366,6 +384,8 @@ class Book extends AbstractModel
         $res['data'] = [
             'sharer' => $sharer,
             'shouldReturn' => $shouldReturn,
+            'share_sum' => $share_sum,
+            'lend_sum' => $lend_sum,
             'canBorrow' => $canBorrow,
             'isAdd' => $isAdd,
             'bookmark' => $bookmark,
@@ -405,10 +425,10 @@ class Book extends AbstractModel
             $shouldReturn = 1;
         }
 
+        $book_shares = $this->capsule->table('book_share')->where('book_id', $book['id'])
+            ->where('group_id', 0)->where('owner_openid', $openid)->where('share_status', 1)->get();
         //是否能借
         if ($shouldReturn == 0) {
-            $book_shares = $this->capsule->table('book_share')->where('book_id', $book['id'])
-                ->where('group_id', 0)->where('owner_openid', $openid)->where('share_status', 1)->get();
             //查看【本人】分享的所有book_share
 
             foreach ($book_shares as $book_share) {
@@ -418,6 +438,15 @@ class Book extends AbstractModel
                 }
             }
         }
+
+        $share_sum = count($book_shares);
+        $lend_sum = 0;
+        foreach ($book_shares as $book_share) {
+            if ($book_share['lend_status'] == 2) { //在架,未借出
+                $lend_sum ++;
+            }
+        }
+
         //是否已经添加
         $add_cnt = $this->capsule->table('book_share')->where('book_id', $book['id'])
             ->where('group_id', 0)->where('owner_openid', $openid)->count();
@@ -437,6 +466,8 @@ class Book extends AbstractModel
         $res['data'] = [
             'sharer' => $sharer,
             'shouldReturn' => $shouldReturn,
+            'share_sum' => $share_sum,
+            'lend_sum' => $lend_sum,
             'canBorrow' => $canBorrow,
             'isAdd' => $isAdd,
             'bookmark' => $bookmark,
