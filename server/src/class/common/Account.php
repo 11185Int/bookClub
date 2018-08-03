@@ -2,6 +2,8 @@
 
 namespace CP\common;
 
+use CP\book\Visit;
+
 class Account extends AbstractModel
 {
     protected $_accountKey = null;
@@ -84,9 +86,8 @@ class Account extends AbstractModel
         $group_amount = $this->capsule->table('user_group')->where('openid', $openid)->count();
         $res['data']['group_amount'] = $group_amount;
 
-        $res['data']['group_id'] = $this->_accountKey->getCurrentGroupIdByKey($key);
-        $res['data']['group_name'] = $this->_accountKey->getCurrentGroupNameByKey($key);
-
+        $visit = new Visit();
+        $res['data']['ext'] = $visit->getVisitDataUser($openid);
         return $res;
     }
 
