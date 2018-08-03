@@ -12,8 +12,27 @@ class Visit extends AbstractModel
         $summary = $this->getVisitSummaryUser($openid);
         $visit_cnt = $this->capsule->table('visit_history')->where('openid', $openid)->sum('view_cnt');
 
-        $data = [
+        $bookShares = $this->capsule->table('book_share')->where('group_id', 0)->where('owner_openid', $openid)
+            ->select('id','share_status','lend_status')->get();
+        $book_cnt = count($bookShares);
+        $lend_cnt = 0;
+        foreach ($bookShares as $bookShare) {
+            if ($bookShare['lend_status'] == 2) {
+                $lend_cnt ++;
+            }
+        }
+        $bookBorrows = $this->capsule->table('book_borrow AS bb')
+            ->leftJoin('book_share AS bs', 'bs.id', '=', 'bb.book_share_id')
+            ->select('bb.id', 'bb.return_status')
+            ->where('bb.borrower_openid', $openid)
+            ->where('bb.return_status', 0)
+            ->get();
+        $borrow_cnt = count($bookBorrows);
 
+        $data = [
+            'book_cnt' => $book_cnt,
+            'borrow_cnt' => $borrow_cnt,
+            'lend_cnt' => $lend_cnt,
             'visit_cnt' => intval($visit_cnt),
             'be_visited_cnt' => intval($summary['view_cnt']),
         ];

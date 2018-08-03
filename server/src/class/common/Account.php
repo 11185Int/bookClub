@@ -61,10 +61,10 @@ class Account extends AbstractModel
 
     /**
      * 获取用户详情
-     * @param $params
+     * @param $openid
      * @return array
      */
-    public function getDetail($params)
+    public function getDetail($openid)
     {
         $res = array(
             'status' => 0,
@@ -72,8 +72,6 @@ class Account extends AbstractModel
             'data' => array(),
         );
 
-        $key = isset($params['key']) ? $params['key'] : '';
-        $openid = $this->_accountKey->getOpenIdByKey($key);
 
         $detail = $this->capsule->table('user')->where('openid', $openid)->first();
         $res['data'] = $detail ?: [];

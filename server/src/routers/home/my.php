@@ -7,8 +7,10 @@ use CP\common\AccountSessionKey;
 
 $app->post('/home/my/detail', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
     $model = new Account();
-    $res = $model->getDetail($request->getParams());
+    $res = $model->getDetail($openid);
 
     return $response->withJson($res);
 });
