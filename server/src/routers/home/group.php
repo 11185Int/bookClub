@@ -28,9 +28,12 @@ $app->post('/home/group/create', function (\Slim\Http\Request $request, \Slim\Ht
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
     $name = $request->getParam('name', '');
+    $uploadFiles = $request->getUploadedFiles();
+    $image = isset($uploadFiles['image']) ? $uploadFiles['image'] : null;
+    $config = $this->get('settings')['config'];
 
     $group = new Group();
-    $res = $group->create($openid, $name);
+    $res = $group->create($openid, $name, $image, $config);
 
     return $response->withJson($res);
 });
@@ -123,11 +126,14 @@ $app->post('/home/group/edit', function (\Slim\Http\Request $request, \Slim\Http
     $openid = $account->getOpenIdByKey($request->getParam('key'));
     $groupId = $request->getParam('group_id', 0);
     $name = $request->getParam('name', '');
+    $uploadFiles = $request->getUploadedFiles();
+    $image = isset($uploadFiles['image']) ? $uploadFiles['image'] : null;
+    $config = $this->get('settings')['config'];
     $summary = $request->getParam('summary', '');
     $realname = $request->getParam('realname', '');
 
     $group = new Group();
-    $res = $group->edit($groupId, $openid, $name, $summary, $realname);
+    $res = $group->edit($groupId, $openid, $name, $image, $summary, $realname, $config);
 
     return $response->withJson($res);
 });
@@ -146,7 +152,7 @@ $app->post('/home/group/quit', function (\Slim\Http\Request $request, \Slim\Http
 });
 
 // 转让小组
-$app->post('/home/group/transfer', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+/*$app->post('/home/group/transfer', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
@@ -157,7 +163,7 @@ $app->post('/home/group/transfer', function (\Slim\Http\Request $request, \Slim\
     $res = $group->transfer($groupId, $openid, $to_user_group_id);
 
     return $response->withJson($res);
-});
+});*/
 
 // 获取小程序码
 $app->post('/home/group/wxcode', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {

@@ -4,11 +4,12 @@ namespace CP\group;
 
 use CP\api\Wechat;
 use CP\common\AbstractModel;
+use Slim\Http\UploadedFile;
 
 class Group extends AbstractModel
 {
 
-    public function create($openid, $name)
+    public function create($openid, $name, $image, $config)
     {
         $res = array(
             'status' => 0,
@@ -20,14 +21,37 @@ class Group extends AbstractModel
                 'message' => '名字不超过10个汉字',
             ];
         }
-        $user = $this->capsule->table('user')->where('openid', $openid)->first();
+        $imageUrl = '';
+        if ($image) {
+            if (!in_array($image->getClientMediaType(),
+                    ['image/png','image/jpeg','image/jpg','image/gif','image/bmp','image/tiff','image/svg+xml'])) {
+                return [
+                    'status' => 99999,
+                    'message' => '图片格式错误',
+                ];
+            }
+            if ($image->getSize() > 2 * 1024 * 1024) {
+                return [
+                    'status' => 99999,
+                    'message' => '图片超过2M',
+                ];
+            }
+            if ($image->getError() === UPLOAD_ERR_OK) {
+                $directory = __DIR__. '/../../../public/resources/group/image/';
+                $filename = $this->moveUploadedFile($directory, $image);
+                $domain = $config['domain'];
+                $imageUrl = $domain . 'resources/group/image/'. $filename;
+            }
+        }
 
+        $user = $this->capsule->table('user')->where('openid', $openid)->first();
         $this->capsule->getConnection()->beginTransaction();
         $group = [
             'group_name' => $name,
             'group_amount' => 1,
             'creator_openid' => $openid,
             'create_time' => time(),
+            'headimgurl' => $imageUrl,
         ];
         $r1 = $this->capsule->table('group')->insertGetId($group);
         $this->capsule->table('user_group')->where('openid', $openid)->update(['is_current' => 0]);
@@ -77,6 +101,7 @@ class Group extends AbstractModel
         $data = [
             'group_id' => $group['id'],
             'group_name' => $group['group_name'],
+            'headimgurl' => $group['headimgurl'] ?: '',
             'group_amount' => $group['group_amount'],
             'create_time' => date('Y/m/d', $group['create_time']),
             'summary' => $group['summary'],
@@ -317,7 +342,7 @@ class Group extends AbstractModel
     {
         $data = $this->capsule->table('user_group')
             ->leftJoin('group', 'group.id', '=', 'user_group.group_id')
-            ->select('group.id AS group_id','group.group_name','user_group.is_current','user_group.is_admin')
+            ->select('group.id AS group_id','group.group_name','group.headimgurl','user_group.is_current','user_group.is_admin')
             ->where('user_group.openid', $openid)
             ->orderBy('user_group.id', 'asc')
             ->get();
@@ -367,7 +392,7 @@ class Group extends AbstractModel
         return $res;
     }
 
-    public function edit($groupId, $openid, $name, $summary, $realname)
+    public function edit($groupId, $openid, $name, $image, $summary, $realname, $config)
     {
         $exist = $this->capsule->table('user_group')
             ->where('group_id', $groupId)
@@ -402,6 +427,28 @@ class Group extends AbstractModel
         }
         if ($summary && $exist['is_admin']) {
             $this->capsule->table('group')->where('id', $groupId)->update(['summary' => $summary]);
+        }
+        if ($image && $exist['is_admin']) {
+            if (!in_array($image->getClientMediaType(),
+                ['image/png','image/jpeg','image/jpg','image/gif','image/bmp','image/tiff','image/svg+xml'])) {
+                return [
+                    'status' => 99999,
+                    'message' => '图片格式错误',
+                ];
+            }
+            if ($image->getSize() > 2 * 1024 * 1024) {
+                return [
+                    'status' => 99999,
+                    'message' => '图片超过2M',
+                ];
+            }
+            if ($image->getError() === UPLOAD_ERR_OK) {
+                $directory = __DIR__. '/../../../public/resources/group/image/';
+                $filename = $this->moveUploadedFile($directory, $image);
+                $domain = $config['domain'];
+                $imageUrl = $domain . 'resources/group/image/'. $filename;
+            }
+            $this->capsule->table('group')->where('id', $groupId)->update(['headimgurl' => $imageUrl]);
         }
         if ($realname) {
             $this->capsule->table('user_group')->where('group_id', $groupId)->where('openid', $openid)
@@ -531,4 +578,14 @@ class Group extends AbstractModel
         return $res;
     }
 
+    protected function moveUploadedFile($directory, UploadedFile $uploadedFile)
+    {
+        $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+        $basename = bin2hex(random_bytes(8)); // see http://php.net/manual/en/function.random-bytes.php
+        $filename = sprintf('%s.%0.8s', $basename, $extension);
+
+        $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
+
+        return $filename;
+    }
 }
