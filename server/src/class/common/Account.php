@@ -198,7 +198,7 @@ class Account extends AbstractModel
             round($allRating/$data['book_cnt'] * 12.38 - 23.75) : 0;
         arsort($allTags);
         $data['tags'] = array_slice(array_keys($allTags), 0, $tags_cnt);
-        $data['title'] = $this->getTitleByNum($data['book_cnt']);
+        $data['title'] = $groupId? $this->getGroupTitleByNum($data['book_cnt']): $this->getTitleByNum($data['book_cnt']);
         $data['books'] = array_slice($data['books'], 0, $books_cnt);
         $res['data'] = $data;
         return $res;
@@ -231,7 +231,52 @@ class Account extends AbstractModel
             }
         }
         $class_type = array_rand($titleArr);
-        return $titleArr[$class_type][$class_pos];
+        return isset($titleArr[$class_type][$class_pos]) ? $titleArr[$class_type][$class_pos] : '未知';
+    }
+
+    protected function getGroupTitleByNum($num)
+    {
+        $titleArr = [
+            '嘉兴烟雨楼','水榭听香','聚贤庄','桃花岛','百花谷','五指峰','冰火岛','思过崖','终南古墓','绝情谷',
+            '黑木崖','光明顶','天龙寺','飘渺峰','灵鹫宫','罗汉堂','藏经阁','少室山','般若堂','菩提院',
+            '琅擐福地','还施水阁','达摩院','侠客岛','笑傲江湖',
+        ];
+        $pos = [
+            5 => 0,  //(0-5]
+            10 => 1, //(5-10]
+            15 => 2, //(10-15]
+            20 => 3, //(15-20]
+            25 => 4, //(20-25]
+            30 => 5, //(25-30]
+            35 => 6,//(30-35]
+            40 => 7,//(35-40]
+            45 => 8,//(40-45]
+            50 => 9,//(45-50]
+            55 => 10,//(50-55]
+            60 => 11,//(55-60]
+            65 => 12,//(60-65]
+            70 => 13,//(65-70]
+            75 => 14,//(70-75]
+            80 => 15,//(75-80]
+            85 => 16,//(80-85]
+            90 => 17,//(85-90]
+            95 => 18,//(90-95]
+            100 => 19,//(95-100]
+            150 => 20,//(100-150]
+            200 => 21,//(150-200]
+            250 => 22,//(200-250]
+            300 => 23,//(250-300]
+        ];
+        $class_pos = 0;
+        foreach ($pos as $max => $pos_value) {
+            if ($num > $max) {
+                $class_pos = $pos_value + 1;
+            } else { //$num <= $max
+                $class_pos = $pos_value;
+                break;
+            }
+        }
+        return isset($titleArr[$class_pos]) ? $titleArr[$class_pos] : '未知';
     }
 
 }
