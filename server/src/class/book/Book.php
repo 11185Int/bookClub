@@ -410,9 +410,9 @@ class Book extends AbstractModel
         $shouldReturn = 0;
         $canBorrow = 0;
 
-        $book_shares = $this->capsule->table('book_share AS s')
+        $return_book_shares = $this->capsule->table('book_share AS s')
             ->leftJoin('book_borrow AS b', 'b.book_share_id', '=', 's.id')
-            ->select('s.id', 's.share_status', 's.lend_status')
+            ->select('s.id', 's.share_status', 's.lend_status', 's.owner_openid')
             ->where('s.book_id', $book['id'])
             ->where('b.borrower_openid', $openid)
             ->where('s.share_status', 1)
@@ -421,7 +421,7 @@ class Book extends AbstractModel
             ->get();//查看分享的所有book_share
 
         //是否需要还
-        if (count($book_shares) > 0) {
+        if (count($return_book_shares) > 0) {
             $shouldReturn = 1;
         }
 
@@ -456,12 +456,20 @@ class Book extends AbstractModel
         $bookmark = $bmModel->getBookmark($book['id'], $openid);
 
         $sharer = [];
-        $book_share = $this->capsule->table('book_share')->where('book_id', $book['id'])->where('group_id', 0)
-            ->where('owner_openid', $openid)->where('share_status', 1)
-            ->first();
-        if (!empty($book_share)) {
-            $userModel = new User();
-            $sharer = $userModel->getSharerInfo($book_share['owner_openid']);
+        if ($shouldReturn == 1) { //要还，显示拥有者信息
+            $book_share = reset($return_book_shares);
+            if (!empty($book_share)) {
+                $userModel = new User();
+                $sharer = $userModel->getSharerInfo($book_share['owner_openid']);
+            }
+        } else { //不用还，显示自己的
+
+            $book_share = $this->capsule->table('book_share')->where('book_id', $book['id'])->where('group_id', 0)
+                ->where('owner_openid', $openid)->where('share_status', 1)->first();
+            if (!empty($book_share)) {
+                $userModel = new User();
+                $sharer = $userModel->getSharerInfo($book_share['owner_openid']);
+            }
         }
 
         $res['data'] = [
