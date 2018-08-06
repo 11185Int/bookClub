@@ -456,7 +456,8 @@ class Book extends AbstractModel
         $bookmark = $bmModel->getBookmark($book['id'], $openid);
 
         $sharer = [];
-        $book_share = $this->capsule->table('book_share')->where('book_id', $book['id'])->where('share_status', 1)
+        $book_share = $this->capsule->table('book_share')->where('book_id', $book['id'])->where('group_id', 0)
+            ->where('owner_openid', $openid)->where('share_status', 1)
             ->first();
         if (!empty($book_share)) {
             $userModel = new User();
