@@ -250,10 +250,11 @@ class Book extends AbstractModel
         );
         $book = $this->findBook($isbn);
         if (!$book) {
-            return [
-                'status' => 6000,
-                'message' => '找不到图书',
-            ];
+            $book['id'] = 0;
+//            return [
+//                'status' => 6000,
+//                'message' => '找不到图书',
+//            ];
         }
         $user_group = $this->capsule->table('user_group')->where('group_id', $groupId)
             ->where('openid', $openid)->first();
@@ -333,10 +334,11 @@ class Book extends AbstractModel
         );
         $book = $this->findBook($isbn);
         if (!$book) {
-            return [
-                'status' => 6000,
-                'message' => '找不到图书',
-            ];
+            $book['id'] = 0;
+//            return [
+//                'status' => 6000,
+//                'message' => '找不到图书',
+//            ];
         }
         $shouldReturn = 0;
         $canBorrow = 0;
@@ -402,10 +404,11 @@ class Book extends AbstractModel
         );
         $book = $this->findBook($isbn);
         if (!$book) {
-            return [
-                'status' => 6000,
-                'message' => '找不到图书',
-            ];
+            $book['id'] = 0;
+//            return [
+//                'status' => 6000,
+//                'message' => '找不到图书',
+//            ];
         }
         $shouldReturn = 0;
         $canBorrow = 0;
