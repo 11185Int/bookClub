@@ -415,7 +415,7 @@ class Book extends AbstractModel
 
         $return_book_shares = $this->capsule->table('book_share AS s')
             ->leftJoin('book_borrow AS b', 'b.book_share_id', '=', 's.id')
-            ->select('s.id', 's.share_status', 's.lend_status', 's.owner_openid')
+            ->select('s.id', 's.share_status', 's.lend_status', 's.owner_openid', 's.group_id')
             ->where('s.book_id', $book['id'])
             ->where('b.borrower_openid', $openid)
             ->where('s.share_status', 1)
