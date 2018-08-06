@@ -215,7 +215,7 @@ class BookBorrow extends AbstractModel
             'message' => '',
         );
         $page = isset($params['page']) ? intval($params['page']) : 1;
-        $pagesize = isset($params['pagesize']) ? intval($params['pagesize']) : 100;
+        $pagesize = isset($params['pagesize']) ? intval($params['pagesize']) : 10;
         $offset = ($page - 1) * $pagesize;
         if ($type == 1) {
             $builder = $this->capsule->table('visit_history AS h')
@@ -259,6 +259,32 @@ class BookBorrow extends AbstractModel
             ];
         }
 
+        if (count($uid) > 0) {
+            $prefix = $this->capsule->getConnection()->getTablePrefix();
+            $books = $this->capsule->table('book_share AS s')
+                ->leftJoin('book AS b', 'b.id', '=', 's.book_id')
+                ->select('s.owner_id', 'b.isbn10', 'b.isbn13', 'b.image', 'b.hd_image', 'b.title', 'b.author')
+                ->whereIn('s.owner_id', $uid)
+                ->where('s.group_id', 0)
+                ->whereRaw('3 > (select count(*) from '.$prefix.'book_share
+                    where owner_id = '.$prefix.'s.owner_id and group_id = 0
+                    and id > '.$prefix.'s.id)')
+                ->groupBy(['s.owner_id','b.id'])
+                ->orderBy('s.id', 'desc')
+                ->get();
+            $booksArr = [];
+            foreach ($books as $book) {
+                $owner_id = $book['owner_id'];
+                unset($book['owner_id']);
+                $booksArr[$owner_id][] = $book;
+            }
+            foreach ($data as $key => $datum) {
+                $data[$key]['books'] = [];
+                if (isset($booksArr[$datum['user_id']])) {
+                    $data[$key]['books'] = $booksArr[$datum['user_id']];
+                }
+            }
+        }
 
 
         $res['data'] = [
