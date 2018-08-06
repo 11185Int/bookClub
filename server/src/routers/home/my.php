@@ -28,18 +28,17 @@ $app->post('/home/my/detail', function (\Slim\Http\Request $request, \Slim\Http\
     return $response->withJson($res);
 });*/
 
-// 我的借阅
-/*$app->post('/home/my/borrow', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+// 我的借书记录
+$app->post('/home/my/borrow', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $account->getCurrentGroupIdByKey($request->getParam('key'));
 
     $model = new BookBorrow();
-    $res = $model->getMyBookBorrow($groupId, $openid);
+    $res = $model->getMyBookBorrow($openid);
 
     return $response->withJson($res);
-});*/
+});
 
 // 我的藏书海报数据
 $app->post('/home/my/poster/data', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
@@ -51,5 +50,18 @@ $app->post('/home/my/poster/data', function (\Slim\Http\Request $request, \Slim\
     $books_cnt = $request->getParam('books_cnt', 20);
     $model = new Account();
     $res = $model->getPosterData($openid, $groupId, $tags_cnt, $books_cnt);
+    return $response->withJson($res);
+});
+
+// 我的浏览记录
+$app->post('/home/my/visit', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $type = $request->getParam('type', 1);
+
+    $model = new BookBorrow();
+    $res = $model->getMyVisit($openid, $type, $request->getParams());
+
     return $response->withJson($res);
 });

@@ -447,8 +447,8 @@ class Group extends AbstractModel
                 $filename = $this->moveUploadedFile($directory, $image);
                 $domain = $config['domain'];
                 $imageUrl = $domain . 'resources/group/image/'. $filename;
+                $this->capsule->table('group')->where('id', $groupId)->update(['headimgurl' => $imageUrl]);
             }
-            $this->capsule->table('group')->where('id', $groupId)->update(['headimgurl' => $imageUrl]);
         }
         if ($realname) {
             $this->capsule->table('user_group')->where('group_id', $groupId)->where('openid', $openid)

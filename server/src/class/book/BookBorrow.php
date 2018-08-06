@@ -8,7 +8,7 @@ use CP\common\Account;
 class BookBorrow extends AbstractModel
 {
 
-    public function getMyBookBorrow($groupId, $openid)
+    public function getMyBookBorrow($openid)
     {
         $res = array(
             'status' => 0,
@@ -21,7 +21,6 @@ class BookBorrow extends AbstractModel
             ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
             ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
             ->where('borrow.borrower_openid', $openid)
-            ->where('share.group_id', $groupId)
             ->groupBy('book.id')
             ->orderBy('return_status', 'asc')
             ->orderBy('borrow.borrow_time', 'desc');
@@ -206,6 +205,68 @@ class BookBorrow extends AbstractModel
             ];
         }
 
+        return $res;
+    }
+
+    public function getMyVisit($openid, $type, $params)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '',
+        );
+        $page = isset($params['page']) ? intval($params['page']) : 1;
+        $pagesize = isset($params['pagesize']) ? intval($params['pagesize']) : 100;
+        $offset = ($page - 1) * $pagesize;
+        if ($type == 1) {
+            $builder = $this->capsule->table('visit_history AS h')
+                ->leftJoin('user AS u', 'u.openid', '=', 'h.dest_openid')
+                ->leftJoin('book_share AS s', 's.owner_openid', '=', 'u.openid')
+                ->leftJoin('book AS b', 'b.id', '=', 's.book_id')
+                ->select('u.id AS user_id', 'u.headimgurl', 'u.nickname', 'u.realname', 'h.latest_time')
+                ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'b.id) AS book_cnt')
+                ->where('h.openid', $openid)
+                ->where('h.dest_group_id', 0)
+                ->where('h.dest_openid', '!=', $openid)
+                ->where('s.group_id', 0)
+                ->groupBy('u.id')
+                ->orderBy('h.latest_time', 'deac');
+        } else {
+            $builder = $this->capsule->table('visit_history AS h')
+                ->leftJoin('user AS u', 'u.openid', '=', 'h.openid')
+                ->leftJoin('book_share AS s', 's.owner_openid', '=', 'u.openid')
+                ->leftJoin('book AS b', 'b.id', '=', 's.book_id')
+                ->select('u.id AS user_id', 'u.headimgurl', 'u.nickname', 'u.realname', 'h.latest_time')
+                ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'b.id) AS book_cnt')
+                ->where('h.dest_openid', $openid)
+                ->where('h.dest_group_id', 0)
+                ->where('h.openid', '!=', $openid)
+                ->where('s.group_id', 0)
+                ->groupBy('u.id')
+                ->orderBy('h.latest_time', 'deac');
+        }
+        $totalCount = count($builder->get());
+        $list = $builder->offset($offset)->limit($pagesize)->get();
+        $data = [];
+        $uid = [];
+        foreach ($list as $item) {
+            $uid[] = $item['user_id'];
+            $data[] = [
+                'user_id' => $item['user_id'],
+                'headimgurl' => $item['headimgurl'],
+                'realname' => $item['realname'] ?: $item['nickname'],
+                'book_cnt' => $item['book_cnt'],
+                'latest_time' => date('Y年m月d日 H:i', $item['latest_time']),
+            ];
+        }
+
+
+
+        $res['data'] = [
+            'list' => $data,
+            'total' => intval($totalCount),
+            'pagesize' => $pagesize,
+            'totalpage' => ceil($totalCount / $pagesize),
+        ];
         return $res;
     }
 
