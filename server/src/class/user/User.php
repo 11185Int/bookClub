@@ -40,4 +40,18 @@ class User extends AbstractModel
         ];
     }
 
+    public function getSharerGroupInfo($group_id)
+    {
+        $info = $this->capsule->table('group')->where('id', $group_id)->first();
+        if (empty($info)) {
+            return [];
+        }
+        return [
+            'user_id' => 0,
+            'group_id' => $info['id'],
+            'realname' => $info['group_name'],
+            'headimgurl' => $info['headimgurl'] ?: '',
+        ];
+    }
+
 }

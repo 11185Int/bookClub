@@ -463,7 +463,11 @@ class Book extends AbstractModel
             $book_share = reset($return_book_shares);
             if (!empty($book_share)) {
                 $userModel = new User();
-                $sharer = $userModel->getSharerInfo($book_share['owner_openid']);
+                if ($book_share['group_id']) {
+                    $sharer = $userModel->getSharerGroupInfo($book_share['group_id']);
+                } else {
+                    $sharer = $userModel->getSharerInfo($book_share['owner_openid']);
+                }
             }
         } else { //不用还，显示自己的
 
