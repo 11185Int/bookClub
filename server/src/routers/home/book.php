@@ -13,6 +13,7 @@ use CP\common\AccountSessionKey;
 use CP\common\AccessList;
 use CP\book\Search;
 use CP\user\User;
+use CP\common\OpenKey;
 
 // 个人藏书页
 $app->get('/home/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
@@ -41,9 +42,10 @@ $app->get('/home/book/isbn', function (\Slim\Http\Request $request, \Slim\Http\R
 // 获取图书状态 1、能否借  2、能否归还 3、是否已添加 4、是否已共享 5、标记+书签
 $app->get('/home/book/status', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $openKey = new OpenKey();
     $isbn = $request->getParam('isbn');
-    $groupId = $request->getParam('group_id');
-    $userId = $request->getParam('user_id');
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
+    $userId = $openKey->getRealId($request->getParam('user_id'));
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
 
@@ -86,9 +88,10 @@ $app->post('/home/book/saveBookmark', function (\Slim\Http\Request $request, \Sl
 // 获取某图书可借阅列表
 $app->get('/home/book/shareList', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $openKey = new OpenKey();
     $isbn = $request->getParam('isbn');
-    $groupId = $request->getParam('group_id');
-    $userId = $request->getParam('user_id');
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
+    $userId = $openKey->getRealId($request->getParam('user_id'));
     $account = new AccountSessionKey();
     $myOpenid = $account->getOpenIdByKey($request->getParam('key'));
     $model = new Book();
@@ -127,9 +130,10 @@ $app->get('/home/book/myReturnList', function (\Slim\Http\Request $request, \Sli
 // 确认共享
 $app->post('/home/book/share', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $openKey = new OpenKey();
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id');
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
     $isbn = $request->getParam('isbn');
     $remark = $request->getParam('remark', '');
 
@@ -142,9 +146,10 @@ $app->post('/home/book/share', function (\Slim\Http\Request $request, \Slim\Http
 // 取消共享
 $app->post('/home/book/unshare', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $openKey = new OpenKey();
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id');
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
     $isbn = $request->getParam('isbn');
 
     $model = new BookShare();
@@ -156,9 +161,10 @@ $app->post('/home/book/unshare', function (\Slim\Http\Request $request, \Slim\Ht
 // 恢复共享
 $app->post('/home/book/reshare', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $openKey = new OpenKey();
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id');
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
     $isbn = $request->getParam('isbn');
 
     $model = new BookShare();
@@ -171,9 +177,10 @@ $app->post('/home/book/reshare', function (\Slim\Http\Request $request, \Slim\Ht
 $app->post('/home/book/borrow', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
+    $openKey = new OpenKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $userId = $request->getParam('user_id');
-    $groupId = $request->getParam('group_id');
+    $userId = $openKey->getRealId($request->getParam('user_id'));
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
     $isbn = $request->getParam('isbn');
     $remark = $request->getParam('remark', '');
 
@@ -247,9 +254,10 @@ $app->post('/home/book/submit', function (\Slim\Http\Request $request, \Slim\Htt
 $app->post('/home/book/borrow/history', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $isbn = $request->getParam('isbn');
+    $openKey = new OpenKey();
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id');
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
 
     $model = new Book();
     $res = $model->getBorrowHistory($openid, $isbn, $groupId);

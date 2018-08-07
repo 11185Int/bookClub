@@ -4,6 +4,7 @@ namespace CP\book;
 
 use CP\common\AbstractModel;
 use CP\common\Account;
+use CP\common\OpenKey;
 
 class BookBorrow extends AbstractModel
 {
@@ -248,10 +249,11 @@ class BookBorrow extends AbstractModel
         $list = $builder->offset($offset)->limit($pagesize)->get();
         $data = [];
         $uid = [];
+        $openKey = new OpenKey();
         foreach ($list as $item) {
             $uid[] = $item['user_id'];
             $data[] = [
-                'user_id' => $item['user_id'],
+                'user_id' => $openKey->getOpenKey($item['user_id'], OpenKey::TYPE_USER_ID),
                 'headimgurl' => $item['headimgurl'],
                 'realname' => $item['realname'] ?: $item['nickname'],
                 'book_cnt' => $item['book_cnt'],

@@ -3,6 +3,7 @@
 namespace CP\user;
 
 use CP\common\AbstractModel;
+use CP\common\OpenKey;
 
 class User extends AbstractModel
 {
@@ -32,8 +33,9 @@ class User extends AbstractModel
         if (empty($info)) {
             return [];
         }
+        $openKey = new OpenKey();
         return [
-            'user_id' => $info['id'],
+            'user_id' => $openKey->getOpenKey($info['id'], OpenKey::TYPE_USER_ID),
             'realname' => !empty($info['g_realname']) ? $info['g_realname'] :
                 !empty($info['realname']) ? $info['realname'] : $info['nickname'],
             'headimgurl' => $info['headimgurl'],
@@ -46,9 +48,10 @@ class User extends AbstractModel
         if (empty($info)) {
             return [];
         }
+        $openKey = new OpenKey();
         return [
-            'user_id' => 0,
-            'group_id' => $info['id'],
+            'user_id' => '0',
+            'group_id' => $openKey->getOpenKey($info['id'], OpenKey::TYPE_GROUP_ID),
             'realname' => $info['group_name'],
             'headimgurl' => $info['headimgurl'] ?: '',
         ];

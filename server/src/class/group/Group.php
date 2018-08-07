@@ -4,6 +4,7 @@ namespace CP\group;
 
 use CP\api\Wechat;
 use CP\common\AbstractModel;
+use CP\common\OpenKey;
 use Slim\Http\UploadedFile;
 
 class Group extends AbstractModel
@@ -98,8 +99,9 @@ class Group extends AbstractModel
         $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
 
         $current_group = $this->capsule->table('user_group')->where('openid', $openid)->where('is_current', 1)->first();
+        $openKey = new OpenKey();
         $data = [
-            'group_id' => $group['id'],
+            'group_id' => $openKey->getOpenKey($group['id'], OpenKey::TYPE_GROUP_ID),
             'group_name' => $group['group_name'],
             'headimgurl' => $group['headimgurl'] ?: '',
             'group_amount' => $group['group_amount'],
@@ -140,17 +142,19 @@ class Group extends AbstractModel
         }
         $data = $this->capsule->table('user_group')
             ->leftJoin('user', 'user.openid', '=', 'user_group.openid')
-            ->select('user.nickname','user.headimgurl','user.realname AS user_realname','user.openid',
+            ->select('user.id AS user_id','user.nickname','user.headimgurl','user.realname AS user_realname','user.openid',
                 'user_group.id AS user_group_id',
                 'user_group.is_current','user_group.is_admin','user_group.realname','user_group.phone')
             ->where('user_group.group_id', $groupId)
             ->orderBy('user_group.id', 'asc')
             ->get();
 
+        $openKey = new OpenKey();
         $list = [];
         foreach ($data as $datum) {
             $list[] = [
                 'user_group_id' => $datum['user_group_id'],
+                'user_id' => $openKey->getOpenKey($datum['user_id'], OpenKey::TYPE_USER_ID),
                 'headimgurl' => $datum['headimgurl'],
                 'realname' => $datum['realname'] ?: $datum['user_realname'] ?: $datum['nickname'],
                 'is_current' => $datum['is_current'],

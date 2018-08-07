@@ -3,14 +3,16 @@
 use CP\common\AccountSessionKey;
 use CP\group\Group;
 use CP\book\Visit;
+use CP\common\OpenKey;
 
 // 小组共享图书
 $app->get('/home/group/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $openKey = new OpenKey();
     $account = new AccountSessionKey();
     $key = $request->getParam('key');
     $openid = $account->getOpenIdByKey($key);
-    $groupId = $request->getParam('group_id');
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
     $model = new \CP\book\Book();
     $res = $model->getListByGroup($openid, $groupId, $request->getParams());
 
@@ -41,9 +43,10 @@ $app->post('/home/group/create', function (\Slim\Http\Request $request, \Slim\Ht
 // 获取当前小组信息
 $app->post('/home/group/detail', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $openKey = new OpenKey();
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id') ?: $account->getCurrentGroupIdByKey($request->getParam('key'));
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
 
     $group = new Group();
     $res = $group->detail($openid, $groupId);
@@ -55,8 +58,9 @@ $app->post('/home/group/detail', function (\Slim\Http\Request $request, \Slim\Ht
 $app->post('/home/group/member/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
     $account = new AccountSessionKey();
+    $openKey = new OpenKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id', 0);
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
 
     $group = new Group();
     $res = $group->getList($openid, $groupId);
@@ -67,9 +71,10 @@ $app->post('/home/group/member/list', function (\Slim\Http\Request $request, \Sl
 // 移除成员
 $app->post('/home/group/member/delete', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $openKey = new OpenKey();
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id', 0);
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
     $user_group_id = $request->getParam('user_group_id', 0);
     $force = $request->getParam('force', 0);
 
@@ -82,9 +87,10 @@ $app->post('/home/group/member/delete', function (\Slim\Http\Request $request, \
 // 加入小组
 $app->post('/home/group/join', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $openKey = new OpenKey();
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id', 0);
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
     $realname = $request->getParam('realname');
     $phone = $request->getParam('phone');
 
@@ -122,9 +128,10 @@ $app->post('/home/group/list', function (\Slim\Http\Request $request, \Slim\Http
 // 修改小组信息
 $app->post('/home/group/edit', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $openKey = new OpenKey();
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id', 0);
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
     $name = $request->getParam('name', '');
     $uploadFiles = $request->getUploadedFiles();
     $image = isset($uploadFiles['image']) ? $uploadFiles['image'] : null;
@@ -141,9 +148,10 @@ $app->post('/home/group/edit', function (\Slim\Http\Request $request, \Slim\Http
 // 退出小组
 $app->post('/home/group/quit', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $openKey = new OpenKey();
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id', 0);
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
 
     $group = new Group();
     $res = $group->quit($groupId, $openid);
@@ -154,9 +162,10 @@ $app->post('/home/group/quit', function (\Slim\Http\Request $request, \Slim\Http
 // 转让小组
 $app->post('/home/group/transfer', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 
+    $openKey = new OpenKey();
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $request->getParam('group_id', 0);
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
     $to_user_group_id = $request->getParam('to_user_group_id');
 
     $group = new Group();
