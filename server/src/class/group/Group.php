@@ -151,6 +151,8 @@ class Group extends AbstractModel
 
         $openKey = new OpenKey();
         $list = [];
+        $user_id_list = array_column($data, 'user_id');
+        $openKey->prepareOpenKeyCache($user_id_list, OpenKey::TYPE_USER_ID);
         foreach ($data as $datum) {
             $list[] = [
                 'user_group_id' => $datum['user_group_id'],

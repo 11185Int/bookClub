@@ -8,6 +8,8 @@ class OpenKey extends AbstractModel
     const TYPE_USER_ID = 'user_id';
     const TYPE_GROUP_ID = 'group_id';
 
+    private $_openKeyCache = [];
+
     public function getRealId($open_key)
     {
         $first = $this->capsule->table(self::TABLE)->where('open_key', $open_key)->first();
@@ -19,19 +21,36 @@ class OpenKey extends AbstractModel
 
     public function getOpenKey($real_id, $type = self::TYPE_USER_ID)
     {
+        if (!empty($this->_openKeyCache[$type][$real_id])) {
+            return $this->_openKeyCache[$type][$real_id];
+        }
         $first = $this->capsule->table(self::TABLE)->where('real_id', $real_id)->where('type', $type)->first();
         if ($first) {
             //todo validate expired time
-            return $first['open_key'];
+            $open_key = $first['open_key'];
         } else {
-            return $this->createOpenKey($real_id, $type);
+            $open_key = $this->createOpenKey($real_id, $type);
         }
+        $this->_openKeyCache[$type][$real_id] = $open_key;
+        return $open_key;
     }
 
-    public function getOpenKeyList($real_id_list, $type = self::TYPE_USER_ID)
+    public function prepareOpenKeyCache($real_id_list, $type = self::TYPE_USER_ID)
     {
-
-        return [];
+        $openKeys = $this->capsule->table(self::TABLE)->where('type', $type)->whereIn('real_id', $real_id_list)->get();
+        $exist_real_id_list = [];
+        foreach ($openKeys as $item) {
+            $exist_real_id_list[] = $item['real_id'];
+            $this->_openKeyCache[$type][$item['real_id']] = $item['open_key'];
+        }
+        $no_exist_real_id_list = array_diff($real_id_list, $exist_real_id_list);
+        if (count($no_exist_real_id_list) > 0) {
+            foreach ($no_exist_real_id_list as $real_id) {
+                $open_key = $this->createOpenKey($real_id, $type);
+                $this->_openKeyCache[$type][$real_id] = $open_key;
+            }
+        }
+        return $this;
     }
 
     public function createOpenKey($real_id, $type = self::TYPE_USER_ID, $expired = 0)
