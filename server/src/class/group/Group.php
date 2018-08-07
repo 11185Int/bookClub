@@ -350,6 +350,10 @@ class Group extends AbstractModel
             ->where('user_group.openid', $openid)
             ->orderBy('user_group.id', 'asc')
             ->get();
+        $openKey = new OpenKey();
+        foreach ($data as $key => $item) {
+            $data[$key]['group_id'] = $openKey->getOpenKey($item['group_id'], OpenKey::TYPE_GROUP_ID);
+        }
         $res = array(
             'status' => 0,
             'message' => 'success',
