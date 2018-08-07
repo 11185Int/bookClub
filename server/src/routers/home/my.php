@@ -47,7 +47,7 @@ $app->post('/home/my/poster/data', function (\Slim\Http\Request $request, \Slim\
     $openKey = new OpenKey();
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
-    $groupId = $openKey->getOpenKey($request->getParam('group_id'));
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
     $tags_cnt = $request->getParam('tags_cnt', 10);
     $books_cnt = $request->getParam('books_cnt', 20);
     $model = new Account();

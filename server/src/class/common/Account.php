@@ -135,6 +135,7 @@ class Account extends AbstractModel
         $data = [
             'name' => $user['nickname'],
             'book_cnt' => 0,
+            'book_rank' => 8,
             'best_book' => '',
             'best_rating' => 0,
             'avg_rating' => 0,
@@ -150,7 +151,8 @@ class Account extends AbstractModel
             ->limit(500)
             ->select('b.id','b.title','b.author','b.rating','b.image','b.tags')
             ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'bs.id) AS cnt');
-
+        $rankBuilder = $this->capsule->table('book_share AS bs')
+            ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'bs.id) AS cnt');
         if ($groupId) {
             $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
             if (empty($user_group)) {
@@ -160,8 +162,10 @@ class Account extends AbstractModel
                 ];
             }
             $builder->where('bs.group_id', $groupId);
+            $rankBuilder->where('bs.group_id', '>', 0)->groupBy('bs.group_id');
         } else {
             $builder->where('bs.group_id', 0)->where('bs.owner_openid', $openid);
+            $rankBuilder->where('bs.group_id', 0)->groupBy(['bs.owner_openid', 'bs.group_id']);
         }
         $booksData = $builder->get();
 
@@ -193,6 +197,8 @@ class Account extends AbstractModel
                 'cnt' => intval($booksDatum['cnt']),
             ];
         }
+        $rank = $rankBuilder->havingRaw('count('.$this->capsule->getConnection()->getTablePrefix().'bs.id) > '.$data['book_cnt'])->get();
+        $data['book_rank'] = count($rank) + 1;
         $data['avg_rating'] = $data['book_cnt'] > 0 ? round($allRating/$data['book_cnt'], 1) : 0;
         $data['taste_percent'] = $data['avg_rating'] > 2 && $data['book_cnt'] > 0 ?
             round($allRating/$data['book_cnt'] * 12.38 - 23.75) : 0;
