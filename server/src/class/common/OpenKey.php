@@ -21,6 +21,9 @@ class OpenKey extends AbstractModel
 
     public function getOpenKey($real_id, $type = self::TYPE_USER_ID)
     {
+        if (!$real_id) {
+            return '';
+        }
         if (!empty($this->_openKeyCache[$type][$real_id])) {
             return $this->_openKeyCache[$type][$real_id];
         }
