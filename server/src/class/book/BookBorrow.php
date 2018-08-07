@@ -266,7 +266,7 @@ class BookBorrow extends AbstractModel
                 ->select('s.owner_id', 'b.isbn10', 'b.isbn13', 'b.image', 'b.hd_image', 'b.title', 'b.author')
                 ->whereIn('s.owner_id', $uid)
                 ->where('s.group_id', 0)
-                ->whereRaw('3 > (select count(*) from '.$prefix.'book_share
+                ->whereRaw('4 > (select count(*) from '.$prefix.'book_share
                     where owner_id = '.$prefix.'s.owner_id and group_id = 0
                     and id > '.$prefix.'s.id)')
                 ->groupBy(['s.owner_id','b.id'])
