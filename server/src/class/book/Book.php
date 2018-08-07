@@ -827,7 +827,7 @@ class Book extends AbstractModel
                 'borrower_headimgurl' => $datum['borrower_headimgurl'],
                 'borrow_time' => date('Y-m-d', $datum['borrow_time']),
                 'return_time' => $datum['return_time'] ? date('Y-m-d', $datum['return_time']) : '',
-                'return status' => $datum['return_status'],
+                'return_status' => $datum['return_status'],
                 'borrow_during' => $datum['return_status'] ?
                     $this->calIntervalDays($datum['borrow_time'], $datum['return_time']).'天':'',
             ];
