@@ -17,7 +17,7 @@ use Slim\Http\UploadedFile;
 class Book extends AbstractModel
 {
 
-    const BOOK_VERSION = 1;
+    const BOOK_VERSION = 2;
 
     public function getList($openid, $groupIds, $params)
     {
@@ -932,6 +932,7 @@ class Book extends AbstractModel
             'tags' => mb_strimwidth($tags, 0, 180, '...'),
             'pubdate' => $book['pubdate'],
             'summary' => mb_strimwidth($book['summary'], 0, 1000, '...'),
+            'pages' => empty($book['pages']) ? 0 : intval($book['pages']),
             'catalog' => empty($book['catalog']) ? '': mb_strimwidth($book['catalog'], 0, 9999, '...'),
             'ismanual' => empty($book['ismanual']) ? 0 : $book['ismanual'],
             'openid' => empty($book['openid']) ? '' : $book['openid'],
