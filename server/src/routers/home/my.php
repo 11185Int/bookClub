@@ -50,8 +50,13 @@ $app->post('/home/my/poster/data', function (\Slim\Http\Request $request, \Slim\
     $groupId = $openKey->getRealId($request->getParam('group_id'));
     $tags_cnt = $request->getParam('tags_cnt', 10);
     $books_cnt = $request->getParam('books_cnt', 20);
+    $short = $request->getParam('short');
     $model = new Account();
-    $res = $model->getPosterData($openid, $groupId, $tags_cnt, $books_cnt);
+    if ($short) {
+        $res = $model->getPosterDataShort($openid, $groupId);
+    } else {
+        $res = $model->getPosterData($openid, $groupId, $tags_cnt, $books_cnt);
+    }
     return $response->withJson($res);
 });
 

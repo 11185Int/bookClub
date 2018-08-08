@@ -41,8 +41,31 @@ class Visit extends AbstractModel
 
     public function getVisitDataGroup($groupId)
     {
+        $group = $this->capsule->table('group')->where('id', $groupId)->first();
+        $member_cnt = intval($group['group_amount']);
+        $summary = $this->getVisitSummaryGroup($groupId);
+        $bookShares = $this->capsule->table('book_share')->where('group_id', $groupId)
+            ->select('id','share_status','lend_status')->get();
+        $lend_cnt = 0;
+        foreach ($bookShares as $bookShare) {
+            if ($bookShare['lend_status'] == 2) {
+                $lend_cnt ++;
+            }
+        }
+        $return_cnt = $this->capsule->table('book_borrow AS bb')
+            ->leftJoin('book_share AS bs', 'bs.id', '=', 'bb.book_share_id')
+            ->where('bs.group_id', $groupId)
+            ->where('bb.return_status', 1)
+            ->count();
 
-        return [];
+
+        $data = [
+            'member_cnt' => $member_cnt,
+            'lend_cnt' => $lend_cnt,
+            'return_cnt' => $return_cnt,
+            'be_visited_cnt' => intval($summary['view_cnt']),
+        ];
+        return $data;
     }
 
     public function getVisitSummaryGroup($groupId)

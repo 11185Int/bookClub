@@ -216,6 +216,95 @@ class Account extends AbstractModel
         return $res;
     }
 
+    public function getPosterDataShort($openid, $groupId)
+    {
+        //藏书 排名 评分 超越 借入 借出 浏览 被浏览
+        //藏书 排名 评分 超越 成员 在借 归还人次 被浏览
+        $res = array(
+            'status' => 0,
+            'message' => 'success',
+        );
+        $user = $this->capsule->table('user')->where('openid', $openid)->first();
+        if ($groupId) {
+            $group = $this->capsule->table('group')->where('id', $groupId)->first();
+            $name = empty($group['group_name']) ? '' : $group['group_name'];
+        } else {
+            $name = $user['nickname'];
+        }
+        $data = [
+            'name' => $name,
+            'title' => '',
+            'book_cnt' => 0,    //藏书
+            'book_rank' => 0,   //藏书排名
+            'avg_rating' => 0,  //评分
+            'taste_percent' => 0, //品味超越
+            'borrow_cnt' => 0,  //借入
+            'lend_cnt' => 0,    //借出
+            'visit_cnt' => 0,    //浏览
+            'be_visited_cnt' => 0, //被浏览
+            'member_cnt' => 0,  //成员数
+            'return_cnt' => 0,  //归还人次
+        ];
+        $builder = $this->capsule->table('book_share AS bs')
+            ->leftJoin('book AS b', 'b.id', '=', 'bs.book_id')
+            ->where('bs.share_status', 1)
+            ->groupBy('bs.book_id')
+            ->orderBy('b.rating', 'desc')
+            ->limit(500)
+            ->select('b.id','b.title','b.author','b.rating','b.image','b.tags')
+            ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'bs.id) AS cnt');
+        $rankBuilder = $this->capsule->table('book_share AS bs')
+            ->selectRaw('count('.$this->capsule->getConnection()->getTablePrefix().'bs.id) AS cnt');
+        if ($groupId) {
+            $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->first();
+            if (empty($user_group)) {
+                return [
+                    'status' => 99999,
+                    'message' => '还未加入此小组',
+                ];
+            }
+            $builder->where('bs.group_id', $groupId);
+            $rankBuilder->where('bs.group_id', '>', 0)->groupBy('bs.group_id');
+        } else {
+            $builder->where('bs.group_id', 0)->where('bs.owner_openid', $openid);
+            $rankBuilder->where('bs.group_id', 0)->groupBy(['bs.owner_openid', 'bs.group_id']);
+        }
+        $booksData = $builder->get();
+
+        $allRating = 0;
+        foreach ($booksData as $booksDatum) {
+            $data['book_cnt'] += intval($booksDatum['cnt']);
+            $allRating += $booksDatum['rating'] * $booksDatum['cnt'];
+        }
+        $rank = $rankBuilder->havingRaw('count('.$this->capsule->getConnection()->getTablePrefix().'bs.id) > '.$data['book_cnt'])->get();
+        $data['book_rank'] = count($rank) + 1;
+        $data['avg_rating'] = $data['book_cnt'] > 0 ? round($allRating/$data['book_cnt'], 1) : 0;
+        $data['taste_percent'] = $data['avg_rating'] > 2 && $data['book_cnt'] > 0 ?
+            round($allRating/$data['book_cnt'] * 12.38 - 23.75) : 0;
+        $data['title'] = $groupId? $this->getGroupTitleByNum($data['book_cnt']): $this->getTitleByNum($data['book_cnt']);
+
+        //记录
+        $visit = new Visit();
+        if ($groupId) {
+            $visitData = $visit->getVisitDataGroup($groupId);
+            //成员 在借 归还人次 被浏览
+            $data['member_cnt'] = $visitData['member_cnt'];
+            $data['lend_cnt'] = $visitData['lend_cnt'];
+            $data['return_cnt'] = $visitData['return_cnt'];
+            $data['be_visited_cnt'] = $visitData['be_visited_cnt'];
+        } else {
+            $visitData = $visit->getVisitDataUser($openid);
+            //借入 借出 浏览 被浏览
+            $data['borrow_cnt'] = $visitData['borrow_cnt'];
+            $data['lend_cnt'] = $visitData['lend_cnt'];
+            $data['visit_cnt'] = $visitData['visit_cnt'];
+            $data['be_visited_cnt'] = $visitData['be_visited_cnt'];
+        }
+
+        $res['data'] = $data;
+        return $res;
+    }
+
     protected function getTitleByNum($num)
     {
         $titleArr = [
