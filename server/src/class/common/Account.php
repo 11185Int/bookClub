@@ -73,12 +73,13 @@ class Account extends AbstractModel
         );
 
 
-        $detail = $this->capsule->table('user')->where('openid', $openid)->first();
-        $res['data'] = $detail ?: [];
+        $openKey = new OpenKey();
+        $user = $this->capsule->table('user')->where('openid', $openid)->first();
+        $user['id'] = $openKey->getOpenKey($user['id'], OpenKey::TYPE_USER_ID);
+        $res['data'] = $user ?: [];
 
         unset($res['data']['openid']);
 
-        $user = $this->capsule->table('user')->where('openid', $openid)->first();
         $res['data']['realname'] = empty($user['realname']) ? '' : $user['realname'];
 
         $group_amount = $this->capsule->table('user_group')->where('openid', $openid)->count();
