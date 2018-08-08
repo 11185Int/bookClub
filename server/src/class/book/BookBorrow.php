@@ -276,7 +276,7 @@ class BookBorrow extends AbstractModel
                 ->get();
             $booksArr = [];
             foreach ($books as $book) {
-                $owner_id = $book['owner_id'];
+                $owner_id = $openKey->getOpenKey($book['owner_id']);
                 unset($book['owner_id']);
                 $booksArr[$owner_id][] = $book;
             }
