@@ -14,5 +14,6 @@ Route::group([
 
     $router->resource('group', 'GroupController');
 
+    $router->resource('book', 'BookController');
 });
 
