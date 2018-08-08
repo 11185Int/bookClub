@@ -132,8 +132,14 @@ class Account extends AbstractModel
             'message' => 'success',
         );
         $user = $this->capsule->table('user')->where('openid', $openid)->first();
+        if ($groupId) {
+            $group = $this->capsule->table('group')->where('id', $groupId)->first();
+            $name = empty($group['group_name']) ? '' : $group['group_name'];
+        } else {
+            $name = $user['nickname'];
+        }
         $data = [
-            'name' => $user['nickname'],
+            'name' => $name,
             'book_cnt' => 0,
             'book_rank' => 8,
             'best_book' => '',
