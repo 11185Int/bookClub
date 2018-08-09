@@ -9,25 +9,77 @@ use CP\common\OpenKey;
 class BookBorrow extends AbstractModel
 {
 
-    public function getMyBookBorrow($openid)
+    public function getMyBookBorrow($openid, $type)
     {
         $res = array(
             'status' => 0,
             'message' => '',
         );
-        $builder = $this->capsule->table('book_borrow AS borrow')
-            ->select('share.id AS book_share_id', 'share.book_id', 'book.isbn10', 'book.isbn13', 'book.title',
-                'book.image', 'share.owner_openid', 'borrow.borrow_time')
-            ->selectRaw('min('.$this->capsule->getConnection()->getTablePrefix().'borrow.return_status) as return_status')
-            ->join('book_share AS share', 'share.id', '=', 'borrow.book_share_id', 'inner')
-            ->join('book AS book', 'book.id', '=', 'share.book_id', 'inner')
-            ->where('borrow.borrower_openid', $openid)
-            ->groupBy('book.id')
-            ->orderBy('return_status', 'asc')
-            ->orderBy('borrow.borrow_time', 'desc');
-        
+        $borrow = [];
+        $return = [];
+        if ($type == 1) { //借阅记录
+            $prefix = $this->capsule->getConnection()->getTablePrefix();
+            $builder = $this->capsule->table('book_borrow AS bb')
+                ->select('b.id AS book_id','b.isbn10','b.isbn13','b.title','b.image','b.author','u.nickname','u.realname')
+                ->selectRaw('max('.$prefix.'bb.borrow_time) AS borrow_time')
+                ->selectRaw('max('.$prefix.'bb.return_time) AS return_time')
+                ->selectRaw('min('.$prefix.'bb.return_status) AS return_status')
+                ->leftJoin('book_share AS bs', 'bs.id', '=', 'bb.book_share_id')
+                ->leftJoin('book AS b', 'b.id', '=', 'bs.book_id')
+                ->leftJoin('user AS u', 'u.id', '=', 'bs.owner_id')
+                ->where(function ($q) use ($openid){
+                    $q->where(function ($q) use ($openid){
+                        $q->where('bs.group_id', 0)->where('bb.borrower_openid', $openid);
+                    })->orWhere(function ($q) use ($openid){
+                        $q->where('bs.group_id', '>', 0)->where('bb.borrower_openid', $openid);
+                    });
+                })
+                ->groupBy('b.id');
+
+        } else { //被借记录
+            $prefix = $this->capsule->getConnection()->getTablePrefix();
+            $builder = $this->capsule->table('book_borrow AS bb')
+                ->select('b.id AS book_id','b.isbn10','b.isbn13','b.title','b.image','b.author','u.nickname','u.realname')
+                ->selectRaw('max('.$prefix.'bb.borrow_time) AS borrow_time')
+                ->selectRaw('max('.$prefix.'bb.return_time) AS return_time')
+                ->selectRaw('min('.$prefix.'bb.return_status) AS return_status')
+                ->leftJoin('book_share AS bs', 'bs.id', '=', 'bb.book_share_id')
+                ->leftJoin('book AS b', 'b.id', '=', 'bs.book_id')
+                ->leftJoin('user AS u', 'u.id', '=', 'bb.borrower_id')
+                ->where('bs.group_id', 0)
+                ->where('bs.owner_openid', $openid)
+                ->groupBy('b.id');
+
+        }
+
+        $list = $builder->get();
+        foreach ($list as $item) {
+            $record = [
+                'book_id' => $item['book_id'],
+                'isbn10' => $item['isbn10'],
+                'isbn13' => $item['isbn13'],
+                'title' => $item['title'],
+                'image' => $item['image'],
+                'author' => $item['author'],
+                'name' => $item['realname'] ?: $item['nickname'],
+                'borrow_time' => date('Y年m月d日 H:i', $item['borrow_time']),
+                'return_time' => $item['return_status'] > 0 ? date('Y年m月d日 H:i', $item['return_time']) : '',
+                'return_status' => $item['return_status'],
+            ];
+            if ($item['return_status'] == 1) {
+                $return[] = $record;
+            } else {
+                $borrow[] = $record;
+            }
+        }
+
+        $data = [
+            'borrow' => $borrow,
+            'return' => $return,
+        ];
+
         if ($builder) {
-            $res['data']['borrow'] = $builder->get();
+            $res['data'] = $data;
         } else {
             $res = array(
                 'status' => 1001,

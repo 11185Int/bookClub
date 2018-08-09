@@ -34,9 +34,10 @@ $app->post('/home/my/borrow', function (\Slim\Http\Request $request, \Slim\Http\
 
     $account = new AccountSessionKey();
     $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $type = $request->getParam('type', 1); //1借阅 2被借
 
     $model = new BookBorrow();
-    $res = $model->getMyBookBorrow($openid);
+    $res = $model->getMyBookBorrow($openid, $type);
 
     return $response->withJson($res);
 });
