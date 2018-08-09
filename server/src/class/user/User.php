@@ -36,6 +36,7 @@ class User extends AbstractModel
         $openKey = new OpenKey();
         return [
             'user_id' => $openKey->getOpenKey($info['id'], OpenKey::TYPE_USER_ID),
+            'group_id' => $group_id ? $openKey->getOpenKey($group_id, OpenKey::TYPE_GROUP_ID) : '',
             'realname' => !empty($info['g_realname']) ? $info['g_realname'] :
                 !empty($info['realname']) ? $info['realname'] : $info['nickname'],
             'headimgurl' => $info['headimgurl'],
