@@ -4,6 +4,7 @@ use CP\common\AccountSessionKey;
 use CP\group\Group;
 use CP\book\Visit;
 use CP\common\OpenKey;
+use CP\book\BookBorrow;
 
 // 小组共享图书
 $app->get('/home/group/book/list', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
@@ -189,6 +190,21 @@ $app->post('/home/group/wxcode', function (\Slim\Http\Request $request, \Slim\Ht
     ];
     $group = new Group($this);
     $res = $group->getWxCode($openid, $params);
+
+    return $response->withJson($res);
+});
+
+// 群借书记录
+$app->post('/home/group/borrow', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $openKey = new OpenKey();
+    $account = new AccountSessionKey();
+    $openid = $account->getOpenIdByKey($request->getParam('key'));
+    $groupId = $openKey->getRealId($request->getParam('group_id'));
+    $type = $request->getParam('type', 1); //1正在借阅 2已经归还
+
+    $model = new BookBorrow();
+    $res = $model->getGroupBorrow($openid, $groupId, $type, $request->getParams());
 
     return $response->withJson($res);
 });

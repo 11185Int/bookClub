@@ -93,6 +93,87 @@ class BookBorrow extends AbstractModel
         return $res;
     }
 
+    public function getGroupBorrow($openid, $groupId, $type, $params)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => '',
+        );
+        $page = isset($params['page']) ? intval($params['page']) : 1;
+        $pagesize = isset($params['pagesize']) ? intval($params['pagesize']) : 10;
+        $offset = ($page - 1) * $pagesize;
+
+        $user_group = $this->capsule->table('user_group')->where('group_id', $groupId)
+            ->where('openid', $openid)->first();
+        if (empty($user_group)) {
+            return [
+                'status' => 99999,
+                'message' => '还未加入此小组',
+            ];
+        }
+        if ($user_group['is_admin'] == 0) {
+            return [
+                'status' => 99999,
+                'message' => '无权限操作',
+            ];
+        }
+
+        $prefix = $this->capsule->getConnection()->getTablePrefix();
+        $builder = $this->capsule->table('book_borrow AS bb')
+            ->select('b.id AS book_id','b.isbn10','b.isbn13','b.title','b.image','b.author','u.nickname','u.realname')
+            ->selectRaw('max('.$prefix.'bb.borrow_time) AS borrow_time')
+            ->selectRaw('max('.$prefix.'bb.return_time) AS return_time')
+            ->selectRaw('min('.$prefix.'bb.return_status) AS return_status')
+            ->leftJoin('book_share AS bs', 'bs.id', '=', 'bb.book_share_id')
+            ->leftJoin('book AS b', 'b.id', '=', 'bs.book_id')
+            ->leftJoin('user AS u', 'u.id', '=', 'bb.borrower_id')
+            ->where('bs.group_id', $groupId)
+            ->groupBy('b.id')
+            ->orderBy('bb.borrow_time', 'desc');
+
+        if ($type == 1) { //正在借阅
+            $builder->where('return_status', 0);
+        } else { //已经归还
+            $builder->where('return_status', 1);
+        }
+
+        $data = [];
+        $totalCount = count($builder->get());
+        $list = $builder->limit($pagesize)->offset($offset)->get();
+
+        foreach ($list as $item) {
+            $record = [
+                'book_id' => $item['book_id'],
+                'isbn10' => $item['isbn10'],
+                'isbn13' => $item['isbn13'],
+                'title' => $item['title'],
+                'image' => $item['image'],
+                'author' => $item['author'],
+                'name' => $item['realname'] ?: $item['nickname'],
+                'borrow_time' => date('Y年m月d日 H:i', $item['borrow_time']),
+                'return_time' => $item['return_status'] > 0 ? date('Y年m月d日 H:i', $item['return_time']) : '',
+                'return_status' => $item['return_status'],
+            ];
+            $data[] = $record;
+        }
+
+        if ($builder) {
+            $res['data'] = [
+                'list' => $data,
+                'total' => intval($totalCount),
+                'pagesize' => $pagesize,
+                'totalpage' => ceil($totalCount / $pagesize),
+            ];
+        } else {
+            $res = array(
+                'status' => 1001,
+                'message' => '获取数据失败',
+            );
+        }
+
+        return $res;
+    }
+
     public function borrow($groupId, $userId, $openid, $isbn, $remark)
     {
         $res = array(
