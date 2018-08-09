@@ -273,7 +273,7 @@ class Book extends AbstractModel
         foreach ($book_shares as $book_share) {
 
             $book_borrow = $this->capsule->table('book_borrow')->where('book_share_id', $book_share['id'])
-                ->where('borrower_openid', $openid)->first();
+                ->where('borrower_openid', $openid)->orderBy('id', 'desc')->first();
             if (!empty($book_borrow) && $book_borrow['return_status'] == 0) {
                 $shouldReturn = 1;
                 break;
@@ -349,7 +349,7 @@ class Book extends AbstractModel
         //是否需要还
         foreach ($book_shares as $book_share) {
             $book_borrow = $this->capsule->table('book_borrow')->where('book_share_id', $book_share['id'])
-                ->where('borrower_openid', $openid)->first();
+                ->where('borrower_openid', $openid)->orderBy('id', 'desc')->first();
             if (!empty($book_borrow) && $book_borrow['return_status'] == 0) {
                 $shouldReturn = 1;
                 break;
