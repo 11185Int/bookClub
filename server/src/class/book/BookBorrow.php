@@ -338,6 +338,7 @@ class BookBorrow extends AbstractModel
         }
 
         $booksArr = [];
+        $isAdminArr = [];
         if (count($uid) > 0) {
             $prefix = $this->capsule->getConnection()->getTablePrefix();
             $books = $this->capsule->table('book_share AS s')
@@ -376,13 +377,18 @@ class BookBorrow extends AbstractModel
                 unset($book['group_id']);
                 $booksArr[$group_id][] = $book;
             }
-
+            $user_group_list = $this->capsule->table('user_group')
+                ->whereIn('group_id', $gid)->where('openid', $openid)->select('group_id', 'is_admin')->get();
+            foreach ($user_group_list as $user_group) {
+                $isAdminArr[$openKey->getOpenKey($user_group['group_id'], OpenKey::TYPE_GROUP_ID)] = $user_group['is_admin'];
+            }
         }
         foreach ($data as $key => $datum) {
             $data[$key]['books'] = [];
             if (!empty($booksArr[$datum['id']])) {
                 $data[$key]['books'] = $booksArr[$datum['id']];
             }
+            $data[$key]['is_admin'] = empty($isAdminArr[$datum['id']]) ? 0 : intval($isAdminArr[$datum['id']]);
         }
 
         $res['data'] = [
