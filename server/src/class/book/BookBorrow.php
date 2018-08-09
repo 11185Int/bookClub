@@ -381,8 +381,8 @@ class BookBorrow extends AbstractModel
             $builder = $this->capsule->table('visit_history AS h')
                 ->leftJoin('user AS u', 'u.openid', '=', 'h.openid')
                 ->leftJoin('book_share AS s', 's.owner_openid', '=', 'u.openid')
-                ->select('u.id AS user_id', 'u.headimgurl', 'u.nickname', 'u.realname', 'h.latest_time')
-                ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'s.id) AS book_cnt')
+                ->select('u.id AS id', 'u.headimgurl', 'h.latest_time', 'u.realname', 'u.nickname')
+                ->selectRaw('"user" AS type,count(distinct '.$this->capsule->getConnection()->getTablePrefix().'s.id) AS book_cnt')
                 ->where('h.dest_openid', $openid)
                 ->where('h.dest_group_id', 0)
                 ->where('h.openid', '!=', $openid)
@@ -427,7 +427,7 @@ class BookBorrow extends AbstractModel
                 ->select('s.owner_id', 'b.isbn10', 'b.isbn13', 'b.image', 'b.hd_image', 'b.title', 'b.author')
                 ->whereIn('s.owner_id', $uid)
                 ->where('s.group_id', 0)
-                ->whereRaw('4 > (select count(*) from '.$prefix.'book_share
+                ->whereRaw('3 > (select count(*) from '.$prefix.'book_share
                     where owner_id = '.$prefix.'s.owner_id and group_id = 0
                     and id > '.$prefix.'s.id)')
                 ->groupBy(['s.owner_id','b.id'])
@@ -446,7 +446,7 @@ class BookBorrow extends AbstractModel
                 ->leftJoin('book AS b', 'b.id', '=', 's.book_id')
                 ->select('s.group_id', 'b.isbn10', 'b.isbn13', 'b.image', 'b.hd_image', 'b.title', 'b.author')
                 ->whereIn('s.group_id', $gid)
-                ->whereRaw('4 > (select count(*) from '.$prefix.'book_share
+                ->whereRaw('3 > (select count(*) from '.$prefix.'book_share
                     where group_id = '.$prefix.'s.group_id
                     and id > '.$prefix.'s.id)')
                 ->groupBy(['s.group_id','b.id'])
