@@ -37,7 +37,7 @@ $app->post('/home/my/borrow', function (\Slim\Http\Request $request, \Slim\Http\
     $type = $request->getParam('type', 1); //1借阅 2被借
 
     $model = new BookBorrow();
-    $res = $model->getMyBookBorrow($openid, $type);
+    $res = $model->getMyBookBorrow($openid, $type, $request->getParams());
 
     return $response->withJson($res);
 });

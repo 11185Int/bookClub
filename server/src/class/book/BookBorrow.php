@@ -9,14 +9,16 @@ use CP\common\OpenKey;
 class BookBorrow extends AbstractModel
 {
 
-    public function getMyBookBorrow($openid, $type)
+    public function getMyBookBorrow($openid, $type, $params)
     {
         $res = array(
             'status' => 0,
             'message' => '',
         );
-        $borrow = [];
-        $return = [];
+        $page = isset($params['page']) ? intval($params['page']) : 1;
+        $pagesize = isset($params['pagesize']) ? intval($params['pagesize']) : 10;
+        $offset = ($page - 1) * $pagesize;
+
         if ($type == 1) { //借阅记录
             $prefix = $this->capsule->getConnection()->getTablePrefix();
             $builder = $this->capsule->table('book_borrow AS bb')
@@ -34,7 +36,8 @@ class BookBorrow extends AbstractModel
                         $q->where('bs.group_id', '>', 0)->where('bb.borrower_openid', $openid);
                     });
                 })
-                ->groupBy('b.id');
+                ->groupBy('b.id')
+                ->orderBy('return_status', 'asc');
 
         } else { //被借记录
             $prefix = $this->capsule->getConnection()->getTablePrefix();
@@ -48,11 +51,14 @@ class BookBorrow extends AbstractModel
                 ->leftJoin('user AS u', 'u.id', '=', 'bb.borrower_id')
                 ->where('bs.group_id', 0)
                 ->where('bs.owner_openid', $openid)
-                ->groupBy('b.id');
+                ->groupBy('b.id')
+                ->orderBy('return_status', 'asc');
 
         }
 
-        $list = $builder->get();
+        $data = [];
+        $totalCount = count($builder->get());
+        $list = $builder->limit($pagesize)->offset($offset)->get();
         foreach ($list as $item) {
             $record = [
                 'book_id' => $item['book_id'],
@@ -66,20 +72,17 @@ class BookBorrow extends AbstractModel
                 'return_time' => $item['return_status'] > 0 ? date('Y年m月d日 H:i', $item['return_time']) : '',
                 'return_status' => $item['return_status'],
             ];
-            if ($item['return_status'] == 1) {
-                $return[] = $record;
-            } else {
-                $borrow[] = $record;
-            }
+            $data[] = $record;
         }
 
-        $data = [
-            'borrow' => $borrow,
-            'return' => $return,
-        ];
 
         if ($builder) {
-            $res['data'] = $data;
+            $res['data'] = [
+                'list' => $data,
+                'total' => intval($totalCount),
+                'pagesize' => $pagesize,
+                'totalpage' => ceil($totalCount / $pagesize),
+            ];
         } else {
             $res = array(
                 'status' => 1001,
