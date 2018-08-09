@@ -270,49 +270,71 @@ class BookBorrow extends AbstractModel
         $page = isset($params['page']) ? intval($params['page']) : 1;
         $pagesize = isset($params['pagesize']) ? intval($params['pagesize']) : 10;
         $offset = ($page - 1) * $pagesize;
-        if ($type == 1) {
+        if ($type == 1) { //浏览
             $builder = $this->capsule->table('visit_history AS h')
                 ->leftJoin('user AS u', 'u.openid', '=', 'h.dest_openid')
                 ->leftJoin('book_share AS s', 's.owner_openid', '=', 'u.openid')
-                ->leftJoin('book AS b', 'b.id', '=', 's.book_id')
-                ->select('u.id AS user_id', 'u.headimgurl', 'u.nickname', 'u.realname', 'h.latest_time')
-                ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'b.id) AS book_cnt')
+                ->select('u.id AS id', 'u.headimgurl', 'h.latest_time', 'u.realname', 'u.nickname')
+                ->selectRaw('"user" AS type,count(distinct '.$this->capsule->getConnection()->getTablePrefix().'s.id) AS book_cnt')
                 ->where('h.openid', $openid)
                 ->where('h.dest_group_id', 0)
                 ->where('h.dest_openid', '!=', $openid)
                 ->where('s.group_id', 0)
+                ->where('s.share_status', 1)
                 ->groupBy('u.id')
                 ->orderBy('h.latest_time', 'deac');
+            $groupBuilder = $this->capsule->table('visit_history AS h')
+                ->leftJoin('group AS g', 'g.id', '=', 'h.dest_group_id')
+                ->leftJoin('book_share AS s', 's.group_id', '=', 'g.id')
+                ->select('g.id AS id', 'g.headimgurl', 'h.latest_time', 'g.group_name AS realname', 'g.group_name AS nickname')
+                ->selectRaw('"group" AS type,count(distinct '.$this->capsule->getConnection()->getTablePrefix().'s.id) AS book_cnt')
+                ->where('h.openid', $openid)
+                ->where('s.group_id', '>', 0)
+                ->where('s.share_status', 1)
+                ->groupBy('g.id')
+                ->orderBy('h.latest_time', 'desc');
         } else {
             $builder = $this->capsule->table('visit_history AS h')
                 ->leftJoin('user AS u', 'u.openid', '=', 'h.openid')
                 ->leftJoin('book_share AS s', 's.owner_openid', '=', 'u.openid')
-                ->leftJoin('book AS b', 'b.id', '=', 's.book_id')
                 ->select('u.id AS user_id', 'u.headimgurl', 'u.nickname', 'u.realname', 'h.latest_time')
-                ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'b.id) AS book_cnt')
+                ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'s.id) AS book_cnt')
                 ->where('h.dest_openid', $openid)
                 ->where('h.dest_group_id', 0)
                 ->where('h.openid', '!=', $openid)
                 ->where('s.group_id', 0)
+                ->where('s.share_status', 1)
                 ->groupBy('u.id')
-                ->orderBy('h.latest_time', 'deac');
+                ->orderBy('h.latest_time', 'desc');
+        }
+        if (isset($groupBuilder)) {
+            $builder = $builder->union($groupBuilder);
         }
         $totalCount = count($builder->get());
         $list = $builder->offset($offset)->limit($pagesize)->get();
         $data = [];
         $uid = [];
+        $gid = [];
         $openKey = new OpenKey();
         foreach ($list as $item) {
-            $uid[] = $item['user_id'];
+            if ($item['type'] == 'user') {
+                $uid[] = $item['id'];
+            }
+            if ($item['type'] == 'group') {
+                $gid[] = $item['id'];
+            }
             $data[] = [
-                'user_id' => $openKey->getOpenKey($item['user_id'], OpenKey::TYPE_USER_ID),
-                'headimgurl' => $item['headimgurl'],
+                'type' => $item['type'],
+                'id' => $item['type'] == 'user' ? $openKey->getOpenKey($item['id'], OpenKey::TYPE_USER_ID) :
+                                                    $openKey->getOpenKey($item['id'], OpenKey::TYPE_GROUP_ID),
+                'headimgurl' => $item['headimgurl'] ?: '',
                 'realname' => $item['realname'] ?: $item['nickname'],
                 'book_cnt' => $item['book_cnt'],
                 'latest_time' => date('Y年m月d日 H:i', $item['latest_time']),
             ];
         }
 
+        $booksArr = [];
         if (count($uid) > 0) {
             $prefix = $this->capsule->getConnection()->getTablePrefix();
             $books = $this->capsule->table('book_share AS s')
@@ -326,20 +348,39 @@ class BookBorrow extends AbstractModel
                 ->groupBy(['s.owner_id','b.id'])
                 ->orderBy('s.id', 'desc')
                 ->get();
-            $booksArr = [];
+
             foreach ($books as $book) {
-                $owner_id = $openKey->getOpenKey($book['owner_id']);
+                $owner_id = $openKey->getOpenKey($book['owner_id'], OpenKey::TYPE_USER_ID);
                 unset($book['owner_id']);
                 $booksArr[$owner_id][] = $book;
             }
-            foreach ($data as $key => $datum) {
-                $data[$key]['books'] = [];
-                if (isset($booksArr[$datum['user_id']])) {
-                    $data[$key]['books'] = $booksArr[$datum['user_id']];
-                }
+        }
+        if (count($gid) > 0) {
+            $prefix = $this->capsule->getConnection()->getTablePrefix();
+            $books = $this->capsule->table('book_share AS s')
+                ->leftJoin('book AS b', 'b.id', '=', 's.book_id')
+                ->select('s.group_id', 'b.isbn10', 'b.isbn13', 'b.image', 'b.hd_image', 'b.title', 'b.author')
+                ->whereIn('s.group_id', $gid)
+                ->whereRaw('4 > (select count(*) from '.$prefix.'book_share
+                    where group_id = '.$prefix.'s.group_id
+                    and id > '.$prefix.'s.id)')
+                ->groupBy(['s.group_id','b.id'])
+                ->orderBy('s.id', 'desc')
+                ->get();
+
+            foreach ($books as $book) {
+                $group_id = $openKey->getOpenKey($book['group_id'], OpenKey::TYPE_GROUP_ID);
+                unset($book['group_id']);
+                $booksArr[$group_id][] = $book;
+            }
+
+        }
+        foreach ($data as $key => $datum) {
+            $data[$key]['books'] = [];
+            if (!empty($booksArr[$datum['id']])) {
+                $data[$key]['books'] = $booksArr[$datum['id']];
             }
         }
-
 
         $res['data'] = [
             'list' => $data,
