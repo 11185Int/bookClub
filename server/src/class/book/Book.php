@@ -211,7 +211,7 @@ class Book extends AbstractModel
     {
         $book = $this->findBook($isbn);
 
-        if (!(strlen($isbn) == 10 || strlen($isbn) == 13)) {
+        if (strlen($isbn) < 8) {
             return [
                 'status' => 6000,
                 'message' => 'isbn码错误',
