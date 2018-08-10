@@ -50,14 +50,14 @@ $app->get('/home/book/status', function (\Slim\Http\Request $request, \Slim\Http
     $openid = $account->getOpenIdByKey($request->getParam('key'));
 
     $model = new Book();
-    if ($groupId) {
+    if ($groupId) { //群书架
         $res = $model->getBookStatusByGroup($isbn, $openid, $groupId);
     } else if ($userId) {
         $user = new User();
         $owner_openid = $user->getOpenIdByUserId($userId);
-        if ($owner_openid == $openid) {
+        if ($owner_openid == $openid) { //自己书架
             $res = $model->getBookStatusBySelf($isbn, $openid);
-        } else {
+        } else { //别人书架
             $res = $model->getBookStatusByUser($isbn, $openid, $owner_openid);
         }
     } else {

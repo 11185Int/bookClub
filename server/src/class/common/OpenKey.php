@@ -17,7 +17,7 @@ class OpenKey extends AbstractModel
             return $first['real_id'];
         }
 //        return $open_key;
-        return 0;
+        return '';
     }
 
     public function getOpenKey($real_id, $type = self::TYPE_USER_ID)
