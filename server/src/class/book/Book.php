@@ -266,6 +266,8 @@ class Book extends AbstractModel
         }
         $shouldReturn = 0;
         $canBorrow = 0;
+        $canEdit = 0;
+
         $book_shares = $this->capsule->table('book_share')->where('book_id', $book['id'])
             ->where('group_id', $groupId)->where('share_status', 1)->get(); //查看分享的所有book_share
 
@@ -286,6 +288,11 @@ class Book extends AbstractModel
             if ($book_share['lend_status'] == 2) { //在架,未借出
                 $lend_sum ++;
             }
+        }
+
+        //是否能编辑
+        if ($share_sum > 0 && $user_group['is_admin'] == 1) {
+            $canEdit = 1;
         }
 
         //是否能借
@@ -320,6 +327,7 @@ class Book extends AbstractModel
             'lend_sum' => $lend_sum,
             'canBorrow' => $canBorrow,
             'isAdd' => $isAdd,
+            'canEdit' => $canEdit,
             'bookmark' => $bookmark,
         ];
 
@@ -342,6 +350,7 @@ class Book extends AbstractModel
         }
         $shouldReturn = 0;
         $canBorrow = 0;
+        $canEdit = 0;
 
         $book_shares = $this->capsule->table('book_share')->where('book_id', $book['id'])
             ->where('group_id', 0)->where('owner_openid', $owner_openid)->where('share_status', 1)->get();//查看分享的所有book_share
@@ -390,6 +399,7 @@ class Book extends AbstractModel
             'lend_sum' => $lend_sum,
             'canBorrow' => $canBorrow,
             'isAdd' => $isAdd,
+            'canEdit' => $canEdit,
             'bookmark' => $bookmark,
         ];
 
@@ -412,6 +422,7 @@ class Book extends AbstractModel
         }
         $shouldReturn = 0;
         $canBorrow = 0;
+        $canEdit = 0;
 
         $return_book_shares = $this->capsule->table('book_share AS s')
             ->leftJoin('book_borrow AS b', 'b.book_share_id', '=', 's.id')
@@ -450,6 +461,11 @@ class Book extends AbstractModel
             }
         }
 
+        //是否能编辑
+        if ($share_sum > 0) {
+            $canEdit = 1;
+        }
+
         //是否已经添加
         $add_cnt = $this->capsule->table('book_share')->where('book_id', $book['id'])
             ->where('group_id', 0)->where('owner_openid', $openid)->count();
@@ -486,6 +502,7 @@ class Book extends AbstractModel
             'lend_sum' => $lend_sum,
             'canBorrow' => $canBorrow,
             'isAdd' => $isAdd,
+            'canEdit' => $canEdit,
             'bookmark' => $bookmark,
         ];
 
