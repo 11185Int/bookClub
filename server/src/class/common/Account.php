@@ -185,7 +185,11 @@ class Account extends AbstractModel
                 $data['best_rating'] = $booksDatum['rating'];
                 $data['best_book'] = $booksDatum['title'];
             }
-            $allRating += $booksDatum['rating'] * $booksDatum['cnt'];
+            if ($booksDatum['rating'] > 0) {
+                $allRating += $booksDatum['rating'] * $booksDatum['cnt'];
+            } else {
+                $allRating += 6 * $booksDatum['cnt'];
+            }
             $tags = explode(',', $booksDatum['tags']);
             foreach ($tags as $tag) {
                 if (mb_strlen($tag) > 6) {
@@ -277,7 +281,11 @@ class Account extends AbstractModel
         $allRating = 0;
         foreach ($booksData as $booksDatum) {
             $data['book_cnt'] += intval($booksDatum['cnt']);
-            $allRating += $booksDatum['rating'] * $booksDatum['cnt'];
+            if ($booksDatum['rating'] > 0) {
+                $allRating += $booksDatum['rating'] * $booksDatum['cnt'];
+            } else {
+                $allRating += 6 * $booksDatum['cnt'];
+            }
         }
         $rank = $rankBuilder->havingRaw('count('.$this->capsule->getConnection()->getTablePrefix().'bs.id) > '.$data['book_cnt'])->get();
         $data['book_rank'] = count($rank) + 1;
