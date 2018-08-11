@@ -76,7 +76,8 @@ class Group extends AbstractModel
                 'message' => '创建小组失败',
             ];
         }
-        $res['data']['group_id'] = $r1;
+        $openKey = new OpenKey();
+        $res['data']['group_id'] = $openKey->getOpenKey($r1, OpenKey::TYPE_GROUP_ID);
 
         return $res;
     }
