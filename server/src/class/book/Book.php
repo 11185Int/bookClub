@@ -63,7 +63,8 @@ class Book extends AbstractModel
             });
         }
         $totalCount = count($builder->get());
-        $builder->orderBy('sid', 'desc')
+        $builder->orderBy('bb.return_status', 'is not null')
+            ->orderBy('sid', 'desc')
             ->limit($pagesize)->offset($offset);
         $data = $builder->get();
         if (!empty($data)) {
@@ -131,7 +132,9 @@ class Book extends AbstractModel
             });
         }
         $totalCount = count($builder->get());
-        $builder->orderBy('sid', 'desc')
+        $prefix = $this->capsule->getConnection()->getTablePrefix();
+        $builder->orderByRaw('count(distinct '.$prefix.'s.id) = count(distinct '.$prefix.'bb.id)')
+            ->orderBy('sid', 'desc')
             ->limit($pagesize)->offset($offset);
         $data = $builder->get();
         if (!empty($data)) {
@@ -187,7 +190,9 @@ class Book extends AbstractModel
             });
         }
         $totalCount = count($builder->get());
-        $builder->orderBy('sid', 'desc')
+        $prefix = $this->capsule->getConnection()->getTablePrefix();
+        $builder->orderByRaw('count(distinct '.$prefix.'s.id) = count(distinct '.$prefix.'bb.id)')
+            ->orderBy('sid', 'desc')
             ->limit($pagesize)->offset($offset);
         $data = $builder->get();
         if (!empty($data)) {
