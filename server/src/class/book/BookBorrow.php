@@ -242,6 +242,30 @@ class BookBorrow extends AbstractModel
             ];
         }
 
+        //能否同时借阅多本同一书籍
+        $borrowMultiple = false;
+        if (!$borrowMultiple) {
+            $borrowing = $this->capsule->table('book_borrow AS bb')
+                ->leftJoin('book_share AS s', 'bb.book_share_id', '=', 's.id')
+                ->where('bb.borrower_openid', $openid)->where('bb.return_status', 0)
+                ->where('s.book_id', $book_id)->count();
+            if ($borrowing > 0) {
+                return [
+                    'status' => 99999,
+                    'message' => '无法借阅多本同样的书',
+                ];
+            }
+            $sharing = $this->capsule->table('book_share')
+                ->where('owner_openid', $openid)->where('group_id', 0)
+                ->where('book_id', $book_id)->where('share_status', 1)->count();
+            if ($sharing > 0) {
+                return [
+                    'status' => 99999,
+                    'message' => '你已分享此书',
+                ];
+            }
+        }
+
         $kv = array(
             'book_share_id' => $bookShare['id'],
             'borrower_id' => $this->getUserIdByOpenid($openid),
