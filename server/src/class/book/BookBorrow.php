@@ -29,13 +29,7 @@ class BookBorrow extends AbstractModel
                 ->leftJoin('book_share AS bs', 'bs.id', '=', 'bb.book_share_id')
                 ->leftJoin('book AS b', 'b.id', '=', 'bs.book_id')
                 ->leftJoin('user AS u', 'u.id', '=', 'bs.owner_id')
-                ->where(function ($q) use ($openid){
-                    $q->where(function ($q) use ($openid){
-                        $q->where('bs.group_id', 0)->where('bb.borrower_openid', $openid);
-                    })->orWhere(function ($q) use ($openid){
-                        $q->where('bs.group_id', '>', 0)->where('bb.borrower_openid', $openid);
-                    });
-                })
+                ->where('bb.borrower_openid', $openid)
                 ->groupBy('b.id')
                 ->orderBy('return_status', 'asc')
                 ->orderBy('borrow_time', 'desc');
