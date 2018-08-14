@@ -811,11 +811,16 @@ class Book extends AbstractModel
                 ->select('share.owner_openid','sharer.nickname AS sharer_nickname',
                     'sharer.headimgurl AS sharer_headimgurl','share.group_id','borrow.book_share_id','borrow.borrower_openid',
                     'borrower.nickname AS borrower_nickname','borrower.headimgurl AS borrower_headimgurl',
+                    'ug.realname AS borrower_realname',
                     'borrow.borrow_time', 'borrow.return_status', 'borrow.return_time')
                 ->leftJoin('book_share AS share', 'share.book_id', '=', 'book.id')
                 ->rightJoin('book_borrow AS borrow', 'borrow.book_share_id', '=', 'share.id')
                 ->leftJoin('user AS sharer', 'sharer.openid', '=', 'share.owner_openid')
                 ->leftJoin('user AS borrower', 'borrower.openid', '=', 'borrow.borrower_openid')
+                ->leftJoin('user_group AS ug', function ($join) use ($groupId) {
+                    $join->on('borrower.openid', '=', 'ug.openid');
+                    $join->where('ug.group_id', '=', $groupId);
+                })
                 ->where(strlen($isbn) == 10 ?'book.isbn10': 'book.isbn13', $isbn)
                 ->where('share.group_id', $groupId)
                 ->orderBy('borrow.borrow_time', 'desc')
@@ -828,6 +833,7 @@ class Book extends AbstractModel
                 ->select('share.book_id','share.owner_openid','sharer.nickname AS sharer_nickname',
                     'sharer.headimgurl AS sharer_headimgurl','share.group_id','borrow.book_share_id','borrow.borrower_openid',
                     'borrower.nickname AS borrower_nickname','borrower.headimgurl AS borrower_headimgurl',
+                    'borrower.realname AS borrower_realname',
                     'borrow.borrow_time', 'borrow.return_status', 'borrow.return_time')
                 ->leftJoin('book_share AS share', 'share.book_id', '=', 'book.id')
                 ->rightJoin('book_borrow AS borrow', 'borrow.book_share_id', '=', 'share.id')
@@ -845,7 +851,7 @@ class Book extends AbstractModel
             $list[] = [
                 'sharer_nickname' => $datum['sharer_nickname'],
                 'sharer_headimgurl' => $datum['sharer_headimgurl'],
-                'borrower_nickname' => $datum['borrower_nickname'],
+                'borrower_nickname' => $datum['borrower_realname'] ?: $datum['borrower_nickname'],
                 'borrower_headimgurl' => $datum['borrower_headimgurl'],
                 'borrow_time' => date('Y-m-d', $datum['borrow_time']),
                 'return_time' => $datum['return_time'] ? date('Y-m-d', $datum['return_time']) : '',
