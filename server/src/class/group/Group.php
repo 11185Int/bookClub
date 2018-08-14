@@ -337,10 +337,16 @@ class Group extends AbstractModel
                 'message' => '加入小组失败',
             ];
         }
-
+        $openKey = new OpenKey();
+        $groupData = [
+            'group_id' => $openKey->getOpenKey($groupId, OpenKey::TYPE_GROUP_ID),
+            'group_name' => $group['group_name'],
+            'headimgurl' => $group['headimgurl'],
+        ];
         $res = array(
             'status' => 0,
             'message' => 'success',
+            'data' => $groupData
         );
         return $res;
     }
