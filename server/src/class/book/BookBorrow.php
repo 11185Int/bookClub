@@ -120,13 +120,18 @@ class BookBorrow extends AbstractModel
 
         $prefix = $this->capsule->getConnection()->getTablePrefix();
         $builder = $this->capsule->table('book_borrow AS bb')
-            ->select('b.id AS book_id','b.isbn10','b.isbn13','b.title','b.image','b.author','u.nickname','u.realname')
+            ->select('b.id AS book_id','b.isbn10','b.isbn13','b.title','b.image','b.author','u.nickname',
+                'ug.realname AS ug_realname')
             ->selectRaw('max('.$prefix.'bb.borrow_time) AS borrow_time')
             ->selectRaw('max('.$prefix.'bb.return_time) AS return_time')
             ->selectRaw('min('.$prefix.'bb.return_status) AS return_status')
             ->leftJoin('book_share AS bs', 'bs.id', '=', 'bb.book_share_id')
             ->leftJoin('book AS b', 'b.id', '=', 'bs.book_id')
             ->leftJoin('user AS u', 'u.id', '=', 'bb.borrower_id')
+            ->leftJoin('user_group AS ug', function ($join) use ($groupId) {
+                $join->on('u.openid', '=', 'ug.openid');
+                $join->where('ug.group_id', '=', $groupId);
+            })
             ->where('bs.group_id', $groupId)
             ->groupBy('b.id')
             ->orderBy('bb.borrow_time', 'desc');
@@ -149,7 +154,7 @@ class BookBorrow extends AbstractModel
                 'title' => $item['title'],
                 'image' => $item['image'],
                 'author' => $item['author'],
-                'name' => $item['realname'] ?: $item['nickname'],
+                'name' => $item['ug_realname'] ?: $item['realname'] ?: $item['nickname'],
                 'borrow_time' => date('Y年m月d日 H:i', $item['borrow_time']),
                 'return_time' => $item['return_status'] > 0 ? date('Y年m月d日 H:i', $item['return_time']) : '',
                 'return_status' => $item['return_status'],
