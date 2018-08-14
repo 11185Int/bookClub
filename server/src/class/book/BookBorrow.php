@@ -456,9 +456,10 @@ class BookBorrow extends AbstractModel
                 ->select('s.owner_id', 'b.isbn10', 'b.isbn13', 'b.image', 'b.hd_image', 'b.title', 'b.author')
                 ->whereIn('s.owner_id', $uid)
                 ->where('s.group_id', 0)
+                ->where('s.share_status', '>', 0)
                 ->whereRaw('3 > (select count(*) from '.$prefix.'book_share
-                    where owner_id = '.$prefix.'s.owner_id and group_id = 0
-                    and id > '.$prefix.'s.id)')
+                    where owner_id = '.$prefix.'s.owner_id and group_id = 0 and share_status > 0
+                    and id > '.$prefix.'s.id )')
                 ->groupBy(['s.owner_id','b.id'])
                 ->orderBy('s.id', 'desc')
                 ->get();
@@ -475,8 +476,9 @@ class BookBorrow extends AbstractModel
                 ->leftJoin('book AS b', 'b.id', '=', 's.book_id')
                 ->select('s.group_id', 'b.isbn10', 'b.isbn13', 'b.image', 'b.hd_image', 'b.title', 'b.author')
                 ->whereIn('s.group_id', $gid)
+                ->where('s.share_status', '>', 0)
                 ->whereRaw('3 > (select count(*) from '.$prefix.'book_share
-                    where group_id = '.$prefix.'s.group_id
+                    where group_id = '.$prefix.'s.group_id and share_status > 0
                     and id > '.$prefix.'s.id)')
                 ->groupBy(['s.group_id','b.id'])
                 ->orderBy('s.id', 'desc')
