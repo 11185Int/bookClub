@@ -139,7 +139,11 @@ class Visit extends AbstractModel
             $this->capsule->table('visit_history')->insert($insert);
         } else {
             $id = $history['id'];
-            $this->capsule->table('visit_history')->where('id', $id)->increment('view_cnt');
+            $update = [
+                'latest_time' => time(),
+                'view_cnt' => $this->capsule->getConnection()->raw('view_cnt + 1')
+            ];
+            $this->capsule->table('visit_history')->where('id', $id)->update($update);
         }
     }
 
@@ -172,7 +176,11 @@ class Visit extends AbstractModel
             $this->capsule->table('visit_history')->insert($insert);
         } else {
             $id = $history['id'];
-            $this->capsule->table('visit_history')->where('id', $id)->increment('view_cnt');
+            $update = [
+                'latest_time' => time(),
+                'view_cnt' => $this->capsule->getConnection()->raw('view_cnt + 1')
+            ];
+            $this->capsule->table('visit_history')->where('id', $id)->update($update);
         }
     }
 

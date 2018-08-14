@@ -383,45 +383,50 @@ class BookBorrow extends AbstractModel
         $page = isset($params['page']) ? intval($params['page']) : 1;
         $pagesize = isset($params['pagesize']) ? intval($params['pagesize']) : 10;
         $offset = ($page - 1) * $pagesize;
+        $prefix = $this->capsule->getConnection()->getTablePrefix();
         if ($type == 1) { //浏览
             $builder = $this->capsule->table('visit_history AS h')
                 ->leftJoin('user AS u', 'u.openid', '=', 'h.dest_openid')
                 ->leftJoin('book_share AS s', 's.owner_openid', '=', 'u.openid')
-                ->select('u.id AS id', 'u.headimgurl', 'h.latest_time', 'u.realname', 'u.nickname')
-                ->selectRaw('"user" AS type,count(distinct '.$this->capsule->getConnection()->getTablePrefix().'s.id) AS book_cnt')
+                ->select('u.id AS id', 'u.headimgurl', 'u.realname', 'u.nickname')
+                ->selectRaw('"user" AS type,count(distinct '.$prefix.'s.id) AS book_cnt')
+                ->selectRaw('max('.$prefix.'h.latest_time) AS latest_time')
                 ->where('h.openid', $openid)
                 ->where('h.dest_group_id', 0)
                 ->where('h.dest_openid', '!=', $openid)
                 ->where('s.group_id', 0)
                 ->where('s.share_status', 1)
                 ->groupBy('u.id')
-                ->orderBy('h.latest_time', 'deac');
+                ->orderBy('latest_time', 'deac');
             $groupBuilder = $this->capsule->table('visit_history AS h')
                 ->leftJoin('group AS g', 'g.id', '=', 'h.dest_group_id')
                 ->leftJoin('book_share AS s', 's.group_id', '=', 'g.id')
-                ->select('g.id AS id', 'g.headimgurl', 'h.latest_time', 'g.group_name AS realname', 'g.group_name AS nickname')
-                ->selectRaw('"group" AS type,count(distinct '.$this->capsule->getConnection()->getTablePrefix().'s.id) AS book_cnt')
+                ->select('g.id AS id', 'g.headimgurl', 'g.group_name AS realname', 'g.group_name AS nickname')
+                ->selectRaw('"group" AS type,count(distinct '.$prefix.'s.id) AS book_cnt')
+                ->selectRaw('max('.$prefix.'h.latest_time) AS latest_time')
                 ->where('h.openid', $openid)
                 ->where('s.group_id', '>', 0)
                 ->where('s.share_status', 1)
                 ->groupBy('g.id')
-                ->orderBy('h.latest_time', 'desc');
+                ->orderBy('latest_time', 'desc');
         } else {
             $builder = $this->capsule->table('visit_history AS h')
                 ->leftJoin('user AS u', 'u.openid', '=', 'h.openid')
                 ->leftJoin('book_share AS s', 's.owner_openid', '=', 'u.openid')
-                ->select('u.id AS id', 'u.headimgurl', 'h.latest_time', 'u.realname', 'u.nickname')
-                ->selectRaw('"user" AS type,count(distinct '.$this->capsule->getConnection()->getTablePrefix().'s.id) AS book_cnt')
+                ->select('u.id AS id', 'u.headimgurl', 'u.realname', 'u.nickname')
+                ->selectRaw('"user" AS type,count(distinct '.$prefix.'s.id) AS book_cnt')
+                ->selectRaw('max('.$prefix.'h.latest_time) AS latest_time')
                 ->where('h.dest_openid', $openid)
                 ->where('h.dest_group_id', 0)
                 ->where('h.openid', '!=', $openid)
                 ->where('s.group_id', 0)
                 ->where('s.share_status', 1)
                 ->groupBy('u.id')
-                ->orderBy('h.latest_time', 'desc');
+                ->orderBy('latest_time', 'desc');
         }
         if (isset($groupBuilder)) {
             $builder = $builder->union($groupBuilder);
+            $builder->orderBy('latest_time', 'desc');
         }
         $totalCount = count($builder->get());
         $list = $builder->offset($offset)->limit($pagesize)->get();
