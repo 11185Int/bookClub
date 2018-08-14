@@ -982,11 +982,9 @@ class Book extends AbstractModel
      */
     protected function calIntervalDays($begin, $end)
     {
-        if (!$begin || !$end) {
-            return 0;
-        }
-        $b = new \DateTime(date('Y-m-d',$begin));
-        $e = new \DateTime(date('Y-m-d',$end));
+        $today = time();
+        $b = new \DateTime(date('Y-m-d',$begin?:$today));
+        $e = new \DateTime(date('Y-m-d',$end?:$today));
         $interval = $b->diff($e);
         return $interval->days + 1;
     }

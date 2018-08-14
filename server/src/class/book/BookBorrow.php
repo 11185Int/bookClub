@@ -37,7 +37,8 @@ class BookBorrow extends AbstractModel
                     });
                 })
                 ->groupBy('b.id')
-                ->orderBy('return_status', 'asc');
+                ->orderBy('return_status', 'asc')
+                ->orderBy('borrow_time', 'desc');
 
         } else { //被借记录
             $prefix = $this->capsule->getConnection()->getTablePrefix();
@@ -52,7 +53,8 @@ class BookBorrow extends AbstractModel
                 ->where('bs.group_id', 0)
                 ->where('bs.owner_openid', $openid)
                 ->groupBy('b.id')
-                ->orderBy('return_status', 'asc');
+                ->orderBy('return_status', 'asc')
+                ->orderBy('borrow_time', 'desc');
 
         }
 
@@ -396,8 +398,7 @@ class BookBorrow extends AbstractModel
                 ->where('h.dest_openid', '!=', $openid)
                 ->where('s.group_id', 0)
                 ->where('s.share_status', 1)
-                ->groupBy('u.id')
-                ->orderBy('latest_time', 'deac');
+                ->groupBy('u.id');
             $groupBuilder = $this->capsule->table('visit_history AS h')
                 ->leftJoin('group AS g', 'g.id', '=', 'h.dest_group_id')
                 ->leftJoin('book_share AS s', 's.group_id', '=', 'g.id')
@@ -407,8 +408,7 @@ class BookBorrow extends AbstractModel
                 ->where('h.openid', $openid)
                 ->where('s.group_id', '>', 0)
                 ->where('s.share_status', 1)
-                ->groupBy('g.id')
-                ->orderBy('latest_time', 'desc');
+                ->groupBy('g.id');
         } else {
             $builder = $this->capsule->table('visit_history AS h')
                 ->leftJoin('user AS u', 'u.openid', '=', 'h.openid')
@@ -421,8 +421,7 @@ class BookBorrow extends AbstractModel
                 ->where('h.openid', '!=', $openid)
                 ->where('s.group_id', 0)
                 ->where('s.share_status', 1)
-                ->groupBy('u.id')
-                ->orderBy('latest_time', 'desc');
+                ->groupBy('u.id');
         }
         if (isset($groupBuilder)) {
             $builder = $builder->union($groupBuilder);
@@ -466,7 +465,6 @@ class BookBorrow extends AbstractModel
                     where owner_id = '.$prefix.'s.owner_id and group_id = 0 and share_status > 0
                     and id > '.$prefix.'s.id )')
                 ->groupBy(['s.owner_id','b.id'])
-                ->orderBy('s.id', 'desc')
                 ->get();
 
             foreach ($books as $book) {
@@ -486,7 +484,6 @@ class BookBorrow extends AbstractModel
                     where group_id = '.$prefix.'s.group_id and share_status > 0
                     and id > '.$prefix.'s.id)')
                 ->groupBy(['s.group_id','b.id'])
-                ->orderBy('s.id', 'desc')
                 ->get();
 
             foreach ($books as $book) {
