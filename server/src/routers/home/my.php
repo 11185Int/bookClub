@@ -58,6 +58,8 @@ $app->post('/home/my/poster/data', function (\Slim\Http\Request $request, \Slim\
     } else {
         $res = $model->getPosterData($openid, $groupId, $tags_cnt, $books_cnt);
     }
+    $poster = new \CP\common\Poster();
+    $poster->addPosterHistory($request);
     return $response->withJson($res);
 });
 
