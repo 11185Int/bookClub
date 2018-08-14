@@ -307,7 +307,7 @@ class Group extends AbstractModel
         $user_group = $this->capsule->table('user_group')->where('openid', $openid)->where('group_id', $groupId)->get();
         if (!empty($user_group)) {
             return [
-                'status' => 99999,
+                'status' => 10009,
                 'message' => '已加入该小组',
             ];
         }
