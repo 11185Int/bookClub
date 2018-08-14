@@ -58,6 +58,7 @@ class Book extends AbstractModel
         }
         $totalCount = count($builder->get());
         $builder->orderBy('bb.return_status', 'is not null')
+            ->orderBy('bb.id', 'desc')
             ->orderBy('sid', 'desc')
             ->limit($pagesize)->offset($offset);
         $data = $builder->get();
