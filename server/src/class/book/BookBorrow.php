@@ -30,6 +30,7 @@ class BookBorrow extends AbstractModel
                 ->leftJoin('book AS b', 'b.id', '=', 'bs.book_id')
                 ->leftJoin('user AS u', 'u.id', '=', 'bs.owner_id')
                 ->where('bb.borrower_openid', $openid)
+                ->whereRaw($prefix.'bb.id IN (select max(id) from '.$prefix.'book_borrow group by book_share_id)')
                 ->groupBy('b.id')
                 ->orderBy('return_status', 'asc')
                 ->orderBy('borrow_time', 'desc');
@@ -46,6 +47,7 @@ class BookBorrow extends AbstractModel
                 ->leftJoin('user AS u', 'u.id', '=', 'bb.borrower_id')
                 ->where('bs.group_id', 0)
                 ->where('bs.owner_openid', $openid)
+                ->whereRaw($prefix.'bb.id IN (select max(id) from '.$prefix.'book_borrow group by book_share_id)')
                 ->groupBy('b.id')
                 ->orderBy('return_status', 'asc')
                 ->orderBy('borrow_time', 'desc');
