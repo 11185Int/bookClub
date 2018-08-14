@@ -32,9 +32,8 @@ class Book extends AbstractModel
 
         $builder = $this->capsule->table('book AS b')
             ->leftJoin('book_share AS s', 's.book_id', '=', 'b.id')
-            ->leftJoin('book_share AS ss', 'ss.book_id', '=', 'b.id')
             ->leftJoin('book_borrow AS bb', function($join) {
-                $join->on('bb.book_share_id', '=', 'ss.id');
+                $join->on('bb.book_share_id', '=', 's.id');
                 $join->where('bb.return_status', '=', 0);
             })
             ->select('b.id','b.isbn10','b.isbn13','b.title','b.image','s.share_status','s.lend_status','bb.borrower_openid')
@@ -45,11 +44,6 @@ class Book extends AbstractModel
             ->where(function ($q) use ($openid) {
                 $q->where(function ($q) use ($openid) {
                     $q->where('s.group_id', 0)->where('s.owner_openid', $openid);
-                })->orWhere('bb.borrower_openid', $openid);
-            })
-            ->where(function ($q) use ($openid) {
-                $q->where(function ($q) use ($openid) {
-                    $q->where('ss.group_id', 0)->where('ss.owner_openid', $openid);
                 })->orWhere('bb.borrower_openid', $openid);
             })
             ->groupBy('b.id');
