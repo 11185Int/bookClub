@@ -67,6 +67,7 @@ class BookBorrow extends AbstractModel
                 'borrow_time' => date('Y年m月d日 H:i', $item['borrow_time']),
                 'return_time' => $item['return_status'] > 0 ? date('Y年m月d日 H:i', $item['return_time']) : '',
                 'return_status' => $item['return_status'],
+                'borrow_during' => $this->calIntervalDays($item['borrow_time'], $item['return_time']).'天',
             ];
             $data[] = $record;
         }

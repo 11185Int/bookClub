@@ -973,21 +973,6 @@ class Book extends AbstractModel
          return true;
     }
 
-
-    /**
-     * @param $begin int
-     * @param $end int
-     * @return int
-     */
-    protected function calIntervalDays($begin, $end)
-    {
-        $today = time();
-        $b = new \DateTime(date('Y-m-d',$begin?:$today));
-        $e = new \DateTime(date('Y-m-d',$end?:$today));
-        $interval = $b->diff($e);
-        return $interval->days + 1;
-    }
-
     protected function filterSearchBooks($books)
     {
         $retBooks = [];
