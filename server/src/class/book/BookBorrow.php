@@ -386,44 +386,50 @@ class BookBorrow extends AbstractModel
         if ($type == 1) { //浏览
             $builder = $this->capsule->table('visit_history AS h')
                 ->leftJoin('user AS u', 'u.openid', '=', 'h.dest_openid')
-                ->leftJoin('book_share AS s', 's.owner_openid', '=', 'u.openid')
+                ->leftJoin('book_share AS s', function ($join) {
+                    $join->on('s.owner_openid', '=', 'u.openid');
+                    $join->where('s.group_id', '=', 0)
+                        ->where('s.share_status', '=', 1);
+                })
                 ->select('u.id AS id', 'u.headimgurl', 'u.realname', 'u.nickname')
                 ->selectRaw('"user" AS type,count(distinct '.$prefix.'s.id) AS book_cnt')
                 ->selectRaw('max('.$prefix.'h.latest_time) AS latest_time')
                 ->where('h.openid', $openid)
                 ->where('h.dest_group_id', 0)
                 ->where('h.dest_openid', '!=', $openid)
-                ->where('s.group_id', 0)
-                ->where('s.share_status', 1)
                 ->groupBy('u.id');
             $groupBuilder = $this->capsule->table('visit_history AS h')
                 ->leftJoin('group AS g', 'g.id', '=', 'h.dest_group_id')
-                ->leftJoin('book_share AS s', 's.group_id', '=', 'g.id')
+                ->leftJoin('book_share AS s', function ($join) {
+                    $join->on('s.group_id', '=', 'g.id');
+                    $join->where('s.group_id', '>', 0)->where('s.share_status', '=', 1);
+                })
                 ->select('g.id AS id', 'g.headimgurl', 'g.group_name AS realname', 'g.group_name AS nickname')
                 ->selectRaw('"group" AS type,count(distinct '.$prefix.'s.id) AS book_cnt')
                 ->selectRaw('max('.$prefix.'h.latest_time) AS latest_time')
                 ->where('h.openid', $openid)
-                ->where('s.group_id', '>', 0)
-                ->where('s.share_status', 1)
+                ->where('g.group_amount', '>', 0)
                 ->groupBy('g.id');
         } else {
             $builder = $this->capsule->table('visit_history AS h')
                 ->leftJoin('user AS u', 'u.openid', '=', 'h.openid')
-                ->leftJoin('book_share AS s', 's.owner_openid', '=', 'u.openid')
+                ->leftJoin('book_share AS s', function ($join) {
+                    $join->on('s.owner_openid', '=', 'u.openid')
+                        ->where('s.group_id', '=', 0)
+                        ->where('s.share_status', '=', 1);
+                })
                 ->select('u.id AS id', 'u.headimgurl', 'u.realname', 'u.nickname')
                 ->selectRaw('"user" AS type,count(distinct '.$prefix.'s.id) AS book_cnt')
                 ->selectRaw('max('.$prefix.'h.latest_time) AS latest_time')
                 ->where('h.dest_openid', $openid)
                 ->where('h.dest_group_id', 0)
                 ->where('h.openid', '!=', $openid)
-                ->where('s.group_id', 0)
-                ->where('s.share_status', 1)
                 ->groupBy('u.id');
         }
         if (isset($groupBuilder)) {
             $builder = $builder->union($groupBuilder);
-            $builder->orderBy('latest_time', 'desc');
         }
+        $builder->orderBy('latest_time', 'desc');
         $totalCount = count($builder->get());
         $list = $builder->offset($offset)->limit($pagesize)->get();
         $data = [];
