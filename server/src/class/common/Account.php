@@ -185,10 +185,9 @@ class Account extends AbstractModel
                 $data['best_rating'] = $booksDatum['rating'];
                 $data['best_book'] = $booksDatum['title'];
             }
-            if ($booksDatum['rating'] > 0) {
-                $allRating += $booksDatum['rating'] * $booksDatum['cnt'];
-            } else {
-                $allRating += 6 * $booksDatum['cnt'];
+            $rating = $booksDatum['rating'] ?: 6;
+            if ($rating > 0) {
+                $allRating += $rating * $booksDatum['cnt'];
             }
             $tags = explode(',', $booksDatum['tags']);
             foreach ($tags as $tag) {
@@ -197,9 +196,9 @@ class Account extends AbstractModel
                     continue;
                 }
                 if (isset($allTags[$tag])) {
-                    $allTags[$tag] += floatval($booksDatum['rating']);
+                    $allTags[$tag] += floatval($rating);
                 } else {
-                    $allTags[$tag] = floatval($booksDatum['rating']);
+                    $allTags[$tag] = floatval($rating);
                 }
             }
             $data['books'][] = [
