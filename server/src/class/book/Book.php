@@ -330,6 +330,7 @@ class Book extends AbstractModel
         $userModel = new User();
         $sharer = $userModel->getSharerInfo($sharer_openid, $groupId);
 
+        $group = $this->capsule->table('group')->find($groupId);
 
         $res['data'] = [
             'sharer' => $sharer,
@@ -340,6 +341,7 @@ class Book extends AbstractModel
             'isAdd' => $isAdd,
             'canEdit' => $canEdit,
             'position_type' => $position_type,
+            'can_member_share' => $group['can_member_share'],
             'bookmark' => $bookmark,
         ];
 
