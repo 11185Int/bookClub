@@ -286,11 +286,13 @@ class Book extends AbstractModel
         $share_sum = count($book_shares);
         $sharer_openid_arr = [];
         $lend_sum = 0;
+        $sharer_openid = '';
         foreach ($book_shares as $book_share) {
             if ($book_share['lend_status'] == 2) { //在架,未借出
                 $lend_sum ++;
             }
             $sharer_openid_arr[] = $book_share['owner_openid'];
+            $sharer_openid = $book_share['owner_openid'];
         }
 
         //是否能编辑(管理员)
@@ -325,9 +327,8 @@ class Book extends AbstractModel
         $bmModel = new BookMark();
         $bookmark = $bmModel->getBookmark($book['id'], $openid);
 
-        $admin = $this->capsule->table('user_group')->where('group_id', $groupId)->where('is_admin', 1)->first();
         $userModel = new User();
-        $sharer = $userModel->getSharerInfo($admin['openid'], $groupId);
+        $sharer = $userModel->getSharerInfo($sharer_openid, $groupId);
 
 
         $res['data'] = [
