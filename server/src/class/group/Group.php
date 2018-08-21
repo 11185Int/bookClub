@@ -411,7 +411,7 @@ class Group extends AbstractModel
         return $res;
     }
 
-    public function edit($groupId, $openid, $name, $image, $summary, $realname, $config)
+    public function edit($groupId, $openid, $name, $image, $summary, $canMemberShare, $realname, $config)
     {
         $exist = $this->capsule->table('user_group')
             ->where('group_id', $groupId)
@@ -446,6 +446,9 @@ class Group extends AbstractModel
         }
         if ($summary && $exist['is_admin']) {
             $this->capsule->table('group')->where('id', $groupId)->update(['summary' => $summary]);
+        }
+        if ($canMemberShare !== null && $canMemberShare !== '' && $exist['is_admin']) {
+            $this->capsule->table('group')->where('id', $groupId)->update(['can_member_share' => $canMemberShare]);
         }
         if ($image && $exist['is_admin']) {
             if (!in_array($image->getClientMediaType(),

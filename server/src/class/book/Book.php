@@ -267,6 +267,7 @@ class Book extends AbstractModel
         $shouldReturn = 0;
         $canBorrow = 0;
         $canEdit = 0;
+        $position_type = 1;//1组员 2分享者 3管理者(包含发布者)
 
         $book_shares = $this->capsule->table('book_share')->where('book_id', $book['id'])
             ->where('group_id', $groupId)->where('share_status', 1)->get(); //查看分享的所有book_share
@@ -283,16 +284,24 @@ class Book extends AbstractModel
         }
 
         $share_sum = count($book_shares);
+        $sharer_openid_arr = [];
         $lend_sum = 0;
         foreach ($book_shares as $book_share) {
             if ($book_share['lend_status'] == 2) { //在架,未借出
                 $lend_sum ++;
             }
+            $sharer_openid_arr[] = $book_share['owner_openid'];
         }
 
-        //是否能编辑
+        //是否能编辑(管理员)
         if ($share_sum > 0 && $user_group['is_admin'] == 1) {
             $canEdit = 1;
+            $position_type = 3;
+        }
+        //是否能编辑(分享者)
+        else if ($share_sum > 0 && in_array($openid, $sharer_openid_arr)) {
+            $canEdit = 1;
+            $position_type = 2;
         }
 
         //是否能借
@@ -320,6 +329,7 @@ class Book extends AbstractModel
         $userModel = new User();
         $sharer = $userModel->getSharerInfo($admin['openid'], $groupId);
 
+
         $res['data'] = [
             'sharer' => $sharer,
             'shouldReturn' => $shouldReturn,
@@ -328,6 +338,7 @@ class Book extends AbstractModel
             'canBorrow' => $canBorrow,
             'isAdd' => $isAdd,
             'canEdit' => $canEdit,
+            'position_type' => $position_type,
             'bookmark' => $bookmark,
         ];
 

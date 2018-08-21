@@ -138,10 +138,11 @@ $app->post('/home/group/edit', function (\Slim\Http\Request $request, \Slim\Http
     $image = isset($uploadFiles['image']) ? $uploadFiles['image'] : null;
     $config = $this->get('settings')['config'];
     $summary = $request->getParam('summary', '');
+    $canMemberShare = $request->getParam('can_member_share', null);
     $realname = $request->getParam('realname', '');
 
     $group = new Group();
-    $res = $group->edit($groupId, $openid, $name, $image, $summary, $realname, $config);
+    $res = $group->edit($groupId, $openid, $name, $image, $summary, $canMemberShare, $realname, $config);
 
     return $response->withJson($res);
 });

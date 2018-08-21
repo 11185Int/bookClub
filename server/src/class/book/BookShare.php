@@ -98,7 +98,8 @@ class BookShare extends AbstractModel
                     'message' => '还未加入此小组',
                 ];
             }
-            if ($user_group['is_admin'] == 0) {
+            $group = $this->capsule->table('group')->where('id', $groupId)->first();
+            if ($group['can_member_share'] == 0 && $user_group['is_admin'] == 0) {
                 return [
                     'status' => 99999,
                     'message' => '无权限操作',
@@ -149,13 +150,18 @@ class BookShare extends AbstractModel
                     'message' => '还未加入此小组',
                 ];
             }
-            if ($user_group['is_admin'] == 0) {
+            $bookShares = $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', $groupId)->get();
+            $sharer_openid_arr = [];
+            foreach ($bookShares as $bookShare) {
+                $sharer_openid_arr[] = $bookShare['owner_openid'];
+            }
+            if (!in_array($openid, $sharer_openid_arr) && $user_group['is_admin'] == 0) {
                 return [
                     'status' => 99999,
                     'message' => '无权限操作',
                 ];
             }
-            $bookShares = $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', $groupId)->get();
+
         } else { //个人的
             $bookShares = $this->capsule->table('book_share')->where('book_id', $book_id)->where('group_id', 0)
                 ->where('owner_openid', $openid)->get();
