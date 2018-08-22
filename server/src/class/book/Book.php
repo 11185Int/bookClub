@@ -722,8 +722,7 @@ class Book extends AbstractModel
                 'message' => $message,
             ];
         }
-        if (!$image || !in_array($image->getClientMediaType(),
-                ['image/png','image/jpeg','image/jpg','image/gif','image/bmp','image/tiff','image/svg+xml'])) {
+        if (!$image || false === strpos($image->getClientMediaType(), 'image')) {
             return [
                 'status' => 99999,
                 'message' => '图片不存在或格式错误',

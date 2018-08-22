@@ -24,8 +24,7 @@ class Group extends AbstractModel
         }
         $imageUrl = '';
         if ($image) {
-            if (!in_array($image->getClientMediaType(),
-                    ['image/png','image/jpeg','image/jpg','image/gif','image/bmp','image/tiff','image/svg+xml'])) {
+            if (false === strpos($image->getClientMediaType(), 'image')) {
                 return [
                     'status' => 99999,
                     'message' => '图片格式错误',
@@ -452,8 +451,7 @@ class Group extends AbstractModel
             $this->capsule->table('group')->where('id', $groupId)->update(['can_member_share' => $canMemberShare]);
         }
         if ($image && $exist['is_admin']) {
-            if (!in_array($image->getClientMediaType(),
-                ['image/png','image/jpeg','image/jpg','image/gif','image/bmp','image/tiff','image/svg+xml'])) {
+            if (false === strpos($image->getClientMediaType(), 'image')) {
                 return [
                     'status' => 99999,
                     'message' => '图片格式错误',
