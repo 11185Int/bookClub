@@ -943,8 +943,8 @@ class Book extends AbstractModel
         }
 
         $data = [
-            'user_id' => '',
-            'group_id' => [],
+            'user' => [],
+            'group' => [],
         ];
 
         $book = $this->findBook($isbn);
@@ -963,7 +963,7 @@ class Book extends AbstractModel
             ->where('book_id', $book_id)->where('share_status', 1)->first();
         if (!empty($self)) {
             $user = $this->capsule->table('user')->where('openid', $openid)->first();
-            $data['user_id'] = $openKey->getOpenKey($user['id'], OpenKey::TYPE_USER_ID);
+            $data['user']['user_id'] = $openKey->getOpenKey($user['id'], OpenKey::TYPE_USER_ID);
         }
         $prefix = $this->capsule->getConnection()->getTablePrefix();
         $groups = $this->capsule->table('group AS g')
@@ -980,7 +980,7 @@ class Book extends AbstractModel
         if (!empty($groups)) {
             foreach ($groups as $group) {
                 $group['id'] = $openKey->getOpenKey($group['id'], OpenKey::TYPE_GROUP_ID);
-                $data['group_id'][] = $group;
+                $data['group'][] = $group;
             }
         }
 
