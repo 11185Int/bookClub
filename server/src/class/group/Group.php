@@ -363,13 +363,20 @@ class Group extends AbstractModel
         $group_id_list = array_column($data, 'group_id');
         $openKey = new OpenKey();
         $openKey->prepareOpenKeyCache($group_id_list, OpenKey::TYPE_GROUP_ID);
+        $group_cnt = count($data);
+        $group_admin = 0;
         foreach ($data as $key => $item) {
             $data[$key]['group_id'] = $openKey->getOpenKey($item['group_id'], OpenKey::TYPE_GROUP_ID);
+            if ($item['is_admin'] == 1) {
+                $group_admin += 1;
+            }
         }
         $res = array(
             'status' => 0,
             'message' => 'success',
             'data' => $data,
+            'group_cnt' => $group_cnt,
+            'group_admin' => $group_admin,
         );
         return $res;
     }
