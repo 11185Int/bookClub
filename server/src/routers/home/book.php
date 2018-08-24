@@ -39,6 +39,20 @@ $app->get('/home/book/isbn', function (\Slim\Http\Request $request, \Slim\Http\R
     return $response->withJson($res);
 });
 
+// 扫码 获取图书基本信息
+$app->get('/home/book/where', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $isbn = $request->getParam('isbn');
+    $key = $request->getParam('key');
+    $openid = $account->getOpenIdByKey($key);
+    $model = new Book();
+    $res = $model->getBookWhere($isbn, $openid);
+
+    return $response->withJson($res);
+});
+
+
 // 获取图书状态 1、能否借  2、能否归还 3、是否已添加 4、是否已共享 5、标记+书签
 $app->get('/home/book/status', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
 

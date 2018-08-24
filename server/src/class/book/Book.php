@@ -11,6 +11,7 @@ namespace CP\book;
 use CP\api\Douban;
 use CP\common\AbstractModel;
 use CP\common\Isbn;
+use CP\common\OpenKey;
 use CP\user\User;
 use Slim\Http\UploadedFile;
 
@@ -929,6 +930,64 @@ class Book extends AbstractModel
                 'pagesize' => intval($pagesize),
                 'totalpage' => ceil($list['total'] / $pagesize),
             ]
+        ];
+    }
+
+    public function getBookWhere($isbn, $openid)
+    {
+        if (strlen($isbn) < 8) {
+            return [
+                'status' => 6000,
+                'message' => 'isbn码错误',
+            ];
+        }
+
+        $data = [
+            'user_id' => '',
+            'group_id' => [],
+        ];
+
+        $book = $this->findBook($isbn);
+
+        if (empty($book)) {
+            return [
+                'status' => 0,
+                'message' => '成功',
+                'data' => $data,
+            ];
+        }
+        $openKey = new OpenKey();
+
+        $book_id = $book['id'];
+        $self = $this->capsule->table('book_share')->where('group_id', 0)->where('owner_openid', $openid)
+            ->where('book_id', $book_id)->where('share_status', 1)->first();
+        if (!empty($self)) {
+            $user = $this->capsule->table('user')->where('openid', $openid)->first();
+            $data['user_id'] = $openKey->getOpenKey($user['id'], OpenKey::TYPE_USER_ID);
+        }
+        $prefix = $this->capsule->getConnection()->getTablePrefix();
+        $groups = $this->capsule->table('group AS g')
+            ->select('g.id', 'g.group_name', 'g.headimgurl', 'ug.is_admin')
+            ->selectRaw('count('.$prefix.'bs.id) AS share_sum')
+            ->leftJoin('user_group AS ug', 'ug.group_id', '=', 'g.id')
+            ->leftJoin('book_share AS bs', 'bs.group_id', '=', 'g.id')
+            ->where('ug.openid', $openid)
+            ->where('bs.share_status', 1)
+            ->where('bs.book_id', $book_id)
+            ->groupBy('g.id')
+            ->having('share_sum', '>', 0)
+            ->get();
+        if (!empty($groups)) {
+            foreach ($groups as $group) {
+                $group['id'] = $openKey->getOpenKey($group['id'], OpenKey::TYPE_GROUP_ID);
+                $data['group_id'][] = $group;
+            }
+        }
+
+        return [
+            'status' => 0,
+            'message' => '成功',
+            'data' => $data,
         ];
     }
 
