@@ -945,6 +945,7 @@ class Book extends AbstractModel
         $data = [
             'user' => [],
             'group' => [],
+            'book' => [],
         ];
 
         $book = $this->findBook($isbn);
@@ -961,7 +962,10 @@ class Book extends AbstractModel
         $book_id = $book['id'];
         $self = $this->capsule->table('book_share')->where('group_id', 0)->where('owner_openid', $openid)
             ->where('book_id', $book_id)->where('share_status', 1)->first();
-        if (!empty($self)) {
+        $borrow = $this->capsule->table('book_share AS bs')->leftJoin('book_borrow AS bb', 'bb.book_share_id', '=', 'bs.id')
+            ->where('bb.borrower_openid', $openid)->where('bb.return_status', 0)
+            ->where('bs.book_id', $book_id)->select('bs.id')->first();
+        if (!empty($self) || !empty($borrow)) {
             $user = $this->capsule->table('user')->where('openid', $openid)->first();
             $data['user']['user_id'] = $openKey->getOpenKey($user['id'], OpenKey::TYPE_USER_ID);
         }
@@ -983,6 +987,13 @@ class Book extends AbstractModel
                 $data['group'][] = $group;
             }
         }
+        $data['book'] = [
+            'isbn10' => $book['isbn10'],
+            'isbn13' => $book['isbn13'],
+            'title' => $book['title'],
+            'image' => $book['image'],
+            'hd_image' => $book['hd_image'],
+        ];
 
         return [
             'status' => 0,
