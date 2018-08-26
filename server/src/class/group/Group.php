@@ -355,10 +355,16 @@ class Group extends AbstractModel
     {
         $data = $this->capsule->table('user_group')
             ->leftJoin('group', 'group.id', '=', 'user_group.group_id')
+            ->leftJoin('book_share AS bs', function ($join) {
+                $join->on('bs.group_id', '=', 'group.id');
+                $join->where('bs.share_status', '=', 1);
+            })
             ->select('group.id AS group_id','group.group_name','group.headimgurl','user_group.is_current',
-                'user_group.is_admin','group.can_member_share')
+                'user_group.is_admin','group.can_member_share', 'group.group_amount')
+            ->selectRaw('count(distinct '.$this->capsule->getConnection()->getTablePrefix().'bs.id) AS book_share_sum')
             ->where('user_group.openid', $openid)
             ->orderBy('user_group.id', 'asc')
+            ->groupBy('user_group.group_id')
             ->get();
         $group_id_list = array_column($data, 'group_id');
         $openKey = new OpenKey();
