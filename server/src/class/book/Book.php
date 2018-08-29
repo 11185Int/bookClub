@@ -921,6 +921,7 @@ class Book extends AbstractModel
         }
         $api = new Douban();
         $list = $api->searchBook($q, $page, $pagesize);
+        $this->batchSaveBook(isset($list['books']) ? $list['books'] : []);
         return [
             'status' => 0,
             'message' => '成功',
@@ -1054,6 +1055,35 @@ class Book extends AbstractModel
             $this->capsule->table('book')->insert($kv);
         }
          return true;
+    }
+
+    protected function batchSaveBook($books)
+    {
+        if (empty($books)) {
+            return false;
+        }
+        $isbns = [];
+        foreach ($books as $book) {
+            $isbns[] = $book['isbn10'] ?: '';
+            $isbns[] = $book['isbn13'] ?: '';
+        }
+        $exists = $this->capsule->table('book')
+            ->whereIn('isbn10', $isbns)
+            ->orWhereIn('isbn13', $isbns)
+            ->select('isbn10', 'isbn13')
+            ->get();
+        $existIsbns = [];
+        foreach ($exists as $exist) {
+            $existIsbns[] = $exist['isbn10'] ?: '';
+            $existIsbns[] = $exist['isbn13'] ?: '';
+        }
+        foreach ($books as $book) {
+            if (in_array($book['isbn10'], $existIsbns) || in_array($book['isbn13'], $existIsbns)) {
+                continue;
+            }
+            $this->saveBook($book);
+        }
+        return true;
     }
 
     protected function filterSearchBooks($books)
