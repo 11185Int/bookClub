@@ -16,9 +16,10 @@ class BookList extends AbstractModel
         );
         $prefix = $this->capsule->getConnection()->getTablePrefix();
         $myBuilder = $this->capsule->table('book_list AS l')
-            ->select('l.id','l.name','l.description','l.can_subscribe','l.book_amount','l.subscribe_amount','l.update_time')
+            ->select('l.id','l.name','l.description','l.can_subscribe','l.list_type','l.book_amount','l.subscribe_amount','l.update_time')
             ->where('l.creator_openid', $openid)
-            ->where('l.enable', 1);
+            ->where('l.enable', 1)
+            ->orderByRaw($prefix.'l.list_type = \'favourite\' desc, '.$prefix.'l.id desc');
         $myList = $myBuilder->get();
 
         $bookBuilder = $this->capsule->table('book AS b')
@@ -65,9 +66,9 @@ class BookList extends AbstractModel
             'message' => 'success',
         );
         $book_list = $this->capsule->table('book_list')->where('creator_openid', $openid)
-            ->select('id', 'name')
+            ->select('id','name','list_type')
             ->selectRaw('0 AS in_list')
-            ->orderBy('id', 'desc')
+            ->orderByRaw('list_type = \'favourite\' desc, id desc')
             ->get();
         if ($isbn) {
             $bookModel = new Book();
