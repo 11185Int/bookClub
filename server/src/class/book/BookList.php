@@ -91,6 +91,34 @@ class BookList extends AbstractModel
                 }
             }
         }
+        $prefix = $this->capsule->getConnection()->getTablePrefix();
+        $bookBuilder = $this->capsule->table('book AS b')
+            ->leftJoin('book_list_rel AS rel', 'rel.book_id', '=', 'b.id')
+            ->leftJoin('book_list AS l', 'l.id', '=', 'rel.book_list_id')
+            ->select('b.title', 'b.image', 'rel.book_list_id')
+            ->whereRaw('1 > (select count(*) from '.$prefix.'book
+                    left join '.$prefix.'book_list_rel on '.$prefix.'book_list_rel.book_id = '.$prefix.'book.id
+                    left join '.$prefix.'book_list on '.$prefix.'book_list.id = '.$prefix.'book_list_rel.book_list_id
+                    where '.$prefix.'book_list.id = '.$prefix.'l.id
+                    and '.$prefix.'book.id > '.$prefix.'b.id )')
+            ->where('l.creator_openid', $openid)
+            ->where('l.enable', 1)
+            ->groupBy(['l.id', 'b.id']);
+        $books = $bookBuilder->get();
+
+        $firstBookInList = [];
+        foreach ($books as $book) {
+            $firstBookInList[$book['book_list_id']] = $book;
+        }
+        foreach ($book_list as $key => $item) {
+            $book_list[$key]['update_time'] = date('Y年m月d日', $item['update_time']);
+            if (isset($firstBookInList[$item['id']])) {
+                $book_list[$key]['first_book'] = $firstBookInList[$item['id']];
+            } else {
+                $book_list[$key]['first_book'] = null;
+            }
+        }
+
         $res['data'] = [
             'my_list' => $book_list,
         ];
