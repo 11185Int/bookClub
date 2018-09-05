@@ -127,13 +127,27 @@ class BookList extends AbstractModel
             'creator_openid' => $openid,
             'creator_userid' => $this->getUserIdByOpenid($openid),
             'can_subscribe' => $can_subscribe,
+            'type' => 'normal',
+            'is_public' => 1,
             'book_amount' => 0,
             'subscribe_amount' => 0,
             'create_time' => $time,
             'update_time' => $time,
             'enable' => 1,
         ];
-        $this->capsule->table('book_list')->insert($data);
+        $id = $this->capsule->table('book_list')->insertGetId($data);
+
+        $res['data'] = [
+            'id' => $id,
+            'name' => $name,
+            'description' => $description,
+            'can_subscribe' => $can_subscribe,
+            'book_amount' => 0,
+            'subscribe_amount' => 0,
+            'create_time' => $time,
+            'update_time' => $time,
+            'enable' => 1,
+        ];
         return $res;
     }
 
