@@ -111,7 +111,6 @@ class BookList extends AbstractModel
             $firstBookInList[$book['book_list_id']] = $book;
         }
         foreach ($book_list as $key => $item) {
-            $book_list[$key]['update_time'] = date('Y年m月d日', $item['update_time']);
             if (isset($firstBookInList[$item['id']])) {
                 $book_list[$key]['first_book'] = $firstBookInList[$item['id']];
             } else {
