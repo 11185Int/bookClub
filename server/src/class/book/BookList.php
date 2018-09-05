@@ -127,7 +127,7 @@ class BookList extends AbstractModel
             'creator_openid' => $openid,
             'creator_userid' => $this->getUserIdByOpenid($openid),
             'can_subscribe' => $can_subscribe,
-            'type' => 'normal',
+            'list_type' => 'normal',
             'is_public' => 1,
             'book_amount' => 0,
             'subscribe_amount' => 0,
