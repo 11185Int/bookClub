@@ -2,6 +2,7 @@
 
 namespace CP\common;
 
+use CP\book\BookList;
 use CP\book\Visit;
 
 class Account extends AbstractModel
@@ -48,6 +49,9 @@ class Account extends AbstractModel
             'headimgurl' => isset($params['headimgurl']) ? $params['headimgurl'] : '',
         ];
         $this->_accountKey->updateUserInfo($openid, $data);
+
+        $bookListModel = new BookList();
+        $bookListModel->createFavouriteList($openid);
 
         $user = $this->capsule->table('user')->where('openid', $openid)->first();
         $res['data']['realname'] = empty($user['realname']) ? '' : $user['realname'];

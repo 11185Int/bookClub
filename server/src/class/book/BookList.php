@@ -373,4 +373,29 @@ class BookList extends AbstractModel
         return $res;
     }
 
+    public function createFavouriteList($openid)
+    {
+        $exist = $this->capsule->table('book_list')->where('list_type', 'favourite')
+            ->where('creator_openid', $openid)->first();
+        if ($exist) {
+            return;
+        }
+        $time = time();
+        $data = [
+            'name' => '我喜欢的书',
+            'description' => '我喜欢的书',
+            'creator_openid' => $openid,
+            'creator_userid' => $this->getUserIdByOpenid($openid),
+            'can_subscribe' => 0,
+            'list_type' => 'favourite',
+            'is_public' => 0,
+            'book_amount' => 0,
+            'subscribe_amount' => 0,
+            'create_time' => $time,
+            'update_time' => $time,
+            'enable' => 1,
+        ];
+        $this->capsule->table('book_list')->insert($data);
+    }
+
 }
