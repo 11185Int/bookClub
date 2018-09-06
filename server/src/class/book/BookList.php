@@ -288,8 +288,11 @@ class BookList extends AbstractModel
                 'can_subscribe' => $detail['can_subscribe'],
                 'book_amount' => $detail['book_amount'],
                 'subscribe_amount' => $detail['subscribe_amount'],
+                'list_type' => $detail['list_type'],
+                'update_time' => date('Y年m月d日', $detail['update_time']),
             ],
             'is_subscribe' => 0,
+            'is_creator' => $detail['creator_openid'] == $openid? 1: 0,
             'creator' => $creator,
         ];
         $res['data'] = $data;
