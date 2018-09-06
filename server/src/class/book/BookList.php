@@ -66,6 +66,7 @@ class BookList extends AbstractModel
             'message' => 'success',
         );
         $book_list = $this->capsule->table('book_list')->where('creator_openid', $openid)
+            ->where('enable', 1)
             ->select('id','name','list_type')
             ->selectRaw('0 AS in_list')
             ->orderByRaw('list_type = \'favourite\' desc, id desc')
