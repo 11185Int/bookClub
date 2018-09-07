@@ -331,6 +331,7 @@ class BookList extends AbstractModel
             $data = [
                 'book_list_id' => $id,
                 'book_id' => $book['id'],
+                'create_time' => date('Y-m-d H:i:s', time()),
             ];
             $rsl = $this->capsule->table('book_list_rel')->insert($data);
             if ($rsl) {
