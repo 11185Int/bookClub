@@ -142,7 +142,7 @@ class BookList extends AbstractModel
             ];
         }
 
-        if (mb_strlen($description,'utf8') > 10) {
+        if (mb_strlen($description,'utf8') > 100) {
             return [
                 'status' => 99999,
                 'message' => '简介不超过100个汉字',
@@ -209,7 +209,7 @@ class BookList extends AbstractModel
                 'message' => '名字不超过10个汉字',
             ];
         }
-        if ($description && mb_strlen($description,'utf8') > 10) {
+        if ($description && mb_strlen($description,'utf8') > 100) {
             return [
                 'status' => 99999,
                 'message' => '简介不超过100个汉字',
