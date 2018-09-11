@@ -142,10 +142,10 @@ class BookList extends AbstractModel
             ];
         }
 
-        if (mb_strlen($description,'utf8') > 100) {
+        if (mb_strlen($description,'utf8') > 500) {
             return [
                 'status' => 99999,
-                'message' => '简介不超过100个汉字',
+                'message' => '简介不超过500个汉字',
             ];
         }
         $can_subscribe = intval($can_subscribe) ? 1: 0;
@@ -209,10 +209,10 @@ class BookList extends AbstractModel
                 'message' => '名字不超过10个汉字',
             ];
         }
-        if ($description && mb_strlen($description,'utf8') > 100) {
+        if ($description && mb_strlen($description,'utf8') > 500) {
             return [
                 'status' => 99999,
-                'message' => '简介不超过100个汉字',
+                'message' => '简介不超过500个汉字',
             ];
         }
 
