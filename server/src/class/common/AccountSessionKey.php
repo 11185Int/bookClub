@@ -126,7 +126,7 @@ class AccountSessionKey extends AbstractModel
 
     protected function _createKey($openid, $session_key)
     {
-        $arr = array($openid, $session_key, time());
+        $arr = array($openid, $session_key, time(), rand(10000,99999));
         return md5(implode($arr));
     }
 
