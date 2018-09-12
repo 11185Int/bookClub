@@ -220,6 +220,7 @@ class Account extends AbstractModel
         arsort($allTags);
         $data['tags'] = array_slice(array_keys($allTags), 0, $tags_cnt);
         $data['title'] = $groupId? $this->getGroupTitleByNum($data['book_cnt']): $this->getTitleByNum($data['book_cnt']);
+        $data['titleSrcUrl'] = $this->getTitleSrcUrl($data['title']);
         $data['books'] = array_slice($data['books'], 0, $books_cnt);
         $res['data'] = $data;
         return $res;
@@ -296,7 +297,7 @@ class Account extends AbstractModel
         $data['taste_percent'] = $data['avg_rating'] > 2 && $data['book_cnt'] > 0 ?
             round($allRating/$data['book_cnt'] * 12.38 - 23.75) : 0;
         $data['title'] = $groupId? $this->getGroupTitleByNum($data['book_cnt']): $this->getTitleByNum($data['book_cnt']);
-
+        $data['titleSrcUrl'] = $this->getTitleSrcUrl($data['title']);
         //记录
         $visit = new Visit();
         if ($groupId) {
@@ -395,6 +396,14 @@ class Account extends AbstractModel
             }
         }
         return isset($titleArr[$class_pos]) ? $titleArr[$class_pos] : '未知';
+    }
+
+    protected function getTitleSrcUrl($title)
+    {
+        if (!$title) {
+            return '';
+        }
+        return "https://weiapp.doyoteam.com/bookclubv3/public/resources/poster/title/{$title}.png";
     }
 
 }
