@@ -135,10 +135,10 @@ class BookList extends AbstractModel
         $description = isset($params['description']) ? $params['description'] : null;
         $can_subscribe = isset($params['can_subscribe']) ? $params['can_subscribe'] : null;
 
-        if (!$name || mb_strlen($name,'utf8') > 10) {
+        if (!$name || mb_strlen($name,'utf8') > 30) {
             return [
                 'status' => 99999,
-                'message' => '名字不超过10个汉字',
+                'message' => '名字不超过30个汉字',
             ];
         }
 
@@ -203,10 +203,10 @@ class BookList extends AbstractModel
         $description = isset($params['description']) ? $params['description'] : null;
         $can_subscribe = isset($params['can_subscribe']) ? $params['can_subscribe'] : null;
 
-        if ($name && mb_strlen($name,'utf8') > 10) {
+        if ($name && mb_strlen($name,'utf8') > 30) {
             return [
                 'status' => 99999,
-                'message' => '名字不超过10个汉字',
+                'message' => '名字不超过30个汉字',
             ];
         }
         if ($description && mb_strlen($description,'utf8') > 500) {
