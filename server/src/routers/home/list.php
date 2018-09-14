@@ -123,4 +123,29 @@ $app->get('/home/list/my', function (\Slim\Http\Request $request, \Slim\Http\Res
     return $response->withJson($res);
 });
 
+$app->post('/home/list/subscribe', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $key = $request->getParam('key');
+    $openid = $account->getOpenIdByKey($key);
+    $booklist_id = $request->getParam('booklist_id', '');
+
+    $model = new \CP\book\BookList();
+    $res = $model->subscribe($openid, $booklist_id);
+
+    return $response->withJson($res);
+});
+
+$app->post('/home/list/unSubscribe', function (\Slim\Http\Request $request, \Slim\Http\Response $response, $args) {
+
+    $account = new AccountSessionKey();
+    $key = $request->getParam('key');
+    $openid = $account->getOpenIdByKey($key);
+    $booklist_id = $request->getParam('booklist_id', '');
+
+    $model = new \CP\book\BookList();
+    $res = $model->unsubscribe($openid, $booklist_id);
+
+    return $response->withJson($res);
+});
 

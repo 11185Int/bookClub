@@ -22,6 +22,17 @@ class BookList extends AbstractModel
             ->orderByRaw($prefix.'l.list_type = \'favourite\' desc, '.$prefix.'l.id desc');
         $myList = $myBuilder->get();
 
+        $subBuilder = $this->capsule->table('book_list AS l')
+            ->leftJoin('book_list_subscribe AS sub', 'sub.booklist_id', '=', 'l.id')
+            ->select('l.id','l.name','l.description','l.can_subscribe','l.list_type','l.book_amount','l.subscribe_amount','l.update_time')
+            ->where('sub.openid', $openid)
+            ->where('l.can_subscribe', 1)
+            ->where('l.enable', 1)
+            ->orderBy('sub.id', 'desc');
+        $subList = $subBuilder->get();
+
+        $listIds = array_merge(array_column($myList, 'id'), array_column($subList, 'id'));
+
         $bookBuilder = $this->capsule->table('book AS b')
             ->leftJoin('book_list_rel AS rel', 'rel.book_id', '=', 'b.id')
             ->leftJoin('book_list AS l', 'l.id', '=', 'rel.book_list_id')
@@ -31,8 +42,7 @@ class BookList extends AbstractModel
                     left join '.$prefix.'book_list on '.$prefix.'book_list.id = '.$prefix.'book_list_rel.book_list_id
                     where '.$prefix.'book_list.id = '.$prefix.'l.id
                     and '.$prefix.'book.id > '.$prefix.'b.id )')
-            ->where('l.creator_openid', $openid)
-            ->where('l.enable', 1)
+            ->whereIn('l.id', $listIds)
             ->groupBy(['l.id', 'b.id']);
         $books = $bookBuilder->get();
 
@@ -48,12 +58,20 @@ class BookList extends AbstractModel
                 $myList[$key]['books'] = [];
             }
         }
+        foreach ($subList as $key => $item) {
+            $subList[$key]['update_time'] = date('Y年m月d日', $item['update_time']);
+            if (isset($booksInList[$item['id']])) {
+                $subList[$key]['books'] = $booksInList[$item['id']];
+            } else {
+                $subList[$key]['books'] = [];
+            }
+        }
 
         $data = [
             'my_cnt' => count($myList),
-            'subscribe_cnt' => 0,
+            'subscribe_cnt' => count($subList),
             'my_list' => $myList,
-            'subscribe_list' => [],
+            'subscribe_list' => $subList,
         ];
         $res['data'] = $data;
         return $res;
@@ -429,6 +447,75 @@ class BookList extends AbstractModel
             'enable' => 1,
         ];
         $this->capsule->table('book_list')->insert($data);
+    }
+
+    public function subscribe($openid, $booklist_id)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => 'success',
+        );
+        $booklist = $this->capsule->table('book_list')->where('id', $booklist_id)->first();
+        if (!$booklist) {
+            return [
+                'status' => 99999,
+                'message' => '书单不存在',
+            ];
+        }
+        if ($openid == $booklist['creator_openid'] || 0 == $booklist['can_subscribe']) {
+            return [
+                'status' => 99999,
+                'message' => '无法关注此书单',
+            ];
+        }
+        $subscribe = $this->capsule->table('book_list_subscribe')->where('booklist_id', $booklist_id)
+            ->where('openid', $openid)->first();
+        if ($subscribe) {
+            return [
+                'status' => 99999,
+                'message' => '已关注此书单',
+            ];
+        }
+        $data = [
+            'booklist_id' => $booklist_id,
+            'user_id' => $this->getUserIdByOpenid($openid),
+            'openid' => $openid,
+            'subscribe_time' => time(),
+        ];
+        $rsl = $this->capsule->table('book_list_subscribe')->insert($data);
+        if ($rsl) {
+            $this->capsule->table('book_list')->where('id', $booklist_id)->increment('subscribe_amount');
+        }
+        return $res;
+    }
+
+    public function unSubscribe($openid, $booklist_id)
+    {
+        $res = array(
+            'status' => 0,
+            'message' => 'success',
+        );
+        $booklist = $this->capsule->table('book_list')->where('id', $booklist_id)->first();
+        if (!$booklist) {
+            return [
+                'status' => 99999,
+                'message' => '书单不存在',
+            ];
+        }
+        $subscribe = $this->capsule->table('book_list_subscribe')->where('booklist_id', $booklist_id)
+            ->where('openid', $openid)->first();
+        if (!$subscribe) {
+            return [
+                'status' => 99999,
+                'message' => '还未关注此书单',
+            ];
+        }
+        $rsl = $this->capsule->table('book_list_subscribe')->where('booklist_id', $booklist_id)
+            ->where('openid', $openid)->delete();
+        if ($rsl) {
+            $this->capsule->table('book_list')->where('id', $booklist_id)->decrement('subscribe_amount');
+        }
+        return $res;
     }
 
 }
