@@ -296,6 +296,9 @@ class BookList extends AbstractModel
                 'message' => '书单不存在',
             ];
         }
+        $subscribe = $this->capsule->table('book_list_subscribe')->where('booklist_id', $id)->where('openid', $openid)->first();
+        $is_subscribe = $subscribe ? 1: 0;
+
         $userModel = new User();
         $creator = $userModel->getSharerInfo($detail['creator_openid']);
 
@@ -309,7 +312,7 @@ class BookList extends AbstractModel
                 'list_type' => $detail['list_type'],
                 'update_time' => date('Y年m月d日', $detail['update_time']),
             ],
-            'is_subscribe' => 0,
+            'is_subscribe' => $is_subscribe,
             'is_creator' => $detail['creator_openid'] == $openid? 1: 0,
             'creator' => $creator,
         ];
